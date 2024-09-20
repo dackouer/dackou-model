@@ -145,10 +145,14 @@
 
 		// 检验是否已存在
 		private static function checkExists($key,$val){
-			$model = self::$model;
-			$user = $model::where("`{$key}`",'=',$val)->limit(1)->first();
-			var_dump($user);
-			return $user && is_object($user) ? true : false;
+			try{
+				$model = self::$model;
+				$user = $model::where($key,'=',$val)->limit(1)->first();
+				// var_dump($user);
+				return $user && is_object($user) ? true : false;
+			}catch(\Exception $e){
+				return true;
+			}
 		}
 	}
 ?>
