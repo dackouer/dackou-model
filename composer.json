@@ -1,0 +1,27 @@
+{
+    "name": "dackou/model",
+    "description": "dackou model",
+    "type": "l",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Dackou\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "dackou"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "firebase/php-jwt": "^6.10.1@dev",
+        "illuminate/database": "^12.0@dev",
+        "illuminate/pagination": "^12.0@dev",
+        "illuminate/events": "^12.0@dev",
+        "symfony/var-dumper": "7.2.x-dev",
+        "laravel/serializable-closure": "^1.0@dev",
+        "workerman/workerman": "dev-master",
+        "hashids/hashids": "^5.0@dev"
+    }
+}
