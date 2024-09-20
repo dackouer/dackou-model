@@ -2,7 +2,7 @@
 	namespace Dackou;
 
 	class Generateion{
-		private static $model = '\\app\\model\\UserModel';
+		private static $model = '\\app\\model\\User\\UserModel';
 		/**
 		 * 生成uuid
 		 * @return [type] [description]
