@@ -1,8 +1,24 @@
 <?php
-	namespace Dackou;
+	namespace dackou;
 
 	class Generateion{
 		private static $model = '\\app\\model\\User\\UserModel';
+
+
+		public static function create($len = 8){
+			if(!class_exists(self::$model)){
+				self::$model = '\\dackou\\model\\User\\UserModel';
+			}
+
+			$uuid   = self::createUuid();
+			$uid    = self::createAccount($uuid,$len);
+			$token  = self::createToken($uuid);
+			$idcard = self::createIdcard();
+			$invite = self::createInviteCode();
+
+			return ['uuid'=>$uuid,'uid'=>$uid,'token'=>$token,'idcard'=>$idcard,'invite'=>$invite];
+		}
+
 		/**
 		 * 生成uuid
 		 * @return [type] [description]
@@ -78,6 +94,29 @@
 		}
 
 		/**
+		 * 生成身份证号
+		 * @return [type] [description]
+		 */
+		public static function createIdcard(){
+			$idcard = '';
+			$area = [11,12,13,14,15,21,22,23,31,32,33,34,35,36,37,41,42,43,44,45,46,50,51,52,53,54,61,62,63,64,65,71,81,82];
+			$year = [1970,2000];
+			$month = [1,12];
+			$day = [1,30];
+
+			$idcard .= $area[\mt_rand(0,count($area)-1)];
+			$idcard .= \str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+			$idcard .= \mt_rand($year[0],$year[1]);
+			$m = \mt_rand($month[0],$month[1]);
+			$d = \mt_rand($day[0],$day[1]);
+			$idcard .= $m > 9 ? $m : '0'.$m;
+			$idcard .= $d > 9 ? $d : '0'.$d;
+			$idcard .= \str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+			return $idcard;
+		}
+
+		/**
 		 * 生成邀请码
 		 * @param  integer $len       [description]
 		 * @param  integer $type      [description]
@@ -105,7 +144,7 @@
          * @param  integer $num [description]
          * @return [type]       [description]
          */
-        private static function createCode($len = 8,$type = 1,$is_supper = false){
+        public static function createCode($len = 8,$type = 1,$is_supper = false){
             switch($type){
                 case '':
                 case 1:
@@ -146,7 +185,11 @@
 		// 检验是否已存在
 		private static function checkExists($key,$val){
 			try{
-				$model = self::$model;
+				if(class_exists(self::$model)){
+					$model = self::$model;
+				}else{
+					$model = '\\dackou\\model\\User\\UserModel';
+				}
 				$user = $model::where($key,'=',$val)->limit(1)->first();
 				// var_dump($user);
 				return $user && is_object($user) ? true : false;

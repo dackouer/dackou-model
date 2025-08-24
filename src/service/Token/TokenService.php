@@ -1,12 +1,12 @@
 <?php
-	namespace dackou;
+	namespace dackou\service\Token;
 
 	use Webman\Http\Request;
 	use Illuminate\Database\Capsule\Manager as Db;
 	use Firebase\JWT\JWT;
 	use Firebase\JWT\Key;
 
-	class Token{
+	class TokenService{
 		private static $config = [];
 		private static $is_token = true;
 		private static $algorithms = 'HS256';
@@ -21,7 +21,6 @@
 		private static $key_name = 'AppKey';
 		private static $secret_name = 'AppSecret';
 		private static $user_controller = '\\app\\model\\User\\UserModel';
-		private static $group_id = 12;
 		private static $controller = [
 			['controller' => 'Index','action' => ['mqtt']],
 			['controller' => 'Token','action' => ['index']],
@@ -56,12 +55,6 @@
 				if(isset(self::$config['is_single'])){
 					self::$is_single = self::$config['is_single'] ? true : false;
 				}
-				if(isset(self::$config['user_controller']) && \class_exists(self::$config['user_controller'])){
-					self::$user_controller = self::$config['user_controller'];
-				}
-				if(isset(self::$config['group_id']) && is_numeric(self::$config['group_id'])){
-					self::$group_id = (int)self::$config['group_id'];
-				}
 			}
 			if(!class_exists(self::$user_controller)){
 				self::$user_controller = '\\dackou\\model\\User\\UserModel';
@@ -81,7 +74,6 @@
 				if(!$user || !is_object($user) || !property_exists($user,'uid')){
 					$user = self::getUserInfo($request);
 				}
-				// var_dump($user);
 				if(!$user || !is_object($user) || !property_exists($user,'uid')){
 					return 100007;
 				}
@@ -92,17 +84,6 @@
 					'rid' 		=> $user->role_id,
 					'expire' 	=> date('Y-m-d H:i:s',(time()+24*3600*365*10))
 				];
-				// var_dump($payload);
-				$token = JWT::encode($payload, self::$access_key, self::$algorithms);
-				return ['token' => $token,'expire_time' => $payload['expire']];
-			}catch(\Exception $e){
-				return self::getExceptionError($e);
-			}
-		}
-
-		public static function createToken($payload){
-			try{
-				self::setConfig();
 				$token = JWT::encode($payload, self::$access_key, self::$algorithms);
 				return ['token' => $token,'expire_time' => $payload['expire']];
 			}catch(\Exception $e){
@@ -144,6 +125,7 @@
 		 * @return [type]           [description]
 		 */
 		public static function checkToken(Request $request){
+			// var_dump('get new token: ',self::generateToken($request));
 			try{
 				self::setConfig();
 
@@ -163,7 +145,8 @@
 					return 100011;		// token不能为空
 				}
 				$res = self::decodeToken($authorization);
-				// var_dump('decode token data:',$res);
+				// var_dump('decode token data:');
+				// var_dump($res);
 				if(!$res || !is_object($res)){
 					return $res;
 				}
@@ -223,11 +206,6 @@
 					return $res;
 				}
 				// var_dump($res);
-				if($key == 'role_id'){
-					return $res->rid ?? false;
-				}elseif($key == 'group_id'){
-					return (int)($res->rid / 100);
-				}
 				return property_exists($res,$key) ? $res->$key : '';
 			}catch(\Exception $e){
 				return self::getExceptionError($e);
@@ -238,7 +216,7 @@
 		private static function getUserInfo(Request $request,$uid = 0){
 			if(self::$user_controller){
 				$_class = new self::$user_controller();
-				return $uid ? $_class->getList($request,$uid) : $_class->getList($request,'api',self::$group_id);
+				return $uid ? $_class->getList($request,$uid) : $_class->getList($request,'api');
 			}
 			
 			try{
@@ -287,15 +265,12 @@
 		}
 
 		private static function getExceptionError($e){
-			$msg = [
+			return [
 				'code'	=> $e->getCode() ? $e->getCode() : 1,
 				'file'	=> $e->getFile(),
 				'line'	=> $e->getLine(),
 				'msg'	=> $e->getMessage()
 			];
-			var_dump($msg);
-
-			return $msg;
 		}
 	}
 ?>
