@@ -8,7 +8,7 @@
 		protected $table = 'GoodsTags';
 		protected $title = '商品标签';
 
-		protected function getOptionList(Request $request,mixed $data = [],mixed $field = []): array
+		protected function getOptionList(Request $request,mixed $param = null,array $disabled = [],array $fields = [])
 		{
 			try{
 				$res = Db::table($this->table)
@@ -71,7 +71,7 @@
 
 			$action = [
 				['type'=>'input','label'=>'标签名称','prop'=>'tags_name','value'=>$id ? $data->tags_name : '','rules'=>['required'=>true,'message'=>'标签名称不能为空']],
-				['type'=>'upload','label'=>'图片','prop'=>'pic','value'=>$id ? $data->pic : '','uploadAttrs'=>[
+				['type'=>'upload','label'=>'图片','prop'=>'pic','value'=>$id ? $data->pic : '','attrs'=>[
 					'type'=>'img','size'=>'small','limit'=>1,'action'=>$this->host['api'].'upload'
 				]],
 				['type'=>'switch','label'=>'失效','prop'=>'is_valid','value'=>$id ? !$data->is_valid : 0],

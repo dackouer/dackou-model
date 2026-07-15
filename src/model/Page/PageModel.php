@@ -278,7 +278,7 @@
 		{
 			return [
 				['type'=>'id','label'=>'ID','prop'=>'id'],
-				['type'=>'varchar','label'=>'标题名称','prop'=>'title'],
+				['type'=>'varchar','label'=>'标题名称','prop'=>'title','align'=>'left'],
 				['type'=>'varchar','label'=>'页面地址','prop'=>'url'],
 				['type'=>'varchar','label'=>'参数名','prop'=>'param'],
 				['type'=>'varchar','label'=>'参数描述','prop'=>'desc'],

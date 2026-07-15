@@ -12,6 +12,10 @@
 				return 1065;
 			}
 
+			if(strpos($sql,';') !== false){
+				return $this->multiple($sql);
+			}
+
 			$temp = explode(" ",$sql);
 			$type = isset($temp[0]) ? strtolower($temp[0]) : '';
 			$skey = ['select','insert','update','alter','create','delete','desc','show','drop','truncate'];
@@ -56,6 +60,49 @@
 
 
 			return $result;
+		}
+
+		// 批量sql
+		private function multiple($sqls){
+			try{
+				$number = 0;
+				$excuds = [];
+				$sqls = explode(';',$sqls);
+				foreach($sqls as $sql){
+					$sql = trim($sql);
+					if($sql){
+						$temp = explode(" ",$sql);
+						$type = isset($temp[0]) ? strtolower($temp[0]) : '';
+						$skey = ['select','insert','update','alter','create','delete','desc','show','drop','truncate'];
+						if(empty($type) || !in_array($type,$skey)){
+							return 1065;
+						}
+						if(in_array($type,['select','create','desc','show'])){
+							$number++;
+						}
+						array_push($excuds, $sql);
+					}
+				}
+
+				if($number > 1){
+					return '混合sql执行失败，请拆分执行';
+				}
+
+				if(!$excuds){
+					return 1065;
+				}
+
+				$count = 0;
+				foreach($excuds as $sql){
+					if(Db::select($sql) !== false){
+						$count++;
+					}
+				}
+
+				return ['code' => 0,'msg' => "执行{$count}条sql语句成功",'data' => ''];
+			}catch(\Exception $e){
+				return $this->getExceptionError($e);
+			}
 		}
 
 		// 查询语句

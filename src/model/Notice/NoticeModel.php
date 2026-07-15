@@ -83,37 +83,5 @@
 
 			return $data;
 		}
-
-		protected function getActionList(Request $request,$id = 0): array
-		{
-			if($id){
-				$data = $this->getList($request,$id);
-			}
-
-			$cate = $this->getFieldOption($this->cate_value);
-
-			$_class_name = $this->getClassName('Role');
-			$service = new $_class_name();
-			$role = $service->getList($request,'option',[13,14,15]);
-
-			$action = [
-				['type'=>'radio-group','label'=>'类型','prop'=>'cate_id','value'=>$data->cate_id ?? 1,'children'=>$cate],
-				['type'=>'input','label'=>'标题','prop'=>'title','value'=>$data->title ?? '','rules'=>['required'=>true,'message'=>'标题不能为空']],
-				['type'=>'cascader','label'=>'推送用户','prop'=>'role_id','value'=>$data->role_id ?? [],'attrs'=>['placeholder'=>'选择推送用户','props'=>['multiple'=>true],'options'=>$role]],
-				['type'=>'input','label'=>'内容','prop'=>'content','value'=>$data->content ?? '','attrs'=>['type'=>'textarea','rows'=>3],'rules'=>['required'=>true,'message'=>'内容不能为空']],
-			];
-
-			return $action;
-		}
-
-		protected function getMapList(Request $request): array
-		{
-			return [
-				['type'=>'id','label'=>'ID','prop'=>'id'],
-				['type'=>'map','label'=>'类型','prop'=>'cate_id','data'=>$this->getFieldOption($this->cate_value)],
-				['type'=>'varchar','label'=>'标题','prop'=>'title'],
-				['type'=>'varchar','label'=>'创建时间','prop'=>'create_time'],
-			];
-		}
 	}
 ?>

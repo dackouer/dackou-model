@@ -12,9 +12,9 @@
 		protected static $tabname = 'record';
 		protected $cate_value = [
 			1 => '积分',
-			2 => '金币',
-			3 => '签到',
-			4 => '余额',
+			2 => '余额',
+			3 => '金币',
+			4 => '签到',
 			5 => '订单',
 			6 => '短信',
 			7 => '邮件',
@@ -34,6 +34,61 @@
 	    			self::$prex = $config['connections']['mysql']['prefix'];
 	    		}
 	    	}
+		}
+
+		// 直接新增数据
+		public function insertData(Request $request,array $arr = []): mixed
+		{
+			$cate_id = isset($arr['cate_id']) ? $arr['cate_id'] : $request->input('cate_id',0);
+			$user_id = isset($arr['user_id']) ? $arr['user_id'] : $request->input('user_id',0);
+			$username = isset($arr['username']) ? $arr['username'] : $request->input('username','');
+			$source_id = isset($arr['source_id']) ? $arr['source_id'] : $request->input('source_id',$this->getTokenData($request,'uid'));
+			$source_name = isset($arr['source_name']) ? $arr['source_name'] : $request->input('source_name','');
+			$value = isset($arr['value']) ? $arr['value'] : $request->input('value',0);
+			$day = isset($arr['day']) ? $arr['day'] : $request->input('day',0);
+			$content = isset($arr['content']) ? $arr['content'] : $request->input('content','');
+			$status = isset($arr['status']) ? $arr['status'] : $request->input('status',1);
+
+			if(!$cate_id || !$user_id){
+				var_dump('insert record: 无效的类别和用户');
+				return false;
+			}
+
+			if(!$username){
+				$_class_name = $this->getClassName('User');
+				$service = new $_class_name();
+				$user = $service->getList($request,$user_id);
+				if($user && is_object($user)){
+					$username = $user->realname;
+				}
+			}
+
+			if($source_id && !$source_name){
+				if(in_array($cate_id,[1,2])){
+					$_class_name = $this->getClassName('User');
+					$service = new $_class_name();
+					$user = $service->getList($request,$source_id);
+					if($user && is_object($user)){
+						$source_name = $user->realname;
+					}
+				}
+			}
+
+			if(!is_numeric($value)){
+				var_dump('insert record: 无效的记录值');
+				return false;
+			}
+
+			$time = time();
+			$ip = $request->getRealIp($safe_mode = true);
+
+			$sql = "INSERT INTO `".$this->tab."` (`CateID`,`UserID`,`Username`,`SourceID`,`SourceName`,`Value`,`Day`,`Content`,`Status`,`CreateTime`,`CreateIP`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+			$param = [$cate_id,$user_id,$username,$source_id,$source_name,$value,$day,$content,$status,$time,$ip];
+
+			$result = Db::insert($sql,$param);
+			var_dump('result: '.$result);
+			return $result !== false ? true : false;
+
 		}
 
 		public static function log(Request $request,array $data = [],int $cate_id = 0): mixed
@@ -93,7 +148,8 @@
 				$where = $this->getWhere($request);
 
 				$cate_id = $request->input('cate_id',0);
-				if($cate_id && $this->checkCateID($cate_id)){
+				if($cate_id){
+					var_dump('aaa');
 					$this->title = $this->cate_value[$cate_id].'记录';
 					array_push($where,[$this->table.'.CateID','=',$cate_id]);
 				}
@@ -102,7 +158,7 @@
 				if($user_id){
 					array_push($where,[$this->table.'.UserID','=',$user_id]);
 				}
-
+				var_dump('cate_id: '.$cate_id.' user_id: '.$user_id);
 				$source_id = $request->input('source_id',0);
 				if($source_id){
 					array_push($where,[$this->table.'.SourceID','=',$source_id]);
@@ -121,14 +177,37 @@
 							->get();
 				if($object){
 					foreach($object as $k => $v){
-						$object[$k]->cate_name = $this->cate_value[$object[$k]->cate_id];
+						$object[$k]->cate_name = $object[$k]->cate_id ? $this->cate_value[$object[$k]->cate_id] : '';
 						$object[$k]->create_time = $this->getDateTime($object[$k]->create_time);
 					}
+
+					$total = $this->getSumValue($request,$where);
+					// var_dump('total: '.$total);
+					$object->push([
+						'id' 			=> '',
+						'cate_name'		=> '',
+						'username'		=> '',
+						'source_name'	=> '总合计：',
+						'value'			=> $total,
+						'content'		=> '',
+						'create_time'	=> '',
+					]);
 				}
 
 				return ['rows' => $rows,'data' => $object];
 			}catch(\Exception $e){
 				return $this->getExceptionError($e);
+			}
+		}
+
+		protected function getSumValue(Request $request,$where = []){
+			try{
+				return DB::table($this->table)
+				            ->selectRaw('SUM(IF(Status = 1, Value, -Value)) as total')
+				            ->where($where)
+				            ->value('total') ?? 0;
+			}catch(\Exception $e){
+				return 0;
 			}
 		}
 
@@ -179,7 +258,7 @@
 				array_push($where,[$this->table.'.UserID','=',$user_id]);
 
 				$cate_id = $request->input('cate_id',0);
-				if($cate_id && $this->checkCateID($cate_id)){
+				if($cate_id){
 					array_push($where,[$this->table.'.CateID','=',$cate_id]);
 				}
 
@@ -256,7 +335,7 @@
 			try{
 				$field = $this->getList($request,'field',true);
 				$where = $this->getWhere($request);
-				array_push($where,[$this->table.'.CateID','=',2]);
+				array_push($where,[$this->table.'.CateID','=',4]);
 
 				$user_id = $user_id ? $user_id : $request->input('user_id',0);
 				if($user_id){
@@ -336,7 +415,7 @@
 			try{
 				$field = $this->getList($request,'field',true);
 				$where = $this->getWhere($request);
-				array_push($where,[$this->table.'.CateID','=',4]);
+				array_push($where,[$this->table.'.CateID','=',2]);
 
 				$user_id = $user_id ? $user_id : $request->input('user_id',0);
 				if($user_id){
@@ -779,7 +858,7 @@
 			return [
 				['type'=>'id','label'=>'ID','prop'=>'id'],
 				['type'=>'varchar','label'=>'类别','prop'=>'cate_name'],
-				['type'=>'varchar','label'=>'用户','prop'=>'realname'],
+				['type'=>'varchar','label'=>'用户','prop'=>'username'],
 				['type'=>'varchar','label'=>'来源','prop'=>'source_name'],
 				['type'=>'varchar','label'=>'金额','prop'=>'value','prefix'=>'¥'],
 				['type'=>'varchar','label'=>'备注','prop'=>'content'],

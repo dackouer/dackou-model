@@ -1,17 +1,4 @@
 <?php
-	/**
-	 * This file is part of webman.
-	 *
-	 * Licensed under The MIT License
-	 * For full copyright and license information, please see the MIT-LICENSE.txt
-	 * Redistributions of files must retain the above copyright notice.
-	 *
-	 * @author    walkor<walkor@workerman.net>
-	 * @copyright walkor<walkor@workerman.net>
-	 * @link      http://www.workerman.net/
-	 * @license   http://www.opensource.org/licenses/mit-license.php MIT License
-	 */
-
 	namespace dackou;
 
 	use Closure;
@@ -27,253 +14,38 @@
 	use Illuminate\Support\LazyCollection;
 
 	use support\Request;
+	use support\Response;
 	use support\Db;
+	use dackou\service\Token\TokenService;
 
-	/**
-	 * save
-	 * @method static BaseModel make($attributes = [])
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withGlobalScope($identifier, $scope)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withoutGlobalScope($scope)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withoutGlobalScopes($scopes = null)
-	 * @method static array removedScopes()
-	 * @method static \Illuminate\Database\Eloquent\Builder|static whereKey($id)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static whereKeyNot($id)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static where($column, $operator = null, $value = null, $boolean = 'and')
-	 * @method static BaseModel|null firstWhere($column, $operator = null, $value = null, $boolean = 'and')
-	 * @method static \Illuminate\Database\Eloquent\Builder|static orWhere($column, $operator = null, $value = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static latest($column = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static oldest($column = null)
-	 * @method static \Illuminate\Database\Eloquent\Collection|static hydrate($items)
-	 * @method static \Illuminate\Database\Eloquent\Collection|static fromQuery($query, $bindings = [])
-	 * @method static BaseModel|\Illuminate\Database\Eloquent\Collection|static[]|static|null find($id, $columns = [])
-	 * @method static \Illuminate\Database\Eloquent\Collection|static findMany($ids, $columns = [])
-	 * @method static BaseModel|\Illuminate\Database\Eloquent\Collection|static|static[] findOrFail($id, $columns = [])
-	 * @method static BaseModel|static findOrNew($id, $columns = [])
-	 * @method static BaseModel|static firstOrNew($attributes = [], $values = [])
-	 * @method static BaseModel|static firstOrCreate($attributes = [], $values = [])
-	 * @method static BaseModel|static updateOrCreate($attributes, $values = [])
-	 * @method static BaseModel|static firstOrFail($columns = [])
-	 * @method static BaseModel|static|mixed firstOr($columns = [], $callback = null)
-	 * @method static BaseModel sole($columns = [])
-	 * @method static mixed value($column)
-	 * @method static \Illuminate\Database\Eloquent\Collection[]|static[] get($columns = [])
-	 * @method static BaseModel[]|static[] getModels($columns = [])
-	 * @method static array eagerLoadRelations($models)
-	 * @method static LazyCollection cursor()
-	 * @method static Collection pluck($column, $key = null)
-	 * @method static LengthAwarePaginator paginate($perPage = null, $columns = [], $pageName = 'page', $page = null)
-	 * @method static Paginator simplePaginate($perPage = null, $columns = [], $pageName = 'page', $page = null)
-	 * @method static CursorPaginator cursorPaginate($perPage = null, $columns = [], $cursorName = 'cursor', $cursor = null)
-	 * @method static BaseModel|$this create($attributes = [])
-	 * @method static BaseModel|$this forceCreate($attributes)
-	 * @method static int upsert($values, $uniqueBy, $update = null)
-	 * @method static void onDelete($callback)
-	 * @method static static|mixed scopes($scopes)
-	 * @method static static applyScopes()
-	 * @method static \Illuminate\Database\Eloquent\Builder|static without($relations)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withOnly($relations)
-	 * @method static BaseModel newModelInstance($attributes = [])
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withCasts($casts)
-	 * @method static Builder getQuery()
-	 * @method static \Illuminate\Database\Eloquent\Builder|static setQuery($query)
-	 * @method static Builder toBase()
-	 * @method static array getEagerLoads()
-	 * @method static \Illuminate\Database\Eloquent\Builder|static setEagerLoads($eagerLoad)
-	 * @method static BaseModel getModel()
-	 * @method static \Illuminate\Database\Eloquent\Builder|static setModel($model)
-	 * @method static Closure getMacro($name)
-	 * @method static bool hasMacro($name)
-	 * @method static Closure getGlobalMacro($name)
-	 * @method static bool hasGlobalMacro($name)
-	 * @method static static clone ()
-	 * @method static \Illuminate\Database\Eloquent\Builder|static has($relation, $operator = '>=', $count = 1, $boolean = 'and', $callback = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static orHas($relation, $operator = '>=', $count = 1)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static doesntHave($relation, $boolean = 'and', $callback = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static orDoesntHave($relation)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static whereHas($relation, $callback = null, $operator = '>=', $count = 1)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static orWhereHas($relation, $callback = null, $operator = '>=', $count = 1)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static whereDoesntHave($relation, $callback = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static orWhereDoesntHave($relation, $callback = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static hasMorph($relation, $types, $operator = '>=', $count = 1, $boolean = 'and', $callback = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static orHasMorph($relation, $types, $operator = '>=', $count = 1)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static doesntHaveMorph($relation, $types, $boolean = 'and', $callback = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static orDoesntHaveMorph($relation, $types)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static whereHasMorph($relation, $types, $callback = null, $operator = '>=', $count = 1)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static orWhereHasMorph($relation, $types, $callback = null, $operator = '>=', $count = 1)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static whereDoesntHaveMorph($relation, $types, $callback = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static orWhereDoesntHaveMorph($relation, $types, $callback = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withAggregate($relations, $column, $function = null)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withCount($relations)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withMax($relation, $column)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withMin($relation, $column)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withSum($relation, $column)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withAvg($relation, $column)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static withExists($relation)
-	 * @method static \Illuminate\Database\Eloquent\Builder|static mergeConstraintsFrom($from)
-	 * @method static Collection explain()
-	 * @method static bool chunk($count, $callback)
-	 * @method static Collection chunkMap($callback, $count = 1000)
-	 * @method static bool each($callback, $count = 1000)
-	 * @method static bool chunkById($count, $callback, $column = null, $alias = null)
-	 * @method static bool eachById($callback, $count = 1000, $column = null, $alias = null)
-	 * @method static LazyCollection lazy($chunkSize = 1000)
-	 * @method static LazyCollection lazyById($chunkSize = 1000, $column = null, $alias = null)
-	 * @method static BaseModel|object|static|null first($columns = [])
-	 * @method static BaseModel|object|null baseSole($columns = [])
-	 * @method static \Illuminate\Database\Eloquent\Builder|static tap($callback)
-	 * @method static mixed when($value, $callback, $default = null)
-	 * @method static mixed unless($value, $callback, $default = null)
-	 * @method static Builder select($columns = [])
-	 * @method static Builder selectSub($query, $as)
-	 * @method static Builder selectRaw($expression, $bindings = [])
-	 * @method static Builder fromSub($query, $as)
-	 * @method static Builder fromRaw($expression, $bindings = [])
-	 * @method static Builder addSelect($column)
-	 * @method static Builder distinct()
-	 * @method static Builder from($table, $as = null)
-	 * @method static Builder join($table, $first, $operator = null, $second = null, $type = 'inner', $where = false)
-	 * @method static Builder joinWhere($table, $first, $operator, $second, $type = 'inner')
-	 * @method static Builder joinSub($query, $as, $first, $operator = null, $second = null, $type = 'inner', $where = false)
-	 * @method static Builder leftJoin($table, $first, $operator = null, $second = null)
-	 * @method static Builder leftJoinWhere($table, $first, $operator, $second)
-	 * @method static Builder leftJoinSub($query, $as, $first, $operator = null, $second = null)
-	 * @method static Builder rightJoin($table, $first, $operator = null, $second = null)
-	 * @method static Builder rightJoinWhere($table, $first, $operator, $second)
-	 * @method static Builder rightJoinSub($query, $as, $first, $operator = null, $second = null)
-	 * @method static Builder crossJoin($table, $first = null, $operator = null, $second = null)
-	 * @method static Builder crossJoinSub($query, $as)
-	 * @method static void mergeWheres($wheres, $bindings)
-	 * @method static array prepareValueAndOperator($value, $operator, $useDefault = false)
-	 * @method static Builder whereColumn($first, $operator = null, $second = null, $boolean = 'and')
-	 * @method static Builder orWhereColumn($first, $operator = null, $second = null)
-	 * @method static Builder whereRaw($sql, $bindings = [], $boolean = 'and')
-	 * @method static Builder orWhereRaw($sql, $bindings = [])
-	 * @method static Builder whereIn($column, $values, $boolean = 'and', $not = false)
-	 * @method static Builder orWhereIn($column, $values)
-	 * @method static Builder whereNotIn($column, $values, $boolean = 'and')
-	 * @method static Builder orWhereNotIn($column, $values)
-	 * @method static Builder whereIntegerInRaw($column, $values, $boolean = 'and', $not = false)
-	 * @method static Builder orWhereIntegerInRaw($column, $values)
-	 * @method static Builder whereIntegerNotInRaw($column, $values, $boolean = 'and')
-	 * @method static Builder orWhereIntegerNotInRaw($column, $values)
-	 * @method static Builder whereNull($columns, $boolean = 'and', $not = false)
-	 * @method static Builder orWhereNull($column)
-	 * @method static Builder whereNotNull($columns, $boolean = 'and')
-	 * @method static Builder whereBetween($column, $values, $boolean = 'and', $not = false)
-	 * @method static Builder whereBetweenColumns($column, $values, $boolean = 'and', $not = false)
-	 * @method static Builder orWhereBetween($column, $values)
-	 * @method static Builder orWhereBetweenColumns($column, $values)
-	 * @method static Builder whereNotBetween($column, $values, $boolean = 'and')
-	 * @method static Builder whereNotBetweenColumns($column, $values, $boolean = 'and')
-	 * @method static Builder orWhereNotBetween($column, $values)
-	 * @method static Builder orWhereNotBetweenColumns($column, $values)
-	 * @method static Builder orWhereNotNull($column)
-	 * @method static Builder whereDate($column, $operator, $value = null, $boolean = 'and')
-	 * @method static Builder orWhereDate($column, $operator, $value = null)
-	 * @method static Builder whereTime($column, $operator, $value = null, $boolean = 'and')
-	 * @method static Builder orWhereTime($column, $operator, $value = null)
-	 * @method static Builder whereDay($column, $operator, $value = null, $boolean = 'and')
-	 * @method static Builder orWhereDay($column, $operator, $value = null)
-	 * @method static Builder whereMonth($column, $operator, $value = null, $boolean = 'and')
-	 * @method static Builder orWhereMonth($column, $operator, $value = null)
-	 * @method static Builder whereYear($column, $operator, $value = null, $boolean = 'and')
-	 * @method static Builder orWhereYear($column, $operator, $value = null)
-	 * @method static Builder whereNested($callback, $boolean = 'and')
-	 * @method static Builder forNestedWhere()
-	 * @method static Builder addNestedWhereQuery($query, $boolean = 'and')
-	 * @method static Builder whereExists($callback, $boolean = 'and', $not = false)
-	 * @method static Builder orWhereExists($callback, $not = false)
-	 * @method static Builder whereNotExists($callback, $boolean = 'and')
-	 * @method static Builder orWhereNotExists($callback)
-	 * @method static Builder addWhereExistsQuery($query, $boolean = 'and', $not = false)
-	 * @method static Builder whereRowValues($columns, $operator, $values, $boolean = 'and')
-	 * @method static Builder orWhereRowValues($columns, $operator, $values)
-	 * @method static Builder whereJsonContains($column, $value, $boolean = 'and', $not = false)
-	 * @method static Builder orWhereJsonContains($column, $value)
-	 * @method static Builder whereJsonDoesntContain($column, $value, $boolean = 'and')
-	 * @method static Builder orWhereJsonDoesntContain($column, $value)
-	 * @method static Builder whereJsonLength($column, $operator, $value = null, $boolean = 'and')
-	 * @method static Builder orWhereJsonLength($column, $operator, $value = null)
-	 * @method static Builder dynamicWhere($method, $parameters)
-	 * @method static Builder groupBy(...$groups)
-	 * @method static Builder groupByRaw($sql, $bindings = [])
-	 * @method static Builder having($column, $operator = null, $value = null, $boolean = 'and')
-	 * @method static Builder orHaving($column, $operator = null, $value = null)
-	 * @method static Builder havingBetween($column, $values, $boolean = 'and', $not = false)
-	 * @method static Builder havingRaw($sql, $bindings = [], $boolean = 'and')
-	 * @method static Builder orHavingRaw($sql, $bindings = [])
-	 * @method static Builder orderBy($column, $direction = 'asc')
-	 * @method static Builder orderByDesc($column)
-	 * @method static Builder inRandomOrder($seed = '')
-	 * @method static Builder orderByRaw($sql, $bindings = [])
-	 * @method static Builder skip($value)
-	 * @method static Builder offset($value)
-	 * @method static Builder take($value)
-	 * @method static Builder limit($value)
-	 * @method static Builder forPage($page, $perPage = 15)
-	 * @method static Builder forPageBeforeId($perPage = 15, $lastId = 0, $column = 'id')
-	 * @method static Builder forPageAfterId($perPage = 15, $lastId = 0, $column = 'id')
-	 * @method static Builder reorder($column = null, $direction = 'asc')
-	 * @method static Builder union($query, $all = false)
-	 * @method static Builder unionAll($query)
-	 * @method static Builder lock($value = true)
-	 * @method static Builder lockForUpdate()
-	 * @method static Builder sharedLock()
-	 * @method static Builder beforeQuery($callback)
-	 * @method static void applyBeforeQueryCallbacks()
-	 * @method static string toSql()
-	 * @method static int getCountForPagination($columns = [])
-	 * @method static string implode($column, $glue = '')
-	 * @method static bool exists()
-	 * @method static bool doesntExist()
-	 * @method static mixed existsOr($callback)
-	 * @method static mixed doesntExistOr($callback)
-	 * @method static int count($columns = '*')
-	 * @method static mixed min($column)
-	 * @method static mixed max($column)
-	 * @method static mixed sum($column)
-	 * @method static mixed avg($column)
-	 * @method static mixed average($column)
-	 * @method static mixed aggregate($function, $columns = [])
-	 * @method static float|int numericAggregate($function, $columns = [])
-	 * @method static bool insert($values)
-	 * @method static int insertOrIgnore($values)
-	 * @method static int insertGetId($values, $sequence = null)
-	 * @method static int insertUsing($columns, $query)
-	 * @method static bool updateOrInsert($attributes, $values = [])
-	 * @method static void truncate()
-	 * @method static Expression raw($value)
-	 * @method static array getBindings()
-	 * @method static array getRawBindings()
-	 * @method static Builder setBindings($bindings, $type = 'where')
-	 * @method static Builder addBinding($value, $type = 'where')
-	 * @method static Builder mergeBindings($query)
-	 * @method static array cleanBindings($bindings)
-	 * @method static Processor getProcessor()
-	 * @method static Grammar getGrammar()
-	 * @method static Builder useWritePdo()
-	 * @method static static cloneWithout($properties)
-	 * @method static static cloneWithoutBindings($except)
-	 * @method static Builder dump()
-	 * @method static void dd()
-	 * @method static void macro($name, $macro)
-	 * @method static void mixin($mixin, $replace = true)
-	 * @method static mixed macroCall($method, $parameters)
-	 */
+
+	use PhpOffice\PhpSpreadsheet\Spreadsheet;
+	use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+	use PhpOffice\PhpSpreadsheet\Style\Alignment;
+	use PhpOffice\PhpSpreadsheet\Style\Border;
+	use PhpOffice\PhpSpreadsheet\Style\Fill;
+
 	class Model extends BaseModel
 	{
 		const CREATED_AT = 'CreateTime';
     	const UPDATED_AT = 'UpdateTime';
     	protected $dateFormat = 'U';
     	public $timestamps = true;
-    	protected $tabdata = [];
-    	protected $dbname = 'ibtgs';
-    	protected $prefix = 'ibt_';
+    	protected $dbname = '';
+    	protected $prefix = '';
     	protected $tab = '';
     	protected $title = '';
-    	protected $is_schema = false;
-    	protected $page = false;
+    	protected $primaryKey = 'id';
+        protected $show_method = 'page';
+        protected $page = true;
+        protected $is_schema = false;
     	protected $orderBy = 'asc';
+    	protected $is_field = true;
+    	protected $is_tabs = false;
+    	protected $pagekey = 'page';
+    	protected $pagesize_key = 'pagesize';
+    	protected $option_label = 'label';
+    	protected $option_value = 'value';
     	protected $delete = true;
     	protected $truncate = true;
     	public $layer = 1;
@@ -282,9 +54,9 @@
     	protected $is_size = false;
     	protected $is_total = true;
     	protected $is_jumper = false;
+    	protected $action = '';
     	protected $align = 'center';
     	protected $option_key = '';
-    	protected $show_method = 'page';
     	protected $code_length = 8;
     	protected $idzero = false;
     	protected $editor = 'wang';
@@ -296,39 +68,51 @@
     	protected $is_cate = false;
     	protected $cate_table = '';
     	protected $config_table = '';
+    	protected $default_status_value = 0;
+    	protected $min_rating = 0;
+    	protected $max_rating = 5;
     	protected $import_file = '';
     	protected $init_data = [];
     	protected $action_value = [];
     	protected $import_field = [];
+    	protected $host = [];
+    	protected $coin_name = '金币';
+    	protected $action_width = 0;
     	protected $color = ['primary'=>'#409EFF','success'=>'#67C23A','warning'=>'#E6A23C','danger'=>'#F56C6C','info'=>'#909399'];
     	protected $status_value = [0 => '关闭',1 => '正常'];
     	protected $gender_value = [0=>'未知',1=>'男',2=>'女'];
-    	protected $host = ['api' => 'http://127.0.0.1:8787/'];
-    	protected $filter_field = ['UpdateTime','DeleteTime','IsDel','Uuid','Token','Desc','Description','Authentication','Password','PayPassword','SecurityPassword','Hobby','LastLoginTime','LastLoginIP','LockedReason','CreateIP','UpdateTime','UpdateIP','DeleteTime','DeleteIP','IsDel'];
+    	protected $action_excude = [];
+    	protected $map_excude = [];
+    	protected $exclude = ['CreateUser','CreateIP','UpdateTime','UpdateIP','DeleteTime','CheckUser','CheckTime','CheckIP','DeleteIP','IsDel'];
 
     	public function __construct(){
-    		if(!empty($this->table)){
-    			$this->table = $this->convert($this->table,false);
-    			if($this->prefix){
-	    			$this->tab = $this->prefix . $this->table;
-	    		}
-
-    			$this->setConfig();
-    		}
+    		$this->setConfig();
     	}
 
+    	// 设置配置项
     	private function setConfig(){
+    		if(!empty($this->table)){
+    			$this->table = $this->convert($this->table,false);
+    			$this->fields = [];
+    		}
     		$config = config('database') ?? [];
     		if(isset($config['connections']['mysql']['prefix'])){
     			$this->dbname = $config['connections']['mysql']['database'];
     			$this->prefix = $config['connections']['mysql']['prefix'];
-    			$this->tab 	  = $this->prefix . $this->table;
+    			if($this->table){
+    				$this->tab = $this->prefix . $this->table;
+    			}
     		}
     		if(isset($config['host']) && is_array($config['host']) && count($config['host'])){
     			$this->host = $config['host'];
     		}
 
     		$this->system = $this->getOptionData('system');
+    		if(isset($this->system['system_editor']) && $this->system['system_editor']){
+    			$this->editor = $this->system['system_editor'];
+    		}
+
+    		/*
     		$this->tabdata = $this->getTableOption();
     		if($this->tabdata && is_object($this->tabdata) && property_exists($this->tabdata,'id')){
     			if($this->tabdata->title){
@@ -373,274 +157,38 @@
 
     		}
 
+    		$this->fields = $this->getList(\request(),'fields');
+			*/
+
     		if($this->option_key){
     			$this->config = $this->getOptionData($this->option_key);
     		}
-
-    		$this->fields = $this->getList(\request(),'fields');
-
+    		
 			if(method_exists($this,'_init')){
 				$this->_init();
 			}
     	}
 
-		// 设置表参数
-		private function getTableOption(): mixed
-		{
-			try{
-				$field = [
-					"ID as id",
-					"Title as title",
-					"TableName as table_name",
-					"PrimaryKey as primary_key",
-					"Layer as layer",
-					"ShowMethod as show_method",
-					"IsPage as is_page",
-					"CateTable as cate_table",
-					"ConfigTable as config_table",
-					"OptionKey option_key",
-					"StatusValue status_value",
-					"OrderBy order_by",
-					"IsQrcode as is_qrcode",
-					"IsCreateTime as is_create_time",
-					"IsUpdateTime as is_update_time"
-				];
-				$data = Db::table('table')->select(...$field)->where('TableName',$this->table)->first();
-				// if($data){
-				// 	$field = ["ID","TableID","Comment","FieldName","MapName","IsPrimaryKey","IsKey","IsUnique","IsMust","IsShow","IsAdd","IsMod","IsSearch","ShowType","FormType","Width","Align","DefaultValue","Rules","Prefix","Suffix","Prompt","CallbackField","CallbackKey","CallbackTitle","After","Status"];
-				// 	$field = $this->setFields($field);
-				// 	$data->fields = Db::table('field')->select(...$field)->where([['TableID','=',$data->id],['Status','=',1]])->get();
-				// }
-				// var_dump($data);
-				return $data ? $data : false;
-			}catch(\Exception $e){
-				return false;
-			}
-		}
-
-		// 获取参数信息
-    	protected function getOptionData($key = ''): array
-    	{
-    		if(!$key || empty($key) || is_null($key)){
-    			return [];
-    		}
-
-    		if(!is_array($key)){
-    			$key = \explode(',',$key);
-    		}
-    		try{
-                $field = [
-                    "option.ID as id",
-                    "option.Title as title",
-                    "option.Key as key",
-                    "option.ValueType as value_type",
-                    "option.DefaultValue as default_value",
-                    "option.Value as value"
-                ];             
-                $object = Db::table("option")
-                                ->select(...$field)
-                                ->where([['Level','=',2],['FormType','<>','divider']])
-                                ->whereIn('Tag',$key)
-                                ->get(); 
-                // var_dump($object);
-                $result = [];
-                if($object){
-                    foreach($object as $item){
-                    	$value = $item->value;
-
-                    	switch($item->value_type){
-                    		case 2:
-                    		case 3:
-                    			$value = $value ? (int)$value : 0;
-                    			break;
-                    		case 4:
-                    			$value = $value ? \round($value,1) : 0;
-                    			break;
-                    		case 5:
-                    			$value = $value ? \round($value,2) : 0;
-                    			break;
-                    		case 6:
-                    			$value = $value ? \round($value,3) : 0;
-                    			break;
-                    		case 7:
-                    			$value = $value ? \round($value,4) : 0;
-                    			break;
-                    		case 8:
-                    			$value = $value ? ($value ? 1 : 0) : 0;
-                    			break;
-                    		case 9:
-                    			$value = $value ? ($value ? true : false) : false;
-                    			break;
-                    		case 10:
-                    			$value = $value ? $this->getDecodeData($value) : [];
-                    			break;
-                    		case 11:
-                    			$value = $value ? $this->getDecodeData($value,true) : [];
-                    			break;
-                    		default:
-                    	}
-                        $result[$item->key] = $value;
-                    }
-                }
-
-                return $result;
-            }catch(\Exception $e){
-                return [];
-            }
-    	}
-
-    	protected function getSchemaList(Request $request,$table = ''){
-    		try{
-    			$table = $table ? $table : $this->table;
-    			if(!$this->table){
-    				return [];
-    			}
-    			$field = [
-    				'field.ID as id',
-    				'TableID as table_id',
-    				'table.TableName as table',
-    				'Comment as comment',
-    				'FieldName as field_name',
-    				'MapName as map_name',
-    				'FieldType as field_type',
-    				'Length as length',
-    				'IsPrimaryKey as is_primary_key',
-    				'IsKey as is_key',
-    				'IsUnique as is_unique',
-    				'IsMust as is_must',
-    				'IsShow as is_show',
-    				'IsAdd as is_add',
-    				'IsMod as is_mod',
-    				'IsSearch as is_search',
-    				'ShowType as show_type',
-    				'FormType as form_type',
-    				'Width as width',
-    				'field.Align as align',
-    				'DefaultValue as default_value',
-    				'Rules as rules',
-    				'Prefix as prefix',
-    				'Suffix as suffix',
-    				'Prompt as prompt',
-    				'CallbackField as callback_field',
-    				'CallbackKey as callback_key',
-    				'CallbackTitle as callback_title',
-    				'After as after',
-    				'field.Status as status',
-    			];
-
-    			$where = [
-    				['field.IsDel','=',0],
-    				['field.Status','=',1],
-    				['table.TableName','=',$this->convert($this->table)]
-    			];
-
-    			$object = Db::table('field')
-    						->join('table','TableID','=','table.ID')
-    						->select(...$field)
-    						->where($where)
-    						->orderBy('field.Sort','asc')
-    						->get();
-    			if($object){
-    				foreach($object as $key => $val){
-    					$object[$key]->rules = $this->getDecodeData($object[$key]->rules);
-    				}
-    			}
-    			return $object ? $object->toArray() : $object;
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
-    		}
-    	}
-
-        /**
-         * [fetch description]
-         * @param  [type] $id [description]
-         * @return [type]     [description]
-         */
-        public function fetch($table = '',$id = 1){
-            try{
-                $table = !empty($table) ? $table : $this->table;
-                $res = Db::select("SHOW FULL FIELDS FROM `".$this->prefix.$table."`");
-                if(!$res){
-                	return [];
-                }
-                $field = [];
-                foreach($res as $item){
-                	array_push($field,$item->Field . ' as ' . $this->convert($item->Field,false));
-                }
-                // var_dump($field);
-                $result = Db::table($table)
-                            ->select(...$field)
-                            ->where('ID',$id)
-                            ->first();
-                
-                return $result;
-            }catch(\Exception $e){
-                return $this->getExceptionError($e);
-            }
-        }
-
     	/**
-    	 * 统一查询
-    	 * @param  Request $request [description]
-    	 * @return [type]           [description]
-    	 */
-    	public function getList(Request $request): mixed
-    	{
-    		$args = \func_get_args();
-            \array_shift($args);
-
-            try{
-	            if(!$args || !count($args)){
-	                return $this->getAllList($request);
-	            }
-
-	            if(is_numeric($args[0])){
-	                return $this->getListById($request,...$args);
-	            }
-
-	            if(is_array($args[0]) || is_object($args[0])){
-	                return $this->getAllList($request,...$args);
-	            }
-
-	            if(is_string($args[0])){
-	                $sign = \ucfirst(strtolower($args[0]));
-	                $class_name = 'get'.$sign.'List';
-
-	                if(\method_exists($this,$class_name)){
-	                	\array_shift($args);
-	                    return $this->$class_name($request,...$args);
-	                }
-	                return 100005;
-	            }
-
-	            return $this->getAllList($request,...$args);
-	        }catch(\Exception $e){
-	        	return $this->getExceptionError($e);
-	        }
-    	}
-
-    	/**
-    	 * 统一新增
+    	 * 统一新增入口
     	 * @param Request $request [description]
     	 */
-    	public function add(Request $request): mixed
-    	{
+    	public function add(Request $request){
     		try{
-	    		if(strtolower($request->method()) !== 'post'){
+    			if(\strtolower($request->method()) !== 'post'){
 					return 100000;
 				}
-
 				$data = $request->post();
-				if(method_exists($this,'setRequest')){
+				if(\method_exists($this,'setRequest')){
 					$data = \array_merge($data,$this->setRequest($request));
 				}
 				if(!$data || !is_array($data)){
 					return $data;
 				}
-				
-				if(method_exists($this,'validate')){
+
+				if(\method_exists($this,'validate')){
 					$res_valid = $this->validate($request);
-					if($res_valid && is_array($res_valid) && count($res_valid)){
+					if(\is_array($res_valid) && $res_valid){
 						$data = \array_merge($data,$res_valid);
 					}elseif($res_valid !== true){
 						return $res_valid;
@@ -654,18 +202,14 @@
 	            	$_callback = $data['callback'];
 	            	return $this->$_callback($request,$data);
 	            }
-	    		[$keys,$vals] = $this->getList($request,'field','key');
-	    		// var_dump($keys,$vals);
-	    		if(!$keys || !is_array($keys) || !count($keys)){
-	    			return '无效的表字段';
-	    		}
-
-	    		$param = [];
-	    		foreach($data as $key => $val){
-	    			if(in_array($key,$vals)){
-	    				$param[$this->convert($key)] = is_array($val) ? $this->getJsonData($val) : $val;
-	    			}
-	    		}
+	            // var_dump($data);
+	            $field = $this->getList($request,'field','key');
+	            $param = [];
+	            foreach($data as $k => $v){
+	            	if(isset($field[$this->convert($k,false)])){
+	            		$param[$field[$k]] = \is_array($v) ? $this->getJsonData($v) : $v;
+	            	}
+	            }
 
 	    		if(!count($param)){
 	    			return 100000;
@@ -677,20 +221,18 @@
 		    			$param[$this->convert($this->primaryKey)] = $maxid;
 		    		}
 	    		}
-
-	    		if($this->fieldExists('CreateIP')){
+	    		if(isset($field['create_ip'])){
 	    			$param['CreateIP'] = $request->getRealIp($safe_mode = true);
 	    		}
-	    		
+
 	    		foreach($param as $k => $v){
 	    			$this->$k = $v;
 	    		}
-
+	    		
 	    		$result = $this->save();
-	    		// var_dump('add result: '.$result);
 	    		if($result){
 	    			$data = $this->getConvertData($data);
-	    			$data[$this->primaryKey] = Db::getPdo()->lastInsertId();
+	    			$data['id'] = Db::getPdo()->lastInsertId();
 	    			if($this->layer > 1){
                 		Db::table($this->table)->where('ID',$data['pid'])->increment('Number');
                 	}
@@ -699,7 +241,7 @@
                 		$this->adjustSort($request,$data['sort'],$data[$this->primaryKey],$pid);
                 	}
 	    			if(method_exists($this,'setExcute')){
-	    				$result = $this->setExcute($request,$data);
+	    				$result = $this->setExcute($request,$data,$request->input('action',false));
 	    				if($result !== false){
 	    					return $data;
 	    				}
@@ -710,24 +252,25 @@
 	    		}
 
 	    		return '数据新增失败';
-	    	}catch(\Exception $e){
-	    		return $this->getExceptionError($e);
-	    	}
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
     	}
 
-    	/**
-    	 * 修改数据
-    	 * @param  Request $request [description]
-    	 * @param  integer $id      [description]
-    	 * @return [type]           [description]
-    	 */
-    	public function mod(Request $request,$id = 0): mixed
-    	{
+    	public function mod(Request $request,$id = 0){
     		try{
-	    		if(strtolower($request->method()) !== 'post'){
+    			if(strtolower($request->method()) !== 'post'){
 					return 100000;
 				}
 
+				if($this->table == 'user'){
+					if($request->post('action')){
+						$id = $request->post('user_id',0);
+					}
+				}else{
+					$id = $id ?: $request->input($this->primaryKey,0);
+				}
+				
 	    		if(!$id){
 	    			return 100007;
 	    		}
@@ -763,36 +306,42 @@
 	            	return $this->$_callback($request,$post,$id);
 	            }
 
-	    		[$keys,$vals] = $this->getList($request,'field','key');
-	    		if(!$keys || !is_array($keys) || !count($keys)){
+	    		$field = $this->getList($request,'field','key');
+	    		// var_dump($field);
+	    		if(!$field){
 	    			return '无效的表字段';
 	    		}
 
 	    		$param = [];
-    			foreach($post as $key => $val){
-	    			$key = $this->convert($key);
-	    			if(in_array($key,$keys) && !in_array($key,[$this->convert($this->primaryKey)])){
-	    				$param[$key] = is_array($val) ? $this->getJsonData($val) : $val;
-	    			}
+    			foreach($post as $k => $v){
+    				$key = $this->convert($k,false);
+	    			if($key !== $this->primaryKey && isset($field[$key])){
+	            		$param[$field[$key]] = \is_array($v) ? $this->getJsonData($v) : $v;
+	            	}
 	    		}
 	    		if(!$param || !count($param)){
 	    			return '无效的数据参数';
 	    		}
 
+	    		if($this->fieldExists('UpdateTime')){
+	    			$param['UpdateTime'] = time();
+	    		}
 	    		if($this->fieldExists('UpdateIP')){
 	    			$param['UpdateIP'] = $request->getRealIp($safe_mode = true);
 	    		}
+	    		
 	    		$result = Db::table($this->table)->where($this->convert($this->primaryKey),$id)->update($param);
 	    		// var_dump('result: '.$result);
 	    		if($result !== false){
-	    			$data = $this->getConvertData($data);
+	    			$data = $this->getConvertData($post);
+	    			$data['id'] = $id;
                 	if(isset($param['Sort']) && $this->fieldExists('Sort')){
                 		$pid = isset($param['PID']) ? $param['PID'] : -1;
                 		$this->adjustSort($request,$param['Sort'],$id,$pid);
                 	}
 
 	    			if(method_exists($this,'setExcute')){
-	    				$action = isset($post['action']) ? $post['action'] : true;
+	    				$action = isset($post['action']) ? $post['action'] : 'mod';
 	    				return $this->setExcute($request,$data,$action);
 	    			}
 	    			return $data;
@@ -802,67 +351,6 @@
     		}catch(\Exception $e){
     			return $this->getExceptionError($e);
     		}
-    	}
-
-    	// 当排序有冲突时自动调整排序
-    	protected function adjustSort(Request $request,$sort,$id,$pid = -1){
-    		// var_dump('id: '.$id.' pid: '.$pid.' sort: '.$sort);
-    		$where = [[$this->table.'.Sort','=',$sort],[$this->table.'.ID','<>',$id]];
-    		if($pid >= 0){
-    			array_push($where,[$this->table.'.PID','=',$pid]);
-    		}
-    		$object = Db::table($this->table)
-    					->select('Sort as sort')
-    					->where($where)
-    					->first();
-    		// var_dump($object);
-    		if($object){
-    			if($pid >= 0){
-    				$sql = "UPDATE `".$this->tab."` SET Sort = Sort + 1 WHERE PID = ? AND Sort >= ? AND ID <> ?";
-    				$result = Db::select($sql,[$pid,$sort,$id]);
-    			}else{
-    				$sql = "UPDATE `".$this->tab."` SET Sort = Sort + 1 WHERE Sort >= ? AND ID <> ?";
-    				$result = Db::select($sql,[$sort,$id]);
-    			}
-
-    			return $result !== false ? true : false;
-
-    		}
-    		return true;
-    	}
-
-    	protected function validate(Request $request,$id = 0,$obj = null){
-    		if(!$this->fields){
-    			$this->fields = $this->getList($request,'fields');
-    		}
-
-    		if(!$this->fields){
-    			return true;
-    		}
-    		$data = [];
-    		foreach($this->fields as $field){
-    			if($field['is_must']){
-    				$field_name = $field['field_name'];
-    				$prop = $field['map_name'];
-    				$comment = $field['comment'];
-
-    				$value = $request->post($prop);
-    				if(is_string($value)){
-    					$value = trim($value);
-    				}
-    				if(!$value){
-    					return $comment.'不能为空';
-    				}
-
-    				if($this->checkExists([$field_name=>$value],$id)){
-    					return $comment.'已存在,请重新输入';
-    				}
-
-    				$data[$prop] = $value;
-    			}
-    		}
-
-    		return $data;
     	}
 
     	/**
@@ -875,6 +363,11 @@
     			Db::table($this->table)->truncate();
     			if(\method_exists($this,'setTruncate')){
     				$this->setTruncate($request);
+    			}
+
+    			if($this->table === 'user'){
+    				$sql = "alter table ".$this->prefix."user AUTO_INCREMENT = 1000";
+    				Db::select($sql);
     			}
 
     			$data = $data&&count($data) ? $data : $this->getDefaultData($request);
@@ -941,7 +434,12 @@
     		}
     	}
 
-    	protected function getImportList(Request $request){
+    	/**
+    	 * 获取导入数据的字段
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getImportFields(Request $request){
     		if($this->import_field){
     			return $this->import_field;
     		}
@@ -961,9 +459,157 @@
     		return [];
     	}
 
+    	protected function getImportList(Request $request){
+    		return [];
+    	}
+
+    	/**
+    	 * 获取导入的模板文件
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	private function getImportFile(Request $request){
+    		$action = $request->input('file',$request->input('type',''));
+			$file = ($action && is_array($this->import_file)) ? $this->import_file[$action] : $this->import_file;
+			if($file){
+				$file = $this->host['api'] . 'import/' . $file;
+			}else{
+				$file = $this->host['api'] . 'import/' . $this->table . '.xlsx';
+				if(!is_file($file)){
+					$file = $this->host['api'] . 'import/' . $this->table . '.xls';
+				}
+			}
+			return $file;
+    	}
+
+    	/**
+    	 * 创建导入的模板文件
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function createImportFile(Request $request){
+    		try{
+    			ini_set('memory_limit','512M');
+    			// 创建新的Spreadsheet对象
+	            $spreadsheet = new Spreadsheet();
+	            $sheet = $spreadsheet->getActiveSheet();
+	            // 设置工作表标题
+            	$sheet->setTitle('用户数据');
+            	// 设置表头
+	            $headers = ['ID', '用户名', '邮箱', '手机号', '创建时间'];
+	            // $headers = $this->getList($request,'importhead');
+	            $sheet->fromArray($headers, null, 'A1');
+	            // 模拟数据 - 实际应用中可以从数据库获取
+                $data = [
+                    [1, '张三', 'zhangsan@example.com', '13800138001', '2023-01-01'],
+                    [2, '李四', 'lisi@example.com', '13800138002', '2023-01-02'],
+                    [3, '王五', 'wangwu@example.com', '13800138003', '2023-01-03'],
+                    [4, '赵六', 'zhaoliu@example.com', '13800138004', '2023-01-04'],
+                ];
+                // $data = $this->getList($request,'import');
+                // 填充数据
+            	$sheet->fromArray($data, null, 'A2');
+            	// 设置表头样式
+	            $headerStyle = [
+	                'font' => [
+	                    'bold' => true,
+	                    'color' => ['rgb' => 'FFFFFF']
+	                ],
+	                'fill' => [
+	                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+	                    'startColor' => ['rgb' => '4472C4']
+	                ],
+	                'alignment' => [
+	                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+	                ],
+	                'borders' => [
+	                    'allBorders' => [
+	                        'borderStyle' => Border::BORDER_THIN,
+	                    ],
+	                ],
+	            ];
+	            $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+	            // 设置数据区域样式
+	            $dataStyle = [
+	                'borders' => [
+	                    'allBorders' => [
+	                        'borderStyle' => Border::BORDER_THIN,
+	                    ],
+	                ],
+	                'alignment' => [
+	                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+	                ],
+	            ];
+	            $dataCount = count($data) + 1; // 表头1行 + 数据行数
+            	$sheet->getStyle("A1:E{$dataCount}")->applyFromArray($dataStyle);
+            	// 自动调整列宽
+	            foreach (range('A', 'E') as $column) {
+	                $sheet->getColumnDimension($column)->setAutoSize(true);
+	            }
+
+	            // 设置文件名
+	            $filename = $this->table . date('YmdHis') . '.xlsx';
+	            
+	            // 设置HTTP头
+	            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+	            header('Content-Disposition: attachment;filename="' . $filename . '"');
+	            header('Cache-Control: max-age=0');
+	            header('Cache-Control: max-age=1');
+	            header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+	            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+	            header('Cache-Control: cache, must-revalidate');
+	            header('Pragma: public');
+	            
+	            // 直接输出到浏览器
+	            ob_start();
+	            $writer = new Xlsx($spreadsheet);
+	            $writer->save('php://output');
+	            $output = ob_get_clean();
+
+	            // 立即释放内存
+	            $spreadsheet->disconnectWorksheets();
+	            unset($spreadsheet, $writer);
+	            
+	            return response($output,200,[
+	            	'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	            	'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+	            ]);
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
+    	}
+
+    	/**
+    	 * 下载导入模板文件
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	public function downImportFile(Request $request){
+    		try{
+    			$file = $this->getImportFile($request);
+    			if($file){
+    				$filename = $request->input('name',$request->input('filename',''));
+    				if(!$filename){
+    					$temp = explode('/',$file);
+    					$filename = end($temp);
+    				}
+    				return ['code'=>0,'data'=>['url'=>$file,'name'=>$filename]];
+    			}else{
+    				return $this->createImportFile($request);
+    			}
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
+    	}
+
+    	/**
+    	 * 导入数据
+    	 * @param Request $request [description]
+    	 */
     	public function setImport(Request $request){
     		try{
-    			$fields = $this->getList($request,'import');
+    			$fields = $this->getImportFields($request);
+    			// var_dump('fields:' ,$fields);
     			if(!$fields || !is_array($fields) || !count($fields)){
     				return '无效的导入字段';
     			}
@@ -1062,169 +708,120 @@
     	}
 
     	/**
-    	 * 内部操作新增数据
-    	 * @param  Request $request [description]
-    	 * @param  array   $data    [description]
-    	 * @return [type]           [description]
-    	 */
-    	public function insertData(Request $request,array $data = []): mixed
-    	{
-    		if(!$data || !is_array($data)){
-    			return false;
-    		}
-    		// var_dump('批量插入数据：',$data);
-    		try{
-    			if(count($data) === count($data, COUNT_RECURSIVE)){
-    				$temp = [];
-		    		foreach($data as $k => $v){
-		    			$k = $this->convert($k);
-		    			$temp[$k] = $v;
-
-		    			if(!isset($data['create_time']) && !isset($data['CreateTime'])){
-		    				$temp['CreateTime'] = $this->timestamps ? time() : \date('Y-m-d H:i:s',time());
-		    			}
-		    			if(!isset($data['create_ip']) && !isset($data['CreateIP'])){
-		    				if($this->table != 'user'){
-		    					$temp['CreateIP'] = $request->getRealIp($safe_mode = true);
-		    				}
-		    			}
-		    		}
-		    		$keys = \implode(',',\array_keys($temp));
-		    		$param = \array_values($temp);
-		    		$vals = [];
-		    		foreach($param as $k => $v){
-		    			array_push($vals,'?');
-		    		}
-		    		$vals = \implode(',',$vals);
-
-		    		$sql = "INSERT INTO `".$this->tab."` ($keys) VALUES ($vals)";
-		    		// var_dump('insert data sql: '.$sql);
-		    		$result = Db::insert($sql,$param);
-		    		if($result){
-		    			$data = $this->getConvertData($data);
-		    			$data[$this->primaryKey] = Db::getPdo()->lastInsertId();
-		    			if($this->layer > 1){
-	                		Db::table($this->table)->where('ID',$data['pid'])->increment('Number');
-	                	}
-		    			if(method_exists($this,'setExcute')){
-		    				return $this->setExcute($request,$data);
-		    			}
-
-		    			return $data;
-		    		}
-
-		    		return false;
-    			}else{
-    				foreach($data as $key => $val){
-    					if(!isset($val['create_time']) && !isset($val['CreateTime'])){
-							$data[$key]['CreateTime'] = $this->timestamps ? time() : \date('Y-m-d H:i:s',time());
-						}
-						if(!isset($val['create_ip']) && !isset($val['CreateIP'])){
-							if($this->table == 'user'){
-								$data[$key]['CreateIP'] = $request->getRealIp($safe_mode = true);
-							}
-						}
-    				}
-
-    				$keys = [];
-    				$vals = [];
-    				$param = [];
-    				for($i=0;$i<count($data);$i++){
-    					$str = str_repeat('?,', count($data[$i]));
-            			$str = rtrim($str,',');
-    					array_push($vals,"({$str})");
-    					foreach($data[$i] as $k => $v){
-    						if($i === 0){
-    							array_push($keys,"`{$k}`");
-    						}
-    						$v = is_array($v) ? $this->getDecodeData($v) : $v;
-    						array_push($param,$v);
-    					}
-    				}
-    				if($keys && $vals && $param){
-    					$keys = \implode(',',$keys);
-    					$vals = \implode(',',$vals);
-    					$sql = "INSERT INTO `".$this->tab."` ({$keys}) VALUES $vals";
-    					// var_dump('insert data sql: '.$sql);
-    					$result = Db::insert($sql,$param);
-    					// var_dump('insert data result: '.$result);
-    					return $result !== false ? true : false;
-    				}
-
-    				return false;
-    			}
-    			
-    		}catch(\Exception $e){
-    			// var_dump('errot: '.$e->getMessage());
-    			return false;
-    		}
-    	}
-
-    	/**
-    	 * 内容操作更新或新增数据
+    	 * 内容插入数据
     	 * @param  Request $request [description]
     	 * @param  array   $arr     [description]
     	 * @return [type]           [description]
     	 */
-    	public function appendData(Request $request,array $arr = []): mixed
+    	public function insertData(Request $request,array $arr = []): mixed
     	{
-    		if(!$data || !count($data)){
-    			return false;
-    		}
-
     		try{
-    			if(count($array) === count($array, COUNT_RECURSIVE)){
-		    		foreach($data as $k => $v){
-		    			$k = $this->convert($k);
-		    			$this->$k = $v;
-		    		}
-
-		    		$result = $this->save();
-		    		// var_dump('insert result: '.$result);
-		    		if($result){
-		    			$data = $this->getConvertData($data);
-		    			$data[$this->primaryKey] = Db::getPdo()->lastInsertId();
-		    			if($this->layer > 1){
-	                		Db::table($this->table)->where('ID',$data['pid'])->increment('Number');
-	                	}
-		    			if(method_exists($this,'setExcute')){
-		    				return $this->setExcute($request,$data);
-		    			}
-
-		    			return $data;
-		    		}
-
-		    		return '数据新增失败';
-    			}else{
-    				$param = [];
-    				$keys = [];
-    				$vals = [];
-    				for($i=0;$i<count($data);$i++){
-						foreach($data as $k => $v){
-    						if($i == 0){
-    							array_push($keys,"`".$this->convert($k)."`");
-    						}
-    						array_push($param,$v);
-    						array_push($vals,'?');
-    					}
-    				}
-
-    				if(!$param || !count($param) || !$keys || !count($keys) || !$vals || !count($vals)){
-    					return '无效的数据';
-    				}
-
-    				$keys = implode(',',$keys);
-    				$vals = implode(',',$vals);
-    				$sql = "INSERT INTO `".$this->tab."` ({$keys}) VALUES ({$vals})";
-
-    				$result = Db::insert($sql,$param);
-    				if($result !== false){
-    					return true;
-    				}
+    			if(!$arr){
     				return false;
     			}
-    			
+    			$field = $this->getList($request,'field','key');
+
+    			$time = time();
+    			$ip = $request->getRealIp($safe_mode = true);
+    			$keys = [];
+    			$vals = [];
+    			$param = [];
+    			$data = [];
+    			if($this->isIndexArray($arr)){
+    				foreach($arr as $k => $v){
+    					$k = $this->convert($k,false);
+    					if(isset($field[$k])){
+    						$v = is_array($v) ? $this->getJsonData($v) : $v;
+    						$data[$field[$k]] = $v;
+    						array_push($keys,"`{$field[$k]}`");
+    						array_push($vals,'?');
+    						array_push($param,$v);
+    					}
+    				}
+    				if($data){
+    					if(!isset($data['CreateTime']) || !isset($data['create_time'])){
+	    					$data['CreateTime'] = $time;
+		    				array_push($keys,"`CreateTime`");
+		    				array_push($vals,'?');
+	    					array_push($param,$time);
+	    				}
+	    				if(!isset($data['CreateIP']) || !isset($data['create_ip'])){
+	    					$data['CreateIP'] = $ip;
+		    				array_push($keys,"`CreateIP`");
+		    				array_push($vals,'?');
+	    					array_push($param,$ip);
+	    				}
+	    				$vals = ["(" . \implode(',',$vals) . ")"];
+    				}
+     			}else{
+     				$fieldKeys = array_keys($field);
+     				$fieldVals = array_values($field);
+     				$children = [];
+     				$time = time();
+     				$ip = $request->getRealIp($safe_mode = true);
+     				foreach($arr as $key => $val){
+     					$valstr = "(";
+     					foreach($val as $k => $v){
+     						$k = $this->convert($k,false);
+     						if(isset($field[$k])){
+     							if(!$key){
+     								array_push($keys,$field[$k]);
+     							}
+     							$v = is_array($v) ? $this->getJsonData($v) : $v;
+     							$valstr .= "?,";
+     							array_push($param,$v);
+     						}
+     					}
+
+ 						if(!isset($val['CreateTime']) && !isset($val['create_time'])){
+ 							$valstr .= "?,";
+ 							array_push($param,$time);
+ 						}
+
+ 						if(!isset($val['CreateIP']) && !isset($val['create_ip'])){
+ 							$valstr .= "?,";
+ 							array_push($param,$ip);
+ 						}
+
+     					$valstr = rtrim($valstr,",");
+     					if($valstr !== "("){
+	     					$valstr .= ")";
+	     					array_push($vals,$valstr);
+	     				}
+     				}
+
+					if(!isset($val['CreateTime']) && !isset($val['create_time'])){
+						array_push($keys,'CreateTime');
+					}
+					if(!isset($val['CreateIP']) && !isset($val['create_ip'])){
+						array_push($keys,'CreateIP');
+					}
+
+     				// var_dump('keys: ',$keys);
+     				// var_dump('vals: ',$vals);
+     				// var_dump('param: ',$param);
+
+    			}
+
+    			if(!$keys || !$vals){
+    				return false;
+    			}
+
+    			// var_dump('keys: ',$keys);
+    			// var_dump('vals: ',$vals);
+    			$keys = \implode(',',$keys);
+    			$vals = \implode(',',$vals);
+    			$sql = "INSERT INTO `".$this->tab."` ({$keys}) VALUES {$vals}";
+    			// var_dump('insert data sql: ' . $sql);
+    			$result = Db::insert($sql,$param);
+    			var_dump('insert result: ',$result);
+    			if($result !== false){
+    				return $this->isIndexArray($arr) ? $data : $arr;
+    			}
+
+    			return false;
     		}catch(\Exception $e){
+    			var_dump('insert data error: ',$this->getExceptionError($e));
     			return false;
     		}
     	}
@@ -1242,11 +839,6 @@
     			if(!$id){
     				return false;
     			}
-    			// $data = $this->getListById($request,$id);
-    			// if(!$data || !is_object($data)){
-    			// 	return false;
-    			// }
-    			// var_dump('update data:',$data);
     			$keys = "";
     			$param = [];
     			foreach($arr as $key => $val){
@@ -1254,8 +846,12 @@
     				array_push($param,$val);
     			}
     			$keys = rtrim($keys,",");
-    			array_push($param,$id);
-    			$sql = "UPDATE `".$this->tab."` SET {$keys} WHERE `".$this->convert($this->primaryKey)."` = ?";
+    			array_push($param,is_array($id) ? implode(',',$id) : $id);
+    			if(is_array($id)){
+    				$sql = "UPDATE `".$this->tab."` SET {$keys} WHERE `".$this->convert($this->primaryKey)."` IN (?)";
+    			}else{
+    				$sql = "UPDATE `".$this->tab."` SET {$keys} WHERE `".$this->convert($this->primaryKey)."` = ?";
+    			}
     			// var_dump('update data sql: '.$sql);
     			// var_dump($param);
     			$result = Db::update($sql,$param);
@@ -1267,37 +863,1467 @@
     		}
     	}
 
-    	protected function getResultData($data,$flag = false){
+    	/**
+    	 * 统一查询
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	public function getList(Request $request): mixed
+    	{
+    		$args = \func_get_args();
+            \array_shift($args);
+
+            try{
+	            if(!$args || !count($args)){
+	                return $this->getAllList($request);
+	            }
+
+	            if(\is_numeric($args[0])){
+	            	$this->setHits($request,...$args);
+	                return $this->getListById($request,...$args);
+	            }
+
+	            if(\is_array($args[0]) || \is_object($args[0])){
+	                return $this->getAllList($request,...$args);
+	            }
+
+	            if(\is_string($args[0])){
+	                $sign = \ucfirst(\strtolower($args[0]));
+	                $class_name = 'get'.$sign.'List';
+
+	                if(\method_exists($this,$class_name)){
+	                	\array_shift($args);
+	                    return $this->$class_name($request,...$args);
+	                }
+	                return 100005;
+	            }
+
+	            return $this->getAllList($request,...$args);
+	        }catch(\Exception $e){
+	        	return $this->getExceptionError($e,true);
+	        }
+    	}
+
+    	/**
+    	 * 通过id获取数据 无Request
+    	 * @param  [type] $id [description]
+    	 * @return [type]     [description]
+    	 */
+    	protected function fetch($id = 1,$table = ''){
+    		try{
+				$arr = [];
+    			$field = '*';
+    			$table = $table ? $table : $this->table;
+    			$object = Db::table($table)
+    						->select($field)
+    						->where($this->convert($this->primaryKey),$id)
+    						->first();
+    			if($object){
+    				foreach($object as $k => $v){
+    					$arr[$this->convert($k,false)] = $v;
+    				}
+    			}
+    			return (object)$arr;
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
+    	}
+
+    	// 点击量
+    	protected function setHits(Request $request,$id = 0){
+    		try{
+    			if($this->fieldExists('hits')){
+    				Db::table($this->table)->where($this->convert($this->primaryKey),$id)->increment('Hits');
+    			}
+    		}catch(\Exception $e){
+    			return false;
+    		}
+    	}
+
+    	/**
+    	 * 通过id获取数据 有Request
+    	 * @param  Request $request [description]
+    	 * @param  [type]  $id      [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getListById(Request $request,$id){
+    		$field = $this->getList($request,'field');
+			$where = $this->getWhere($request);
+			array_push($where,[$this->table.'.'.$this->convert($this->primaryKey),'=',$id]);
+			$object = Db::table($this->table)
+						->select(...$field)
+						->where($where)
+						->first();
+			if($object){
+				foreach($object as $k => $v){
+					if(is_string($v) && strpos($v,'[') !== false && strpos($v,']') !== false){
+						$object->$k = $this->getDecodeData($v);
+					}
+				}
+			}
+			// var_dump($object);
+			return $object;
+    	}
+
+    	/**
+    	 * 通过多ID获取多条数据
+    	 * @param  Request $request [description]
+    	 * @param  array   $id      [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getIdsList(Request $request,$id = []){
+    		if(!is_array($id)){
+    			$id = explode(',',$id);
+    		}
+    		if(!$id){
+    			return [];
+    		}
+
+    		$field = $this->getList($request,'field');
+			$where = $this->getWhere($request);
+
+			$object = Db::table($this->table)
+						->select(...$field)
+						->where($where)
+						->whereIn($this->convert($this->primaryKey),$id)
+						->get();
+			if($object){
+				foreach($object as $key => $val){
+					foreach($val as $k => $v){
+						if(strpos($v,'[') !== false && strpos($v,']') !== false){
+							$object[$key]->$k = $this->getDecodeData($v);
+						}
+					}
+				}
+			}
+			// var_dump($object);
+			return $object;
+    	}
+
+    	/**
+    	 * 查询主页数据
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getShowList(Request $request){
+    		// 获取查询数据列表
+    		$datas = $this->getList($request,$this->show_method);
+    		// var_dump('get show data: ',$datas);
+    		// 获取显示表头
+    		$thead = $this->getList($request,'map');
+    		// 获取权限
+    		$grant = $this->getList($request,'permission');
+            // 获取查询表单
+            $query = $this->getList($request,'query');
+            // 获取token数据
+            $token = $this->getList($request,'token');
+            
+    		$data = isset($datas['data']) ? $datas['data'] : $datas;
+    		$rows = isset($datas['rows']) ? (int)$datas['rows'] : ((is_object($datas)||is_array($datas)) ? count($datas) : 0);
+    		$title = isset($datas['title']) ? $datas['title'] : $this->title;
+    		$layer = isset($datas['layer']) ? (int)$datas['layer'] : (int)$this->layer;
+
+    		foreach($thead as $k => $v){
+    			if(!isset($thead[$k]['align']) && $this->align){
+    				$thead[$k]['align'] = $this->align;
+    			}
+    		} 
+    		
+    		if($this->action_value && count($this->action_value)){
+            	if($data && count($data) && !isset($data['code'])){
+	            	for($i=0;$i<count($data);$i++){
+	            		$primaryKey = $this->primaryKey;
+	            		if(property_exists($data[$i],$primaryKey) && $data[$i]->$primaryKey){
+	            			$data[$i]->action = $this->action_value;
+	            		}else{
+	            			$data[$i]->action = '';
+	            		}
+	            	}
+	            }
+                array_push($thead,['type' => 'action','prop' => 'action','label' => '操作','align' => 'center','width' => 80]);
+            }
+            if(in_array('is_modify',$grant)){
+                array_push($thead,['type' => 'mod','prop' => 'mod','label' => '编辑','align' => 'center','width' => 80]);
+            }
+            if(in_array('is_del',$grant)){
+                array_push($thead,['type' => 'del','prop' => 'del','label' => '删除','align' => 'center','width' => 80]);
+            }
+
+            $options = [
+            	'is_size' 		=> $this->is_size,
+            	'is_total'		=> 0,
+                'is_jumper'		=> $this->is_jumper,
+                'callback'		=> false,
+            ];
+            
+            if($this->action_width){
+            	$options['action_width'] = $this->action_width;
+            }
+            
+            $result =  [
+                'title'         => $title,
+                'table'         => $this->table,
+                'primaryKey'    => $this->primaryKey,
+                'layer'         => $layer,
+                'thead'         => $thead,
+                'query'         => $query,
+                'grant'         => $grant,
+                'action'        => $this->action,
+                'page'			=> (int)$request->input('page',1),
+                'pagesize'		=> $layer > 1 ? $rows : (int)$this->pagesize,
+                'prefix'		=> $this->prefix,
+                'api'			=> $this->host['api'] ?? '',
+                'importFile'    => $this->import_file,
+                'rows'          => $rows,
+                'data'          => $data,
+                'is_size'		=> $this->is_size,
+                'is_total'		=> 0,
+                'is_jumper'		=> $this->is_jumper,
+                'options'		=> $options
+            ];
+            if($this->is_tabs){
+            	$tabs = $this->getList($request,'tabs');
+            	if($tabs){
+            		$result['tabs'] = $tabs;
+            	}
+            }
+
+            // var_dump($datas);
+            foreach($datas as $k => $v){
+            	if(!in_array($k,['rows','data','title','layer'])){
+            		$result[$k] = $v;
+            	}
+            }
+            // var_dump($result);
+            return $result;
+    	}
+
+    	/**
+    	 * 查询所有数据
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getAllList(Request $request){
+    		if($this->page){
+    			return $this->getList($request,'page');
+    		}
+    		
+    		$field = $this->getList($request,'field',true);
+    		$where = $this->getWhere($request);
+
+
+    		$object = Db::table($this->table)
+    					->select(...$field)
+    					->where($where)
+    					->orderBy($this->table.'.ID',$this->orderBy)
+    					->get();
+    		if($object){
+    			$object = $this->getResultData($object,true);
+    		}
+
+    		return $object;
+    	}
+
+    	/**
+    	 * 查询分页数据
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getPageList(Request $request){
+    		$field = $this->getList($request,'field',true);
+    		$where = $this->getWhere($request);
+
+    		$is_cate = $this->fieldExists('cate_id');
+    		$cate_table = $this->cate_table ?: $this->table . '_cate';
+    		if($is_cate && $this->getClassName($cate_table)){
+    			array_push($field,$cate_table.'.Title as cate_title');
+    		}
+
+    		$keyword = trim($request->input('keyword',''));
+    		if($keyword){
+    			$k = '';
+    			if($this->fieldExists('title')){
+    				$k = 'Title';
+    			}elseif($this->fieldExists($this->table.'_name')){
+    				$k = $this->convert($this->table).'Name';
+    			}elseif($this->fieldExists($this->table.'_title')){
+    				$k = $this->convert($this->table).'Title';
+    			}
+
+    			if($k){
+    				array_push($where,[$this->table.'.'.$k,'like',"%".$keyword."%"]);
+    			}
+    		}
+    		
+    		$rows = Db::table($this->table);
+    		if($is_cate && $this->getClassName($cate_table)){
+    			$rows = $rows->join($cate_table,'CateID','=',$cate_table.'.ID');
+    		}
+    		$rows = $rows->where($where)
+    					->count();
+    		[$offset,$limit] = $this->getLimit($request);
+    		$object = Db::table($this->table);
+    		if($is_cate && $this->getClassName($cate_table)){
+    			$object = $object->join($cate_table,'CateID','=',$cate_table.'.ID');
+    		}
+    		
+    		$object = $object->select(...$field)
+    					->where($where)
+    					->orderBy($this->table.'.ID',$this->orderBy)
+    					->offset($offset)
+    					->limit($limit)
+    					->get();
+    		if($object){
+    			$object = $this->getResultData($object,true);
+    		}
+    					
+    		return ['rows'=> $rows,'data'=>$object];    		
+    	}
+
+    	/**
+    	 * 获取用户列表
+    	 * @param  Request $request [description]
+    	 * @param  integer $user_id [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getUserList(Request $request,$user_id = 0){
+    		$user_id = $user_id ? $user_id : $request->input('user_id',0);
+    		if(!$user_id){
+    			return 100007;
+    		}
+
+    		$field = $this->getList($request,'field');
+    		$where = $this->getWhere($request);
+    		array_push($where,[$this->table.'.UserID','=',$user_id]);
+
+    		$object = Db::table($this->table)
+    					->select(...$field)
+    					->where($where)
+    					->get();
+    		if($object){
+    			return count($object) === 1 ? $object[0] : $object;
+    		}
+
+    		return [];
+    	}
+
+    	protected function getSearchList(Request $request,$flag = false){
+    		$field = $this->getList($request,'field');
+    		$where = $this->getWhere($request);
+
+    		$post = $request->post();
+    		if($post){
+    			foreach($post as $k => $v){
+    				$k = $this->convert($k);
+    				if($this->fieldExists($k)){
+    					array_push($where,[$k,'=',$v]);
+    				}
+    			}
+    		}
+
     		if($flag){
-    			foreach($data as $key => $val){
-    				if(\property_exists($data[$key],'create_time')){
-    					$data[$key]->create_time = $this->getDateTime($data[$key]->create_time);
+	    		$rows = Db::table($this->table)
+	    					->where($where)
+	    					->count();
+	    		[$offset,$limit] = $this->getLimit($request);
+	    		$object = Db::table($this->table)
+	    					->select(...$field)
+	    					->where($where)
+	    					->orderBy($this->convert($this->primaryKey),$this->orderBy)
+	    					->offset($offset)
+	    					->limit($limit)
+	    					->get();
+
+	    		return ['rows'=>$rows,'data'=>$object];
+    		}else{
+    			$object = Db::table($this->table)
+    						->select(...$field)
+    						->where($where)
+	    					->orderBy($this->convert($this->primaryKey),$this->orderBy)
+	    					->get();
+
+	    		return ['rows'=>count($object),'data'=>$object];
+    		}
+    	}
+
+    	/**
+    	 * [getTreeList description]
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getTreeList(Request $request): array
+    	{
+    		$field = $this->getList($request,'field');
+			$where = $this->getWhere($request);
+			$object = Db::table($this->table)
+							->select(...$field)
+							->orderBy('Level','asc')
+							->orderBy('Sort','asc')
+							->where($where)
+							->get();
+			if($object){
+				$object = $this->getResultData($object,true);
+				return $this->tree($object);
+			}
+
+			return [];
+    	}
+
+    	/**
+    	 * [getChildList description]
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getChildList(Request $request): array
+    	{
+    		$field = $this->getList($request,'field');
+			$where = $this->getWhere($request);
+			$object = Db::table($this->table)
+							->select(...$field)
+							->where($where)
+							->get();
+			$object = $this->getResultData($object,true);
+
+			return $this->child($object);
+    	}
+
+    	/**
+    	 * [getParentList description]
+    	 * @param  Request $request [description]
+    	 * @param  integer $pid     [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getParentList(Request $request,$pid = 0){
+    		if(!is_numeric($pid) || is_null($pid) || $pid < 0){
+				return [];
+			}
+			$field = $this->getList($request,'field');
+			if(!$this->fieldExists('pid')){
+				return [];
+			}
+			$where = $this->getWhere($request);
+			if(!is_array($pid)){
+				$pid = \explode(',',$pid);
+			}
+			$object = Db::table($this->table)
+						->select(...$field);
+			if($this->fieldExists('sort')){
+				$object = $object->orderBy('Sort','asc');
+			}else{
+				$object = $object->orderBy($this->convert($this->primaryKey),'asc');
+			}
+			$object = $object->where($where)
+						->whereIn('PID',$pid)
+						->get();
+			return $object;
+    	}
+
+    	/**
+    	 * [getLevelList description]
+    	 * @param  Request $request [description]
+    	 * @param  integer $level   [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getLevelList(Request $request,$level = 1){
+    		if(empty($level) || is_null($level) || !is_numeric($level) || $level <= 0){
+				return [];
+			}
+			$field = $this->getList($request,'field');
+			if(!$this->fieldExists('level')){
+				return [];
+			}
+			$where = $this->getWhere($request);
+			if(!is_array($level)){
+				$level = \explode(',',$level);
+			}
+			$object = Db::table($this->table)
+						->select(...$field);
+			if($this->fieldExists('sort')){
+				$object = $object->orderBy('Sort','asc');
+			}else{
+				$object = $object->orderBy($this->convert($this->primaryKey),'asc');
+			}
+			$object = $object->where($where)
+						->whereIn('Level',$level)
+						->get();
+			return $object;
+    	}
+
+    	/**
+    	 * [getDefaultList description]
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+		protected function getDefaultList(Request $request){
+			$field = $this->getList($request,'field');
+			$where = $this->getWhere($request);
+			if($this->fieldExists('IsDefault')){
+				array_push($where,[$this->table.'.IsDefault','=',1]);
+			}else{
+				return [];
+			}
+
+			$object = Db::table($this->table)
+						->select(...$field)
+						->where($where)
+						->first();
+			return $object;
+		}
+
+		protected function getCodeList(Request $request,$code = ''){
+			if(!$code){
+				return 100007;
+			}
+
+			$fieldname = $this->table.'Code';
+			if(!$this->fieldExists($fieldname)){
+				$fieldname = 'Idcode';
+				if(!$this->fieldExists($fieldname)){
+					$fieldname = 'Code';
+					if(!$this->fieldExists($fieldname)){
+						return 100007;
+					}
+				}
+			}
+			
+			$field = $this->getList($request,'field');
+			$where = $this->getWhere($request);
+			array_push($where,[$fieldname,'=',$code]);
+
+			$object = Db::table($this->table)
+						->select(...$field)
+						->where($where)
+						->first();
+			return $object;
+		}
+
+		/**
+		 * [getTopList description]
+		 * @param  Request $request [description]
+		 * @param  integer $num     [description]
+		 * @return [type]           [description]
+		 */
+    	protected function getTopList(Request $request,$num = 1){
+    		$num = $num ? $num : $request->input('num',1);
+			if(!is_numeric($num) || $num < 1){
+				return [];
+			}
+
+			$field = $this->getList($request,'field');
+			$where = $this->getWhere($request);
+
+    		$args = \func_get_args();
+			\array_shift($args);
+			\array_shift($args);
+
+			if($args && is_array($args)){
+				foreach($args as $k => $v){
+					$k = $this->convert($k);
+					if($this->fieldExists($k)){
+						array_push($where,[$k,'=',$v]);
+					}
+				}
+			}
+
+			$post = $request->post();
+			if($post){
+				foreach($post as $k => $v){
+					$k = $this->convert($k);
+					if($this->fieldExists($k)){
+						array_push($where,[$k,'=',$v]);
+					}
+				}
+			}
+			
+			$object = Db::table($this->table)
+						->select(...$field)
+						->where($where)
+						->orderBy($this->convert($this->primaryKey),'desc')
+						->limit($num);
+			if($num > 1){
+				$object = $object->get();
+
+				return $this->getResultData($object,true);
+			}else{
+				$object = $object->first();
+				return $this->getResultData($object);
+			}
+    	}
+
+    	/**
+    	 * 获取查询搜索表单
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getQueryList(Request $request): array
+    	{
+    		$query = [];
+    		$fields = $this->getList($request,'fields');
+    		if($fields && is_array($fields) && !isset($fields['code'])){
+	    		foreach($fields as $field){
+	    			if($field['is_search']){
+	    				if($this->isField($field['map_name'],'title')){
+	    					$value = \trim($request->input('keyword',''));
+	    					array_push($query,['type'=>'input','label'=>$field['comment'],'prop'=>'keyword','value'=>$value,'placeholder'=>'关键词...']);
+	    				}
+	    			}
+	    		}
+	    	}
+	    	if(!$query){
+	    		$query = [
+    				['type'=>'input','label'=>'关键词','prop'=>'keyword','value'=>trim($request->input('keyword','')),'placeholder'=>'关键词...']
+    			];
+	    	}
+    		return $query;
+    	}
+
+        /**
+         * 生成H5二维码
+         * @param  [type] $url [description]
+         * @return [type]      [description]
+         */
+        protected function createH5Qrcode($request,$data){
+            $service = new \dackou\service\Qrcode\QrcodeService();
+            $result = $service->createUrl($request,$data);
+            return $result->getDataUri();
+        }
+
+        /**
+         * 生成小程序二维码
+         * @param  [type] $url [description]
+         * @return [type]      [description]
+         */
+        protected function createMiniQrcode($request,$data){
+            $service = new \dackou\service\Wechat\WechatService();
+            // var_dump('mini qrcode data:');
+            // var_dump($data);
+            $result = $service->createMiniCode($request,$data);
+            if(isset($result['code']) && $result['code'] === 0){
+                return $result['data'];
+            }
+            return $result;
+        }
+
+    	protected function getQrcodeList(Request $request,$id = 0){
+    		if(!$id){
+    			return 100007;
+    		}
+
+    		$qrcode_router = $this->qrcode_router ? $this->qrcode_router : 'detail';
+    		$pathH5 = trim($request->input('h5',$this->table == 'user' ? '/user/info/'.$id : $this->qrcode_host.'?id='.$id));
+    		$pathMini = trim($request->input('mini',$this->table == 'user' ? '/pages/index/index?uid='.$id : '/'.$this->table.'/'.$qrcode_router.'?id='.$id));
+
+    		$h5Data = [
+    			'url' 	  => $pathH5,
+    			'text' 	  => 'H5二维码',
+    			'size'	  => 1024,
+    			'margin'  => 10,
+    			'logo' 	  => ''
+    		];
+    		// var_dump($h5Data);
+    		$miniData = [
+    			'path'	=> $pathMini,
+    			'width' => 1024
+    		];
+
+    		$qrcodeH5 = $this->createH5Qrcode($request,$h5Data);
+    		if(is_array($qrcodeH5) && isset($qrcodeH5['code'])){
+    			$qrcodeH5 = '生成失败';
+    		}
+    		$qrcodeMini = $this->createMiniQrcode($request,$miniData);
+    		if(is_array($qrcodeMini) && isset($qrcodeMini['code'])){
+    			$qrcodeMini = '生成失败';
+    		}
+
+    		try{
+    			return [
+    				'id'	=> $id,
+    				'title' => $this->title.'二维码',
+    				'h5'	=> ['path'=>$pathH5,'qrcode'=>$qrcodeH5],
+    				'mini'	=> ['path'=>$pathMini,'qrcode'=>$qrcodeMini]
+    			];
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
+    	}
+
+    	/**
+    	 * 获取权限显示列表
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getPermissionList(Request $request): array
+    	{
+    		
+    		$path = $this->getRouter($request);
+    		$sign = $this->getTokenData($request,'sign');
+    		if(!$path || !$sign){
+    			return [];
+    		}
+    		
+            $result = [];
+    		$field = $this->getList($request,'handle',true);
+            $object = Db::table('grant')
+                        ->join('role','RoleID','=','role.ID')
+                        ->join('menu','MenuID','=','menu.ID')
+                        ->select(...$field)
+                        ->where([['Sign','=',$sign],['Router','=',$path]])
+                        ->first();
+            // var_dump($object);
+            if($object){
+                foreach($object as $key => $val){
+                    if($val === 1){
+                        array_push($result,$key);
+                    }
+                }
+            }
+            
+            return $result;
+    	}
+
+    	/**
+    	 * 获取功能列表
+    	 * @param  Request $request [description]
+    	 * @param  boolean $flag    [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getHandleList(Request $request,$flag = false): array
+    	{
+    		$object = Db::table('handle')
+    					->select('ID as id','Title as title','Key as key')
+    					->where('IsDel',0)
+    					->orderBy('Sort','asc')
+    					->get();
+    		// var_dump($object);
+    		if($object){
+    			if($flag){
+    				$result = ['grant.IsShow as is_show'];
+    			}else{
+    				$result = [
+    					[
+    						'id' => 0,
+	    					'title' => '显示',
+	    					'key'	=> 'is_show',
+	    					'type'  => '',
+	    					'plan'	=> true
+    					]
+    				];
+    			}
+    			foreach($object as $k => $v){
+    				if($flag){
+    					array_push($result,"grant.".$object[$k]->key." as ".$this->convert($object[$k]->key,false));
+    				}else{
+    					array_push($result,[
+    						'id' 	=> $object[$k]->id,
+    						'title' => $object[$k]->title,
+    						'key'   => $this->convert($object[$k]->key,false),
+    						'type'  => '',
+    						'plan'  => true
+    					]);
     				}
-    				if(\property_exists($data[$key],'update_time')){
-    					$data[$key]->update_time = $this->getDateTime($data[$key]->update_time);
+    			}
+
+    			return $result;
+    		}
+
+
+    		$field = [
+    			['id'=>1,'title'=>'显示','key'=>'IsShow','type'=>'','plan'=>true],
+    			['id'=>2,'title'=>'刷新','key'=>'IsRefresh','type'=>'','plan'=>true],
+    			['id'=>3,'title'=>'新增','key'=>'IsAdd','type'=>'','plan'=>true],
+    			['id'=>4,'title'=>'修改','key'=>'IsModify','type'=>'','plan'=>true],
+    			['id'=>5,'title'=>'查询','key'=>'IsSearch','type'=>'','plan'=>true],
+    			['id'=>6,'title'=>'保存','key'=>'IsSave','type'=>'','plan'=>true],
+    			['id'=>7,'title'=>'删除','key'=>'IsDel','type'=>'','plan'=>true],
+    			['id'=>8,'title'=>'导入','key'=>'IsImport','type'=>'','plan'=>true],
+    			['id'=>9,'title'=>'导出','key'=>'IsExport','type'=>'','plan'=>true],
+    			['id'=>10,'title'=>'打印','key'=>'IsPrint','type'=>'','plan'=>true],
+    			['id'=>11,'title'=>'审核','key'=>'IsChecked','type'=>'','plan'=>true],
+    			['id'=>12,'title'=>'核准','key'=>'IsApproved','type'=>'','plan'=>true],
+    			['id'=>13,'title'=>'拒绝','key'=>'IsReject','type'=>'','plan'=>true],
+    			['id'=>14,'title'=>'初始化','key'=>'IsInit','type'=>'','plan'=>true],
+    			['id'=>15,'title'=>'清空','key'=>'IsClear','type'=>'','plan'=>true],
+    			['id'=>16,'title'=>'返回','key'=>'IsBack','type'=>'','plan'=>true],
+    		];
+
+
+    		if($flag){
+    			$temp = [];
+    			foreach($field as $item){
+    				array_push($temp,"grant.".$item['key']." as ".$this->convert($item['key'],false));
+    			}
+
+    			return $temp;
+    		}
+
+    		return $field;
+    	}
+
+    	/**
+    	 * 获取选项option
+    	 * @param  Request    $request  [description]
+    	 * @param  mixed|null $param    [description]
+    	 * @param  array      $disabled [description]
+    	 * @param  array      $fields   [description]
+    	 * @return [type]               [description]
+    	 */
+    	protected function getOptionList(Request $request,mixed $param = null,array $disabled = [],array $fields = [])
+    	{
+    		$tabFields = $this->getList($request,'field','key');
+    		if(!$fields){
+    			$title = isset($tabFields['title']) ? 'Title' : (isset($tabFields[$this->table.'_name']) ? $tabFields[$this->table.'_name'] : (isset($tabFields[$this->table.'_title']) ? $tabFields[$this->table.'_title'] : ''));
+    			if(!$title){
+    				return [];
+    			}
+    			$fields[$title] = $this->option_label;
+    			$fields[$this->convert($this->primaryKey)] = $this->option_value;
+    		}
+    		$field = [];
+    		foreach($fields as $k => $v){
+    			\array_push($field,"{$k} as {$v}");
+    		}
+    		$where = $this->getWhere($request);
+    		if($this->fieldExists('is_valid')){
+    			array_push($where,['IsValid','=',1]);
+    		}
+    		if(is_array($param) && $param){
+    			foreach($param as $k => $v){
+    				if($this->isIndexArray($param)){
+	    				\array_push($where,[$k,'=',$v]);
+	    			}else{
+	    				array_push($where,$v);
+	    			}
+    			}
+    		}
+    		
+    		if($this->layer > 1){
+    			array_push($field,'ID as id');
+    			array_push($field,'Level as level');
+    			array_push($field,'PID as pid');
+    			array_push($field,'Number as number');
+    		}
+    		
+    		$object = Db::table($this->table)
+    					->select(...$field)
+    					->where($where);
+    		if($this->layer > 1){
+    			$object = $object->orderBy('Level','asc');
+    		}
+    		if($this->fieldExists('sort')){
+    			$object = $object->orderBy('Sort','asc');
+    		}
+    		$object = $object->get();
+
+    		if($object){
+    			$options = [];
+    			foreach($object as $k => $v){
+    				$option_value = $this->option_value;
+    				$object[$k]->disabled = \in_array($v->$option_value,$disabled) ? true : false;
+    			}
+
+    			if($this->layer > 1){
+    				$object = $this->child($object);
+    			}
+    			return $object;
+    		}
+
+    		return [];
+    	}
+
+    	protected function getFormtypeList(Request $request): array
+    	{
+    		return $this->getList($request,'form');
+    	}
+
+    	/**
+    	 * [getFormList description]
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getFormList(Request $request): array
+    	{
+    		return [
+				['type'=>'option','label'=>'文本','value'=>'1','children'=>[
+					['type'=>'input','label'=>'普通文本','value'=>'input'],
+					['type'=>'input','label'=>'加密文本','value'=>'password','attrs'=>['type'=>'password']],
+					['type'=>'input','label'=>'文本域','value'=>'textarea','attrs'=>['type'=>'textarea']],
+					['type'=>'input-number','label'=>'步进器','value'=>'number'],
+					['type'=>'tag','label'=>'标签','value'=>'tag'],
+					['type'=>'mention','label'=>'提及','value'=>'mention'],
+				]],
+				['type'=>'option','label'=>'上传','value'=>'2','children'=>[
+					['type'=>'upload','label'=>'上传图片','value'=>'upload_img','attrs'=>[]],
+					['type'=>'upload','label'=>'上传Logo','value'=>'upload_logo','attrs'=>[]],
+					['type'=>'upload','label'=>'上传头像','value'=>'upload_face','attrs'=>[]],
+					['type'=>'upload','label'=>'上传轮播图','value'=>'upload_picture','attrs'=>[]],
+					['type'=>'upload','label'=>'上传文件','value'=>'upload_file','attrs'=>[]],
+					['type'=>'upload','label'=>'上传证件','value'=>'upload_cert','attrs'=>[]],
+					['type'=>'upload','label'=>'上传音频','value'=>'upload_voice','attrs'=>[]],
+					['type'=>'upload','label'=>'上传视频','value'=>'upload_video','attrs'=>[]],
+				]],
+				['type'=>'option','label'=>'选择','value'=>'3','children'=>[
+					['type'=>'select','label'=>'下拉单选','value'=>'select'],
+					['type'=>'select','label'=>'下拉多选','value'=>'select_multi'],
+					['type'=>'cascader','label'=>'级联选择','value'=>'cascader'],
+					['type'=>'checkbox-group','label'=>'复选框','value'=>'checkbox'],
+					['type'=>'radio-group','label'=>'单选框','value'=>'radio'],
+				]],
+				['type'=>'option','label'=>'日期时间','value'=>'4','children'=>[
+					['type'=>'date','label'=>'年月日','value'=>'datetime','attrs'=>[]],
+					['type'=>'date','label'=>'年月日时','value'=>'datetimes','attrs'=>[]],
+					['type'=>'date','label'=>'年','value'=>'year','attrs'=>[]],
+					['type'=>'date','label'=>'月','value'=>'month','attrs'=>[]],
+					['type'=>'date','label'=>'日','value'=>'day','attrs'=>[]],
+					['type'=>'date','label'=>'时','value'=>'hour','attrs'=>[]],
+				]],
+				['type'=>'option','label'=>'组合表单','value'=>5,'children'=>[
+					['type'=>'group','label'=>'组合值','value'=>'group'],
+					['type'=>'multiple','label'=>'多项组合值','value'=>'multiple'],
+					['type'=>'table','label'=>'表格组合值','value'=>'table'],
+					['type'=>'description','label'=>'描述组合值','value'=>'description'],
+				]],
+				['type'=>'option','label'=>'编辑器','value'=>'6','children'=>[
+					['type'=>'editor','label'=>'富文本','value'=>'editor'],
+				]],
+				['type'=>'option','label'=>'商品','value'=>'7','children'=>[
+					['type'=>'goods_attr','label'=>'商品属性','value'=>'goods_attr'],
+					['type'=>'goods_spec','label'=>'商品规格','value'=>'goods_spec'],
+				]],
+				['type'=>'option','label'=>'城市','value'=>'8','children'=>[
+					['type'=>'city','label'=>'省市区','value'=>'city'],
+					['type'=>'city','label'=>'省市区街道','value'=>'district'],
+					['type'=>'city','label'=>'省市','value'=>'province_city'],
+					['type'=>'city','label'=>'省','value'=>'province'],
+				]],
+				['type'=>'option','label'=>'其它','value'=>'9','children'=>[
+					['type'=>'icon','label'=>'图标','value'=>'icon'],
+					['type'=>'switch','label'=>'开关','value'=>'switch'],
+					['type'=>'color-picker','label'=>'颜色','value'=>'color-picker'],
+					['type'=>'sort','label'=>'排序','value'=>'sort'],
+					['type'=>'milut','label'=>'多值表单','value'=>'milut_form'],
+					['type'=>'divider','label'=>'分割线','value'=>'divider'],
+				]]
+    		];
+    	}
+
+    	/**
+    	 * 获取tags列表
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getTabsList(Request $request){
+    		$tabs = [];
+    		if($this->is_tabs){
+    			if($this->cate_value){
+    				if($this->isIndexArray($this->cate_value)){
+    					foreach($this->cate_value as $k => $v){
+    						$tabs[][$this->option_label] = $v;
+    						$tabs[][$this->option_value] = (int)$k;
+    					}
+    				}else{
+    					foreach($this->cate_value as $k => $v){
+    						if(isset($v[$this->option_label])){
+    							$tabs[][$this->option_label] = $v[$this->option_label];
+    							$tabs[][$this->option_value] = $v[$this->option_value];
+    						}elseif(isset($v['title'])){
+    							$tabs[][$this->option_label] = $v['title'];
+    							$tabs[][$this->option_value] = $v['id'];
+    						}
+    					}
     				}
-    				if(\property_exists($data[$key],'delete_time')){
-    					$data[$key]->delete_time = $this->getDateTime($data[$key]->delete_time);
+    			}
+    		}
+    		return $tabs;
+    	}
+
+    	protected function getExportAction(Request $request){
+    		return [
+    			['type'=>'input','label'=>'导出数据','prop'=>'export']
+    		];
+    	}
+
+    	/**
+    	 * 获取表单
+    	 * @param  Request $request [description]
+    	 * @param  integer $id      [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getActionList(Request $request,$id = 0): array
+    	{
+    		if($id){
+    			$data = $this->getList($request,$id);
+    			if(!$data || !is_object($data)){
+    				return $data;
+    			}
+    		}
+
+    		$action_value = $request->input('action','');
+    		if($action_value){
+    			$action_method = 'get'.ucfirst($action_value).'Action';
+    			if(\method_exists($this,$action_method)){
+    				return $this->$action_method($request,$id);
+    			}
+    		}
+
+    		$fields = $this->getList($request,'fields');
+    		if(!$fields || !is_array($fields) || isset($fields['code'])){
+    			return '无效的表单字段';
+    		}
+
+    		$action = [];
+			$exclude = $this->exclude;
+			\array_push($exclude,'ID','Number','CreateTime','Hits','Collects','Comments','UserCount');
+			if($this->action_exclude){
+				$exclude = array_merge($exclude,$this->action_exclude);
+			}
+			// var_dump($fields[0]);
+    		foreach($fields as $field){
+    			if($field['is_action'] && !in_array($field['field_name'],$exclude)){
+    				$is_action = 1;
+    				$prop = $field['map_name'];
+    				$comment = $field['comment'];
+    				$prefix = $field['prefix'];
+    				$suffix = $field['suffix'];
+    				$default_value = $field['default_value'] ? $field['default_value'] : '';
+    				$hidden = false;
+    				$attrs = [];
+    				$slot = [];
+    				$rules = [];
+    				$children = [];
+    				$option = [
+    					'type'	=> $field['form_type'],
+    					'label'	=> $field['comment'],
+    					'prop'	=> $prop,
+    					'value'	=> $data->$prop ?? ($default_value ? $default_value : ''),
+    				];
+
+    				if(!$field['schema']){
+						if($this->isField($prop,'title')){
+							$rules = ['required'=>true,'message'=>$comment.'不能为空'];
+						}
+
+						switch($prop){
+							case 'cate_id':
+								if(property_exists($this,'cate_value') && $this->cate_value && count($this->cate_value) < 5){
+									$option['type'] = 'radio-group';
+									$option['value'] = $id ? (int)$data->$prop : ($default_value?((int)$default_value):0);
+								}else{
+									$option['type'] = 'select';
+								}
+								$children = $this->getOption('cate');
+								$option['placeholder'] = '选择'.$comment;
+								$option['value'] = $id ? $data->$prop : $default_value;
+								$rules = ['required'=>true,'message'=>'请选择'.$comment];
+								break;
+							case 'type':
+								$option['type'] = 'select';
+								$children = $this->getOption('type');
+								$option['placeholder'] = '选择'.$comment;
+								$rules = ['required'=>true,'message'=>'请选择'.$comment];
+								break;
+							case 'keyword':
+							case 'desc':
+							case 'description':
+								$option['type'] = 'input';
+								$attrs = ['type'=>'textarea'];
+								break;
+							case 'icon':
+								$option['type'] = 'icon';
+								break;
+							case 'logo':
+							case 'pic':
+							case 'img':
+								$option['type'] = 'upload';
+								$option['attrs'] = $this->getUploadOptions('img');
+								if($this->fieldExists('Picture')){
+									$option['hidden'] = true;
+								}
+								break;
+							case 'picture':
+							case 'swiper':
+								$option['type'] = 'upload';
+								$option['attrs'] = $this->getUploadOptions('card',5);
+								break;
+							case 'sort':
+								$option['type'] = 'input';
+								if($this->fieldExists('pid')){
+									$pid = $id ? $data->pid : $request->input('pid',0);
+									$sort = $sort = $this->getMaxSort($pid);
+								}else{
+									$sort = $sort = $this->getMaxSort(0);
+								}
+								$option['value'] = $id ? $data->sort : $sort;
+								$rules = ['required'=>true,'message'=>$comment . '不能为空'];
+								break;
+							case 'content':
+								$option['type'] = 'editor';
+								$option['attrs'] = $this->getEditorOptions();
+								break;
+							case 'status':
+								$status_value = $this->getOption('status');
+								if(count($status_value) > 4){
+									$option['type'] = 'select';
+									$children = $status_value;
+									$option['placeholder'] = '选择'.$comment;
+									$option['value'] = $id ? $data->status : ($default_value ? $default_value : $this->default_status_value);
+									$rules = ['required'=>true,'message'=>'请选择'.$comment];
+								}else{
+									$option['type'] = 'radio-group';
+									$children = $status_value;
+									$option['value'] = $id ? $data->status : ($default_value ? $default_value : $this->default_status_value);
+									$rules = ['required'=>true,'message'=>'请选择'.$comment];
+								}
+								break;
+							default:
+						}
+					}
+
+					if(substr($prop,0,3) == 'is_' && $field['field_type'] == 'tinyint' && $field['length'] == 1){
+						$option['type'] = 'switch';
+						$option['value'] = $id&&property_exists($data,$prop) ? $data->$prop : ($default_value ? $default_value : 0);
+					}
+
+					if($prop == 'user_id' && $comment = '创建人'){
+						$is_action = 0;
+					}
+
+					if($prop == 'status' && !$id){
+						$is_action = 0;
+					}
+
+					if($this->fieldExists('StartDate') && $this->fieldExists('EndDate')){
+						if($prop == 'end_date'){
+							$is_action = 0;
+						}
+						if($prop == 'start_date'){
+							$option['type'] = 'date-picker';
+							$option['prop'] = 'date';
+							$option['label'] = $this->title.'日期';
+							$option['attrs']['type'] = 'daterange';
+							$option['attrs']['range-separator'] = 'To';
+							$option['attrs']['start-placeholder'] = '开始日期';
+							$option['attrs']['end-placeholder'] = '结束日期';
+							$option['attrs']['value-format'] = 'YYYY-MM-DD';
+							$rules = ['required'=>true,'message'=>'请选择日期'];
+							$option['value'] = $id ? [$data->start_date,$data->end_date] : [];;
+						}
+					}
+
+					if($this->fieldExists('StartTime') && $this->fieldExists('EndTime')){
+						if($prop == 'end_time'){
+							$is_action = 0;
+						}
+						if($prop == 'start_time'){
+							$option['type'] = 'date-picker';
+							$option['prop'] = 'time';
+							$option['label'] = $this->title.'时间';
+							$option['attrs']['type'] = 'datetimerange';
+							$option['attrs']['range-separator'] = 'To';
+							$option['attrs']['start-placeholder'] = '开始时间';
+							$option['attrs']['end-placeholder'] = '结束时间';
+							$option['attrs']['value-format'] = 'YYYY-MM-DD HH:mm';
+							$rules = ['required'=>true,'message'=>'请选择时间'];
+							$option['value'] = $id ? [$data->start_time,$data->end_time] : [];
+						}
+					}
+
+					if($this->fieldExists('PID') && $this->fieldExists('Level')){
+						if($prop == 'pid'){
+							$level = $id ? $data->level : $request->input('level',1);
+							$option['type'] = 'select';
+							if($id){
+								$children = $this->getList($request,'option',[[$this->table.'.Level','=',$data->level-1]]);
+							}else{
+								$children = $this->getList($request,'option',[[$this->table.'.Level','<',$level]]);
+							}
+							$attrs['disabled'] = true;
+							$option['value'] = $id ? $data->pid : (int)$request->input('pid',0);
+							$option['hidden'] = true;
+							$rules = ['required'=>$level>1?true:false,'message'=>'请选择'.$comment];
+						}elseif($prop == 'level'){
+							$level = [];
+							for($i=1;$i<=$this->layer;$i++){
+								array_push($level,['label'=>$i.'级','value'=>$i]);
+							}
+							$option['type'] = 'select';
+							$children = $level;
+							$attrs['disabled'] = true;
+							$option['value'] = $id ? $data->level : $request->input('level',1);
+							$option['hidden'] = true;
+							$rules = ['required'=>true,'message'=>'请选择'.$comment];
+						}
+					}
+
+					if($prefix){
+						$slot['prefix'] = ['value' => $prefix];
+					}
+
+					if($suffix){
+						$slot['suffix'] = ['value' => $suffix];
+					}
+
+    				if($rules){
+    					$option['rules'] = $rules;
     				}
-    				if(\property_exists($data[$key],'picture')){
-    					$data[$key]->picture = $this->getDecodeData($data[$key]->picture);
+    				if($attrs){
+    					$option['attrs'] = $attrs;
+    				}
+    				if($slot){
+    					$option['slot'] = $slot;
+    				}
+    				if($children){
+    					$option['children'] = $children;
+    				}
+
+    				if($is_action){
+    					array_push($action,$option);
+    				}
+    			}
+    		}
+
+    		return $action;
+    	}
+
+    	/**
+    	 * 获取显示表头
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getMapList(Request $request): array
+    	{
+    		$fields = $this->getList($request,'fields');
+    		if(!$fields || !is_array($fields) || isset($fields['code'])){
+    			return [];
+    		}
+
+    		$action_value = $request->input('action','');
+    		if($action_value){
+    			$map_method = 'get'.ucfirst($action_value).'Map';
+    			if(\method_exists($this,$map_method)){
+    				return $this->$map_method($request);
+    			}
+    		}
+
+    		$map = [];
+			$exclude = $this->exclude;
+			array_push($exclude,'Keyword','Desc','Description','SourceUrl','Content','Picture','Swiper','PID','Level','Number');
+			if($this->map_exclude){
+				$exclude = array_merge($exclude,$this->map_exclude);
+			}
+    		foreach($fields as $field){
+    			if($field['is_show'] && !in_array($field['field_name'],$exclude)){
+    				$is_show = 1;
+    				$type = $field['show_type'];
+    				$prop = $field['map_name'];
+    				$comment = $field['comment'];
+    				$align = $field['align'];
+    				$width = $field['width'];
+    				$prefix = isset($field['prefix']) ? $field['prefix'] : '';
+    				$suffix = isset($field['suffix']) ? $field['suffix'] : '';
+    				$color = isset($field['color']) ? $field['color'] : '';
+    				$alias = isset($field['alias']) ? $field['alias'] : '';
+    				$callback = isset($field['callback']) ? $field['callback'] : '';
+    				$field_data = isset($field['data']) ? $field['data'] : '';
+    				$format = isset($field['format']) ? $field['format'] : '';
+
+    				switch($prop){
+    					case 'cate_id':
+    						if(property_exists($this,'cate_value') && $this->cate_value){
+    							$type = 'map';
+    							$field_data = $this->getOption('cate');
+    						}else{
+	    						$is_show = 0;
+	    						array_push($map,['type'=>'varchar','label'=>'类别','prop'=>'cate_title','align'=>$align]);
+	    					}
+    						break;
+    					case 'icon':
+    						$type = 'icon';
+    						break;
+    					case 'img':
+    					case 'logo':
+    					case 'pic':
+    						$type = 'img';
+    						break;
+    					case 'website':
+    						$type = 'link';
+    						break;
+    					case 'status':
+    						$type = 'map';
+    						$field_data = $this->getOption('status');
+    						break;
+    					case 'create_time':
+    						$type = 'varchar';
+    						$width = 180;
+    						break;
+    					default:
+    				}
+
+    				if($this->isField($prop,'title') || $this->isField($prop,'full_name') || $this->isField($prop,'en_name')){
+    					$width = $field['length']>150 ? ($field['length']>=250 ? 200 : $field['length']) : 150;
+    				}
+
+    				if(substr($prop,0,3) == 'is_' && $field['field_type'] == 'tinyint' && $field['length'] == 1){
+						$type = 'switch';
+					}
+
+    				$option = [
+    					'type'  => $type,
+    					'label' => $comment,
+    					'prop'  => $prop,
+    					'align' => $align,
+    				];
+
+    				if($this->layer > 1){
+    					if($prop == 'id'){
+    						$option['align'] = '';
+    					}elseif($this->isField($prop,'title')){
+	    					$option['align'] = '';
+	    					$width = 50 * $this->layer + 30;
+    					}
+    				}
+
+    				if($this->fieldExists('StartDate') && $this->fieldExists('EndDate')){
+    					if($prop == 'end_date'){
+    						$is_show = 0;
+    					}
+    					if($prop == 'start_date'){
+    						$option['type'] = 'concat';
+    						$option['label'] = $this->title . '日期';
+    						$option['delimiter'] = '-';
+    						$option['fields'] = ['end_date'];
+    						$option['width'] = 250;
+    					}
+    				}
+
+    				if($this->fieldExists('StartTime') && $this->fieldExists('EndTime')){
+    					if($prop == 'end_time'){
+    						$is_show = 0;
+    					}
+    					if($prop == 'start_time'){
+    						$option['type'] = 'concat';
+    						$option['label'] = $this->title . '时间';
+    						$option['delimiter'] = '-';
+    						$option['fields'] = ['end_time'];
+    						$option['width'] = 300;
+    					}
+    				}
+
+    				if($width){
+    					$option['width'] = $width;
+    				}
+    				if($prefix){
+    					$option['prefix'] = $prefix;
+    				}
+    				if($suffix){
+    					$option['suffix'] = $suffix;
+    				}
+    				if($color){
+    					$option['color'] = $color;
+    				}
+    				if($alias){
+    					$option['alias'] = $alias;
+    				}
+    				if($callback){
+    					$option['callback'] = $callback;
+    				}
+    				if($field_data){
+    					$option['data'] = $field_data;
+    				}
+    				if($format){
+    					$option['format'] = $format;
+    				}
+
+    				if($is_show){
+    					array_push($map,$option);
+    				}
+    			}
+    		}
+
+			if($this->is_qrcode){
+				array_push($map,[
+					'type' => 'qrcode',
+					'label' => '二维码',
+					'prop'  => 'qrcode'
+				]);
+			}
+
+    		return $map;
+    	}
+
+    	/**
+    	 * 自动处理数据
+    	 * @param  [type] $object [description]
+    	 * @return [type]         [description]
+    	 */
+    	protected function getResultData($object,$flag = false){
+    		if(!is_object($object)){
+    			return $object;
+    		}
+
+    		if($flag){
+    			foreach($object as $k => $v){
+    				if(\property_exists($object[$k],'create_time')){
+    					$object[$k]->create_time = $this->getDateTime($object[$k]->create_time);
+    				}
+    				if(\property_exists($object[$k],'update_time')){
+    					$object[$k]->update_time = $this->getDateTime($object[$k]->update_time);
+    				}
+    				if(\property_exists($object[$k],'delete_time')){
+    					$object[$k]->delete_time = $this->getDateTime($object[$k]->delete_time);
+    				}
+    				if(\property_exists($object[$k],'picture')){
+    					$object[$k]->picture = $this->getDecodeData($object[$k]->picture);
     				}
     			}
     		}else{
-    			if(\property_exists($data,'create_time')){
-    				$data->create_time = $this->getDateTime($data->create_time);
+    			if(\property_exists($object,'create_time')){
+    				$object->create_time = $this->getDateTime($object->create_time);
     			}
-    			if(\property_exists($data,'update_time')){
-    				$data->update_time = $this->getDateTime($data->update_time);
+    			if(\property_exists($object,'update_time')){
+    				$object->update_time = $this->getDateTime($object->update_time);
     			}
-    			if(\property_exists($data,'delete_time')){
-    				$data->delete_time = $this->getDateTime($data->delete_time);
+    			if(\property_exists($object,'delete_time')){
+    				$object->delete_time = $this->getDateTime($object->delete_time);
     			}
-    			if(\property_exists($data,'picture')){
-    				$data->picture = $this->getDecodeData($data->picture);
+    			if(\property_exists($object,'picture')){
+    				$object->picture = $this->getDecodeData($object->picture);
     			}
     		}
-    		return $data;
+
+    		return $object;
+    	}
+
+    	public function getProperty($key = 'default_face'){
+    		if(property_exists($this,$key)){
+    			return $this->$key;
+    		}
+    		return '';
+    	}
+
+    	/**
+    	 * 获取路由
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getRouter(Request $request){
+    		$path = \trim($request->input('router',''));
+    		if(!$path){
+	    		$path = \trim($request->path(),'/');
+	    		if($path){
+	    			$path = \explode('/',$path);
+	    			$method = isset($path[1]) ? $path[1] : '';
+	    			$router = $path[0];
+	    			if($method && !in_array($method,['show','index'])){
+	    				$router .= '/' . $method;
+	    			}
+	    			// var_dump('router: '.$router);
+	    			return $router;
+	    		}
+	    	}else{
+    			$path = str_replace('_','/',$path);
+	    	}
+	    	// var_dump('path: '.$path);
+	    	return $path;
     	}
 
     	/**
@@ -1311,10 +2337,25 @@
 	    		if(!$id){
 	    			return 100007;
 	    		}
-	    		$data = $this->getList($request,$id);
-	    		if(!$data || !is_object($data)){
-	    			return '数据不存在或已被删除';
+
+	    		if(is_string($id) && strpos($id,',') !== false){
+	    			$id = explode(',',$id);
 	    		}
+	    		
+	    		if(is_array($id)){
+	    			$data = $this->getList($request,'ids',$id);
+	    			if(!$data){
+	    				return '数据不存在或已被删除';
+	    			}
+	    			if(is_array($data) && isset($data['code']) && $data['code']){
+	    				return $data;
+	    			}
+	    		}else{
+		    		$data = $this->getList($request,$id);
+		    		if(!$data || !is_object($data)){
+		    			return '数据不存在或已被删除';
+		    		}
+		    	}
 
 	    		// if(class_exists('\app\model\Role\RoleModel')){
 		    	// 	$service = new \app\model\Role\RoleModel();
@@ -1324,7 +2365,7 @@
 		    	// 	}
 		    	// }
 
-	    		if(property_exists($data,'IsDel')){
+	    		if($this->fieldExists('IsDel')){
 	    			$result = $this->updateData($request,['IsDel'=>1],$id);
 	    			// var_dump('result: '.$result);
 	    			if($result !== false){
@@ -1335,8 +2376,12 @@
 	    			}
 	    			return false;
 	    		}else{
-	    			$sql = "DELETE FROM `".$this->tab."` WHERE `".$this->convert($this->primaryKey)."` = ?";
-	    			$result = Db::select($sql,[$id]);
+	    			if(is_array($id)){
+	    				$sql = "DELETE FROM `".$this->tab."` WHERE `".$this->convert($this->primaryKey)."` IN (?)";
+	    			}else{
+	    				$sql = "DELETE FROM `".$this->tab."` WHERE `".$this->convert($this->primaryKey)."` = ?";
+	    			}
+	    			$result = Db::select($sql,[is_array($id) ? implode(',',$id) : $id]);
 	    			if($result !== false){
 	    				if(\method_exists($this,'setExcute')){
 	    					return $this->setExcute($request,$data,'delete');
@@ -1366,1293 +2411,53 @@
     		}
     	}
 
-    	/**
-    	 * 获取某条记录
-    	 * @param  Request $request [description]
-    	 * @param  integer $id      [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getListById(Request $request,$id = 0){
-    		if(!$id){
-    			return '数据不存在或已被删除';
+    	// 当排序有冲突时自动调整排序
+    	protected function adjustSort(Request $request,$sort,$id,$pid = -1){
+    		// var_dump('id: '.$id.' pid: '.$pid.' sort: '.$sort);
+    		$where = [[$this->table.'.Sort','=',$sort],[$this->table.'.ID','<>',$id]];
+    		if($pid >= 0){
+    			array_push($where,[$this->table.'.PID','=',$pid]);
     		}
-
-    		try{
-    			$field = $this->getList($request,'field');
-    			$where = $this->getWhere($request);
-    			array_push($where,[$this->convert($this->primaryKey),'=',$id]);
-    			$object = Db::table($this->table)
-    						->select(...$field)
-    						->where($where)
-    						->first();
-    			return $object ? $this->getResultData($object) : '数据不存在或已被删除';
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
-    		}
-    	}
-
-    	/**
-    	 * 获取显示列表
-    	 * @param  Request $request [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getShowList(Request $request){
-    		$title = $this->getTableTitle();
-    		// var_dump('method: '.$this->show_method);
-    		$data = $this->getList($request,$this->show_method);
-    		if(!is_array($data) || (isset($data['code']) && $data['code'])){
-    			return $data;
-    		}
-    		$rows = isset($data['rows']) ? (int)$data['rows'] : count($data);
-    		$layer = isset($data['layer']) ? (int)$data['layer'] : (int)$this->layer;
-
-    		$thead = $this->getList($request,'map');
-    		// var_dump($thead);
-    		foreach($thead as $k => $v){
-    			if(!isset($thead[$k]['align']) && $this->align){
-    				$thead[$k]['align'] = $this->align;
-    			}
-    		}
-            $grant = $this->getList($request,'grants');
-            if(is_array($grant) && isset($grant['code']) && $grant['code']){
-            	return $grant;
-            }
-            $query = $this->getList($request,'query');
-
-            $tabs = [];
-            if($this->is_cate){
-            	if($this->cate_value){
-            		$tabs = [['label'=>'全部'.$title,'value'=>'all']];
-            		foreach($this->cate_value as $k => $v){
-            			array_push($tabs,['label'=>$v,'value'=>(int)$k]);
-            		}
-            	}
-            }
-
-            if($this->action_value && count($this->action_value)){
-            	if($data['data'] && count($data['data'])){
-	            	for($i=0;$i<count($data['data']);$i++){
-	            		$data['data'][$i]->action = $this->action_value;
-	            	}
-	            }
-                array_push($thead,['type' => 'action','prop' => 'action','label' => '操作','align' => 'center','width' => 80]);
-            }
-            
-            // if($this->table == 'user' || $this->table == 'order' || $this->table == 'device'){
-            //     array_push($thead,['type' => 'hand','prop' => 'hand','label' => '操作','align' => 'center','width' => 80]);
-            // }
-
-            if(in_array('is_modify',$grant)){
-                array_push($thead,['type' => 'mod','prop' => 'mod','label' => '编辑','align' => 'center','width' => 80]);
-            }
-            if(in_array('is_del',$grant)){
-                array_push($thead,['type' => 'del','prop' => 'del','label' => '删除','align' => 'center','width' => 80]);
-            }
-            $result =  [
-                'title'         => $title,
-                'table'         => $this->table,
-                'primaryKey'    => $this->primaryKey,
-                'layer'         => $layer,
-                'thead'         => $thead,
-                'query'         => $query,
-                'grant'         => $grant,
-                'tabs'			=> $tabs,
-                'action'        => '',
-                'page'			=> (int)$request->input('page',1),
-                'pagesize'		=> (int)$this->pagesize,
-                'prefix'		=> $this->prefix,
-                'api'			=> $this->host['api'],
-                'importFile'    => $this->import_file,
-                'rows'          => $rows,
-                'data'          => isset($data['data']) ? $data['data'] : $data,
-                'is_size'		=> $this->is_size,
-                'is_total'		=> 0,
-                'is_jumper'		=> $this->is_jumper,
-            ];
-
-            foreach($data as $k => $v){
-            	if(!in_array($k,['rows','data','layer'])){
-            		$result[$k] = $v;
-            	}
-            }
-
-            return $result;
-    	}
-
-    	/**
-    	 * 获取所有数据
-    	 * @param  Request $request [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getAllList(Request $request){
-    		if($this->page){
-    			return $this->getPageList($request);
-    		}
-
-    		try{
-	    		$field = $this->getList($request,'field');
-	    		$where = $this->getWhere($request);
-
-	    		$args = \func_get_args();
-				\array_shift($args);
-
-				if($args && isset($args[0]) && is_array($args[0])){
-					foreach($args[0] as $k => $v){
-						$k = $this->convert($k);
-    					if($this->fieldExists($k)){
-    						array_push($where,[$k,'=',$v]);
-    					}
-					}
-				}
-
-				$post = $request->post();
-				if($post){
-					foreach($post as $k => $v){
-						$k = $this->convert($k);
-    					if($this->fieldExists($k)){
-    						array_push($where,[$k,'=',$v]);
-    					}
-					}
-				}
-
-	    		$object = Db::table($this->table)
-	    						->select(...$field)
-	    						->where($where)
-	    						->orderBy($this->convert($this->primaryKey),$this->orderBy)
-	    						->get();
-
-	    		return $object ? $this->getResultData($object,true) : [];
-	    	}catch(\Exception $e){
-	    		return $this->getExceptionError($e);
-	    	}
-    	}
-
-    	/**
-    	 * 获取分页数据
-    	 * @param  Request $request [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getPageList(Request $request){
-    		try{
-	    		$field = $this->getList($request,'field');
-	    		$where = $this->getWhere($request);
-	    		if($this->idzero){
-	    			array_push($where,[$this->table.'.ID','>',0]);
-	    		}
-
-	    		$rows = self::where($where)->count();
-	    		$limit = $this->getLimit($request,$this->pagesize);
-	    		$object = Db::table($this->table)
-	    						->select(...$field)
-	    						->where($where)
-	    						->orderBy($this->convert($this->primaryKey),$this->orderBy)
-	    						->offset($limit[0])
-	    						->limit($limit[1])
-	    						->get();
-
-	    		return ['rows' => $rows,'data' => $this->getResultData($object,true)];                                                                                   ;
-	    	}catch(\Exception $e){
-	    		return $this->getExceptionError($e);
-	    	}
-    	}
-
-    	/**
-    	 * 获取搜索数据
-    	 * @param  Request $request [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getSearchList(Request $request){
-    		try{
-	    		$field = $this->getList($request,'field');
-	    		$where = $this->getWhere($request);
-
-	    		$post = $request->post();
-	    		if($post){
-	    			foreach($post as $k => $v){
-	    				$k = $this->convert($k);
-	    				if($this->fieldExists($k)){
-	    					array_push($where,[$k,'=',$v]);
-	    				}
-	    			}
-	    		}
-
-	    		$rows = self::where($where)->count();
-	    		$limit = $this->getLimit($request,$this->pagesize);
-	    		$object = Db::table($this->table)
-	    						->select(...$field)
-	    						->where($where)
-	    						->orderBy($this->convert($this->primaryKey),$this->orderBy)
-	    						->offset($limit[0])
-	    						->limit($limit[1])
-	    						->get();
-
-	    		return ['rows' => $rows,'data' => $this->getResultData($object,true)];                                                                                   ;
-	    	}catch(\Exception $e){
-	    		return $this->getExceptionError($e);
-	    	}
-    	}
-
-    	public function getCodeData(Request $request){
-    		$len = $request->input('len',($request->input('length',$this->code_length)));
-    		$field = $request->input('field','');
-    		if(!$field){
-    			$field = $this->convert($this->table).'Code';
-    		}else{
-    			$field = $this->convert($field);
-    		}
-    		$type = $request->input('type',1);
-
-    		return $this->createUniqueCode($field,$len,$type);
-    	}
-
-    	protected function getUserList(Request $request,$user_id = 0)
-    	{
-    		try{
-    			$user_id = $user_id ? $user_id : $request->input('user_id',0);
-    			if(!$user_id){
-    				return [];
-    			}
-
-    			$field = $this->getList($request,'field');
-    			// var_dump($field);
-    			if(!$this->fieldExists('user_id')){
-    				return [];
-    			}
-	    		$where = $this->getWhere($request);
-    			array_push($where,[$this->table.'.UserID','=',$user_id]);
-
-    			$rows = Db::table($this->table)
-    						->where($where)
-    						->count();
-    			[$offset,$limit] = $this->getLimit($request);
-    			$object = Db::table($this->table)
-    						->select(...$field)
-    						->where($where)
-    						->get();
-    			return ['rows' => $rows,'data' => $object];
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
-    		}
-    	}
-
-    	/**
-    	 * 获取指定字段数据
-    	 * @param  Request $request [description]
-    	 * @param  array   $field   [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getAssignList(Request $request,array $fields = [],mixed $id = 0): mixed
-    	{
-    		try{
-    			if(!$fields){
-    				return [];
-    			}
-    			$field = [];
-    			foreach($fields as $k => $v){
-    				if(is_string($k)){
-    					array_push($field,"{$k} as {$v}");
-    				}else{
-    					array_push($field,"{$v} as ".$this->convert($v,false));
-    				}
-    			}
-    			// var_dump('get assign field: ',$field);
-    			$where = [['IsDel','=',0]];
-    			if($id){
-    				array_push($where,[$this->convert($this->primaryKey),'=',$id]);
-    			}
-    			$object = Db::table($this->table)
-    						->select(...$field)
-    						->where($where)
-    						->get();
-    			return $object ? ($id?$object[0]:$object) : [];
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
-    		}
-    	}
-
-    	/**
-    	 * [getTreeList description]
-    	 * @param  Request $request [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getTreeList(Request $request): array
-    	{
-    		try{
-    			$field = $this->getList($request,'field');
-    			$where = $this->getWhere($request);
-    			$object = Db::table($this->table)
-    							->select(...$field)
-    							->orderBy('Level','asc')
-    							->orderBy('Sort','asc')
-    							->where($where)
-    							->get();
-    			if($object){
-    				$this->pagesize = (int)count($object);
-    				$object = $this->getResultData($object,true);
-    				return $this->tree($object);
-    			}
-
-    			return [];
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
-    		}
-    	}
-
-    	protected function getChildList(Request $request): array
-    	{
-    		try{
-    			$field = $this->getList($request,'field');
-    			$where = $this->getWhere($request);
-    			$object = Db::table($this->table)
-    							->select(...$field)
-    							->where($where)
-    							->get();
-    			$object = $this->getResultData($object,true);
-
-    			return $this->child($object);
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
-    		}
-    	}
-
-    	protected function getParentList(Request $request,$pid = 0){
-    		try{
-    			if(!is_numeric($pid) || is_null($pid) || $pid < 0){
-    				return [];
-    			}
-    			$field = $this->getList($request,'field');
-    			if(!$this->fieldExists('pid')){
-    				return [];
-    			}
-    			$where = $this->getWhere($request);
-    			if(!is_array($pid)){
-    				$pid = \explode(',',$pid);
-    			}
-    			$object = Db::table($this->table)
-    						->select(...$field);
-    			if($this->fieldExists('sort')){
-    				$object = $object->orderBy('Sort','asc');
+    		$object = Db::table($this->table)
+    					->select('Sort as sort')
+    					->where($where)
+    					->first();
+    		// var_dump($object);
+    		if($object){
+    			if($pid >= 0){
+    				$sql = "UPDATE `".$this->tab."` SET Sort = Sort + 1 WHERE PID = ? AND Sort >= ? AND ID <> ?";
+    				$result = Db::select($sql,[$pid,$sort,$id]);
     			}else{
-    				$object = $object->orderBy($this->convert($this->primaryKey),'asc');
+    				$sql = "UPDATE `".$this->tab."` SET Sort = Sort + 1 WHERE Sort >= ? AND ID <> ?";
+    				$result = Db::select($sql,[$sort,$id]);
     			}
-    			$object = $object->where($where)
-    						->whereIn('PID',$pid)
-    						->get();
-    			return $object;
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
+
+    			return $result !== false ? true : false;
+
     		}
-    	}
-
-		protected function getDefaultList(Request $request){
-			try{
-				$field = $this->getList($request,'field');
-				$where = $this->getWhere($request);
-				if($this->fieldExists('IsDefault')){
-					array_push($where,[$this->table.'.IsDefault','=',1]);
-				}else{
-					return [];
-				}
-
-				$object = Db::table($this->table)
-							->select(...$field)
-							->where($where)
-							->first();
-				return $object;
-			}catch(\Exception $e){
-				return $this->getExceptionError($e);
-			}
-		}
-
-    	protected function getTopList(Request $request,$num = 1){
-    		try{
-    			$num = $num ? $num : $request->input('num',1);
-    			if(!is_numeric($num) || $num < 1){
-    				return [];
-    			}
-
-    			$field = $this->getList($request,'field');
-    			$where = $this->getWhere($request);
-
-	    		$args = \func_get_args();
-				\array_shift($args);
-				\array_shift($args);
-
-				if($args && is_array($args)){
-					foreach($args as $k => $v){
-						$k = $this->convert($k);
-    					if($this->fieldExists($k)){
-    						array_push($where,[$k,'=',$v]);
-    					}
-					}
-				}
-
-				$post = $request->post();
-				if($post){
-					foreach($post as $k => $v){
-						$k = $this->convert($k);
-    					if($this->fieldExists($k)){
-    						array_push($where,[$k,'=',$v]);
-    					}
-					}
-				}
-				
-    			$object = Db::table($this->table)
-    						->select(...$field)
-    						->where($where)
-    						->orderBy($this->convert($this->primaryKey),'desc')
-    						->limit($num);
-    			if($num > 1){
-    				$object = $object->get();
-
-    				return $this->getResultData($object,true);
-    			}else{
-    				$object = $object->first();
-    				return $this->getResultData($object);
-    			}
-
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
-    		}
-    	}
-
-        /**
-         * 生成H5二维码
-         * @param  [type] $url [description]
-         * @return [type]      [description]
-         */
-        protected function createH5Qrcode($request,$data){
-            $service = new \dackou\service\Qrcode\QrcodeService();
-            $result = $service->create($request,$data);
-            return $result->getDataUri();
-        }
-
-        /**
-         * 生成小程序二维码
-         * @param  [type] $url [description]
-         * @return [type]      [description]
-         */
-        protected function createMiniQrcode($request,$data){
-            $service = new \dackou\service\Wechat\WechatService();
-            // var_dump('mini qrcode data:');
-            // var_dump($data);
-            $result = $service->createMiniCode($request,$data);
-            if(isset($result['code']) && $result['code'] === 0){
-                return $result['data'];
-            }
-            return $result;
-        }
-
-    	protected function getQrcodeList(Request $request,$id = 0){
-    		if(!$id){
-    			return 100007;
-    		}
-
-    		$h5Data = [
-    			'content' => 'content',
-    			'text' 	  => 'H5二维码',
-    			'size'	  => 1024,
-    			'margin'  => 10,
-    			'logo' 	  => ''
-    		];
-    		$miniData = [
-    			'path'	=> '/pages/index/index',
-    			'width' => 1024
-    		];
-
-    		$qrcodeH5 = $this->createH5Qrcode($request,$h5Data);
-    		$qrcodeMini = $this->createMiniQrcode($request,$miniData);
-
-    		try{
-    			return [
-    				'title' => $this->getTableTitle().'二维码',
-    				'h5'	=> ['path'=>'user/info?uid='.$id,'qrcode'=>$qrcodeH5],
-    				'mini'	=> ['path'=>'/pages/index/index','qrcode'=>$qrcodeMini]
-    			];
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
-    		}
-    	}
-
-    	protected function getLevelList(Request $request,$level = 1){
-    		try{
-    			if(empty($level) || is_null($level) || !is_numeric($level) || $level <= 0){
-    				return [];
-    			}
-    			$field = $this->getList($request,'field');
-    			if(!$this->fieldExists('level')){
-    				return [];
-    			}
-    			$where = $this->getWhere($request);
-    			if(!is_array($level)){
-    				$level = \explode(',',$level);
-    			}
-    			$object = Db::table($this->table)
-    						->select(...$field);
-    			if($this->fieldExists('sort')){
-    				$object = $object->orderBy('Sort','asc');
-    			}else{
-    				$object = $object->orderBy($this->convert($this->primaryKey),'asc');
-    			}
-    			$object = $object->where($where)
-    						->whereIn('Level',$level)
-    						->get();
-    			return $object;
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
-    		}
-    	}
-
-    	/**
-    	 * [getKeyList description]
-    	 * @param  Request $request [description]
-    	 * @param  string  $key     [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getKeyList(Request $request,$key = ''){
-    		try{
-    			if((is_string($key) && empty($key)) || (is_array($key) && !count($key))){
-    				return [];
-    			}
-
-    			if(is_string($key)){
-    				$key = explode(',',$key);
-    			}
-
-    			$field = $this->getList($request,'field');
-    			if(!$this->fieldExists('key')){
-    				return [];
-    			}
-
-    			$where = $this->getWhere($request);
-
-    			$object = Db::table($this->table)
-    							->select(...$field)
-    							->where($where)
-    							->whereIn('Key',$key)
-    							->get();
-    			return $this->getResultData($object,true);
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
-    		}
-    	}
-
-    	protected function getFormtypeList(Request $request): array
-    	{
-    		return [
-				['type'=>'option','label'=>'文本','value'=>'1','children'=>[
-					['label'=>'普通文本','value'=>'input'],
-					['label'=>'加密文本','value'=>'password'],
-					['label'=>'文本域','value'=>'textarea'],
-				]],
-				['type'=>'option','label'=>'上传','value'=>'2','children'=>[
-					['label'=>'上传图片','value'=>'upload_img'],
-					['label'=>'上传Logo','value'=>'upload_logo'],
-					['label'=>'上传头像','value'=>'upload_face'],
-					['label'=>'上传轮播图','value'=>'upload_picture'],
-					['label'=>'上传文件','value'=>'upload_file'],
-					['label'=>'上传证件','value'=>'upload_cert'],
-					['label'=>'上传音频','value'=>'upload_voice'],
-					['label'=>'上传视频','value'=>'upload_video'],
-				]],
-				['type'=>'option','label'=>'选择','value'=>'3','children'=>[
-					['label'=>'下拉单选','value'=>'select'],
-					['label'=>'下拉多选','value'=>'select_milut'],
-					['label'=>'级联选择','value'=>'cascader'],
-					['label'=>'复选框','value'=>'checkbox'],
-					['label'=>'单选框','value'=>'radio'],
-				]],
-				['type'=>'option','label'=>'日期时间','value'=>'4','children'=>[
-					['label'=>'年月日','value'=>'datetime'],
-					['label'=>'年月日时','value'=>'datetimes'],
-					['label'=>'年','value'=>'year'],
-					['label'=>'月','value'=>'month'],
-					['label'=>'日','value'=>'day'],
-					['label'=>'时','value'=>'hour'],
-				]],
-				['type'=>'option','label'=>'编辑器','value'=>'5','children'=>[
-					['label'=>'富文本','value'=>'editor'],
-				]],
-				['type'=>'option','label'=>'商品','value'=>'6','children'=>[
-					['label'=>'商品属性','value'=>'goods_attr'],
-					['label'=>'商品规格','value'=>'goods_spec'],
-				]],
-				['type'=>'option','label'=>'城市','value'=>'7','children'=>[
-					['label'=>'省市区','value'=>'city'],
-					['label'=>'省市区街道','value'=>'district'],
-					['label'=>'省市','value'=>'province_city'],
-					['label'=>'省','value'=>'province'],
-				]],
-				['type'=>'option','label'=>'其它','value'=>'8','children'=>[
-					['label'=>'图标','value'=>'icon'],
-					['label'=>'开关','value'=>'switch'],
-					['label'=>'颜色','value'=>'color-picker'],
-					['label'=>'排序','value'=>'sort'],
-					['label'=>'多值表单','value'=>'milut_form'],
-					['label'=>'分割线','value'=>'divider'],
-				]]
-    		];
-    	}
-
-    	protected function getOptionList(Request $request,mixed $data = [],mixed $field = []): array
-    	{
-    		try{
-    			if(!$field || count($field)){
-    				if($this->field && count($this->field)){
-    					$field = $this->field;
-    				}else{
-    					$field = $this->getList($request,'field');
-    				}
-    			}else{
-    				for($i=0;$i<count($field);$i++){
-    					$field[$i] = $field[$i] . ' as ' . $this->convert($field[$i],false);
-    				}
-    			}
-    			if(!$field || !count($field)){
-    				return [];
-    			}
-
-    			$object = Db::table($this->table)
-    						->select(...$field)
-    						->where($this->table.'.IsDel',0);
-    			if($data && is_array($data) && count(array_keys($data)) == count(array_values($data))){
-    				foreach($data as $key => $val){
-    					$object = $object->where($this->convert($key),$val);
-    				}
-    			}
-    			$object = $object->get();
-    			// var_dump($object);
-    			if($object){
-    				if($this->layer > 1){
-    					$object = $this->child($object);
-    				}
-    				$options = [];
-    				foreach($object as $item){
-    					if(property_exists($item,'title')){
-    						$label = $item->title;
-    					}elseif(property_exists($item,$this->table.'_name')){
-    						$key = $this->table.'_name';
-    						$label = $item->$key;
-    					}elseif(property_exists($item,$this->table.'_title')){
-    						$key = $this->table.'_title';
-    						$label = $item->$key;
-    					}elseif(property_exists($item,$this->table.'name')){
-    						$key = $this->table.'name';
-    						$label = $item->$key;
-    					}else{
-    						$label = '';
-    					}
-    					if($label){
-    						$key = $this->primaryKey;
-    						$value = $item->$key;
-							$option = ['type'=>'option','label'=>$label,'value'=>$value];
-    						if($this->layer > 1){
-    							$children = [];
-    							if(property_exists($item,'children') && is_array($item->children) && count($item->children)){
-    								foreach($item->children as $child){
-    									if(property_exists($child,'title')){
-    										$label = $child->title;
-    									}elseif(property_exists($child,$this->table.'_name')){
-    										$key = $this->table.'_name';
-    										$label = $child->$key;
-    									}elseif(property_exists($child,$this->table.'_title')){
-    										$key = $this->table.'_title';
-    										$label = $child->$key;
-    									}elseif(property_exists($child,$this->table.'name')){
-    										$key = $this->table.'name';
-    										$label = $child->$key;
-    									}else{
-    										$label = '';
-    									}
-    									if($label){
-    										$value = (int)$child->$key;
-    										array_push($children,['type'=>'option','label'=>$label,'value'=>$value]);
-    									}
-    								}
-    							}
-    							if(count($children)){
-    								$option['children'] = $children;
-    							}
-    						}
-							array_push($options,$option);
-    					}
-    				}
-
-    				return $options;
-    			}
-
-    			return [];
-    		}catch(\Exception $e){
-    			return [];
-    		}
-    	}
-
-    	/**
-    	 * 获取查询表单
-    	 * @param  Request $request [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getQueryList(Request $request): array
-    	{
-    		if(!$this->field || !count($this->field)){
-    			return [];
-    		}
-    		$form = [];
-    		if($this->fieldExists('title') || $this->fieldExists($this->table.'_name') || $this->fieldExists($this->table.'name') || $this->fieldExists($this->table.'_title') || $this->fieldExists($this->table.'_code')){
-    			array_push($form,['type'=>'input','label'=>'关键词','prop'=>'keyword']);
-    		}
-
-    		return $form;
-    	}
-
-    	/**
-    	 * 获取表单
-    	 * @param  Request $request [description]
-    	 * @param  integer $id      [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getActionList(Request $request,$id = 0): array
-    	{
-    		try{
-    			$action_value = $request->input('action','');
-    			if($action_value == 'export'){
-    				$res = Db::select("SHOW FULL FIELDS FROM `".$this->tab."`");
-    				if(!$res){
-    					return [];
-    				}
-
-    				$field = [];
-    				foreach($res as $item){
-    					array_push($field,['type'=>'option','label'=>$item->Comment,'value'=>$item->Field]);
-    				}
-
-    				$action = [
-    					['type'=>'radio-group','label'=>'导出数据类型','prop'=>'cate_id','value'=>1,'children'=>[
-    						['type'=>'radio','label'=>'原始数据','value'=>1],
-    						['type'=>'radio','label'=>'关联数据','value'=>2],
-    					]],
-    					['type'=>'radio-group','label'=>'导出数据字段','prop'=>'is_all','value'=>1,'children'=>[
-    						['type'=>'radio','label'=>'全部字段','value'=>1],
-    						['type'=>'radio','label'=>'部分字段','value'=>2],
-    					]],
-    					['type'=>'checkbox-group','label'=>'选择字段','prop'=>'field','value'=>[],'hidden'=>true,'children'=>$field],
-    					['type'=>'radio-group','label'=>'导出数量','prop'=>'count','value'=>1,'children'=>[
-    						['type'=>'radio','label'=>'全部数据','value'=>1],
-    						['type'=>'radio','label'=>'分段数据','value'=>2],
-    					]],
-    					['type'=>'form-group','label'=>'数据从','prop'=>'part','value'=>'','hidden'=>true,'delimiter'=>'-','children'=>[
-    						['type'=>'input','label'=>'开始条数','prop'=>'start','value'=>1,'attrs'=>['style'=>['width'=>'150px']],'slot'=>['prefix'=>['value'=>'第'],'suffix'=>['value'=>'条']]],
-    						['type'=>'input','label'=>'结束条数','prop'=>'end','value'=>10,'attrs'=>['style'=>['width'=>'150px']],'slot'=>['prefix'=>['value'=>'第'],'suffix'=>['value'=>'条']]],
-    					]],
-    				];
-
-    				return $action;
-    			}
-
-
-	    		$fields = $this->fields ? $this->fields : $this->getList($request,'fields');
-	    		if(!$fields || !count($fields)){
-	    			return [];
-	    		}
-
-	    		$action = [];
-	    		if($id){
-	    			$data = $this->getList($request,$id);
-	    		}
-	    		$sort = $this->getMaxSort(0);
-	    		if($this->layer > 1){
-		    		$level = $request->input('level',1);
-		    		if(empty($level) || !is_numeric($level) || $level < 1){
-		    			$level = 1;
-		    		}
-		    		$levelData = [];
-		    		for($i=1;$i<=$this->layer;$i++){
-		    			array_push($levelData,['type'=>'option','label'=>$i.'级','value'=>(int)$i]);
-		    		}
-		    		$pid = $request->input('pid',1);
-		    		if(empty($pid) || !is_numeric($pid) || $pid < 0){
-		    			$pid = 0;
-		    		}
-		    		$pidData = [];
-		    		$res_pid = $this->getList($request,'parent');
-		    		if($res_pid){
-		    			foreach($res_pid as $item){
-		    				array_push($pidData,['type'=>'option','label'=>$item->title,'value'=>(int)$item->id]);
-		    			}
-		    		}
-	    			$sort = $this->getMaxSort($pid);
-		    	}
-
-	    		$filter_field = $this->filter_field;
-	    		array_push($filter_field,'CreateTime');
-	    		// var_dump($fields);
-	    		foreach($fields as $field){
-	    			if(strtolower($field['map_name']) != 'id' && !in_array($field['field_name'],$filter_field)){
-		    			$type = 'input';
-		    			$prop = $field['map_name'];
-		    			$label = $field['comment'] ? $field['comment'] : $prop;
-		    			$value = $id ? (property_exists($data,$prop) ? $data->$prop : '') : $field['default_value'];
-		    			$hidden = false;
-		    			$attrs = [];
-		    			$rules = [];
-		    			$children = [];
-		    			$uploadAttrs = [];
-		    			$editorOptions = [];
-		    			$slot = [];
-
-		    			if(strtolower($field['field_type']) == 'varchar'){
-		    				$type = 'input';
-		    			}
-		    			if(strtolower($field['field_type']) == 'tinyint' && $field['length'] == 1 && substr(strtolower($field['map_name']),0,2) == 'is'){
-		    				$type = 'switch';
-		    			}
-
-		    			switch($field['map_name']){
-		    				case 'title':
-		    				case $this->table.'_title':
-		    				case $this->table.'_name':
-		    					$type = 'input';
-		    					$rules = ['required'=>true,'message'=>$label.'不能为空'];
-		    					break;
-		    				case 'level':
-		    					if($this->layer > 1){
-		    						$type = 'select';
-		    						$children = $levelData;
-		    						$value = $id ? $data->level : $level;
-		    						$hidden = true;
-		    					}
-		    					break;
-		    				case 'pid':
-		    					if($this->layer > 1){
-		    						$type = 'select';
-		    						$children = $pidData;
-		    						$value = $id ? $data->pid : $pid;
-		    						$hidden = true;
-		    					}
-		    					break;
-		    				case 'sort':
-		    					$type = 'input';
-		    					$value = $id ? $data->sort : $sort;
-		    					break;
-		    				case 'pic':
-		    					$type = 'upload';
-		    					$uploadAttrs = ['type'=>'pic','limit'=>1,'size'=>'default','accept'=>'','action'=>$this->host['api'].'upload'];
-		    					break;
-		    				case 'img':
-		    					$type = 'upload';
-		    					$uploadAttrs = ['type'=>'img','limit'=>1,'size'=>'default','accept'=>'','action'=>$this->host['api'].'upload'];
-		    					break;
-		    				case 'icon':
-		    					$type = 'upload';
-		    					$uploadAttrs = ['type'=>'icon','limit'=>1,'size'=>'default','accept'=>'','action'=>$this->host['api'].'upload'];
-		    					break;
-		    				case 'face':
-		    					$type = 'upload';
-		    					$uploadAttrs = ['type'=>'avatar','limit'=>1,'size'=>'default','accept'=>'','action'=>$this->host['api'].'upload'];
-		    					break;
-		    				case 'picture':
-		    					$type = 'upload';
-		    					$uploadAttrs = ['type'=>'card','limit'=>5,'size'=>'default','accept'=>'','action'=>$this->host['api'].'upload'];
-		    					break;
-		    				case 'desc':
-		    				case 'description':
-		    				case 'remark':
-		    					$type = 'input';
-		    					$attrs = ['type'=>'textarea'];
-		    					break;
-		    				case 'content':
-		    					$type = 'editor';
-		    					$editorOptions = ['type'=>'editor','limit'=>5,'size'=>'default','accept'=>'','action'=>$this->host['api'].'upload'];
-		    					break;
-		    				default:
-
-		    			}
-
-		    			if(substr($field['map_name'],strlen($field['map_name'])-3) == '_id'){
-		    				$_table = substr($field['map_name'],0,strlen($field['map_name'])-3);
-		    				$_table = $this->convert($_table);
-		    				// var_dump('_table: '.$_table);
-		    				$_class_name = "\\dackou\\model\\{$_table}\\{$_table}Model";
-		    				if(!\class_exists($_class_name)){
-		    					$_class_name = "\\app\\model\\{$_table}\\{$_table}Model";
-		    				}
-		    				if(\class_exists($_class_name)){
-		    					$type = 'select';
-		    					$service = new $_class_name();
-		    					$children = $service->getList($request,'option');
-		    				}
-		    			}
-
-		    			if($field['prefix']){
-		    				$slot['prefix'] = ['value'=>$field['prefix']];
-		    			}
-
-		    			if($field['suffix']){
-		    				$slot['suffix'] = ['value'=>$field['suffix']];
-		    			}
-
-		    			if($field['width']){
-		    				$attrs['style'] = ['width'=>$field['width'].'px'];
-		    			}
-
-
-		    			if($field['is_must']){
-		    				$rules['required'] = true;
-		    				$rules['message'] = $type == 'select' ? '请选择'.$field['comment'] : $field['comment'].'不能为空';
-		    			}
-
-		    			$option = ['type'=>$type,'label'=>$label,'prop'=>$prop,'value'=>$value];
-		    			if($hidden){
-		    				$option['hidden'] = true;
-		    			}
-		    			if($attrs){
-		    				$option['attrs'] = $attrs;
-		    			}
-		    			if($rules){
-		    				$option['rules'] = $rules;
-		    			}
-		    			if($children){
-		    				$option['children'] = $children;
-		    			}
-		    			if($slot){
-		    				$option['slot'] = $slot;
-		    			}
-		    			if($uploadAttrs){
-		    				$option['uploadAttrs'] = $uploadAttrs;
-		    			}
-
-		    			array_push($action,$option);
-		    		}
-	    		}
-
-	    		return $action;
-	    	}catch(\Exception $e){
-	    		return $this->getExceptionError($e);
-	    	}
-    	}
-
-    	protected function getHandleList(Request $request,$flag = false): array
-    	{
-    		// $field = [
-    		// 	'IsShow' 	 => 'is_show',
-    		// 	'IsRefresh'  => 'is_refresh',
-    		// 	'IsAdd' 	 => 'is_add',
-    		// 	'IsModify' 	 => 'is_modify',
-    		// 	'IsSearch' 	 => 'is_search',
-    		// 	'IsSave' 	 => 'is_save',
-    		// 	'IsDel' 	 => 'is_del',
-    		// 	'IsImport' 	 => 'is_import',
-    		// 	'IsExport' 	 => 'is_export',
-    		// 	'IsPrint' 	 => 'is_print',
-    		// 	'IsChecked'  => 'is_checked',
-    		// 	'IsApproved' => 'is_approved',
-    		// 	'IsReject' 	 => 'is_reject',
-    		// 	'IsInit' 	 => 'is_init',
-    		// 	'IsClear' 	 => 'is_clear',
-    		// 	'IsBack' 	 => 'is_back',
-    		// ];
-    		$field = [
-    			['id'=>1,'title'=>'显示','key'=>'IsShow','type'=>'','plan'=>true],
-    			['id'=>2,'title'=>'刷新','key'=>'IsRefresh','type'=>'','plan'=>true],
-    			['id'=>3,'title'=>'新增','key'=>'IsAdd','type'=>'','plan'=>true],
-    			['id'=>4,'title'=>'修改','key'=>'IsModify','type'=>'','plan'=>true],
-    			['id'=>5,'title'=>'查询','key'=>'IsSearch','type'=>'','plan'=>true],
-    			['id'=>6,'title'=>'保存','key'=>'IsSave','type'=>'','plan'=>true],
-    			['id'=>7,'title'=>'删除','key'=>'IsDel','type'=>'','plan'=>true],
-    			['id'=>8,'title'=>'导入','key'=>'IsImport','type'=>'','plan'=>true],
-    			['id'=>9,'title'=>'导出','key'=>'IsExport','type'=>'','plan'=>true],
-    			['id'=>10,'title'=>'打印','key'=>'IsPrint','type'=>'','plan'=>true],
-    			['id'=>11,'title'=>'审核','key'=>'IsChecked','type'=>'','plan'=>true],
-    			['id'=>12,'title'=>'核准','key'=>'IsApproved','type'=>'','plan'=>true],
-    			['id'=>13,'title'=>'拒绝','key'=>'IsReject','type'=>'','plan'=>true],
-    			['id'=>14,'title'=>'初始化','key'=>'IsInit','type'=>'','plan'=>true],
-    			['id'=>15,'title'=>'清空','key'=>'IsClear','type'=>'','plan'=>true],
-    			['id'=>16,'title'=>'返回','key'=>'IsBack','type'=>'','plan'=>true],
-    		];
-    		if($flag){
-    			$temp = [];
-    			foreach($field as $item){
-    				array_push($temp,"grant.".$item['key']." as ".$this->convert($item['key'],false));
-    			}
-
-    			return $temp;
-    		}
-
-    		return $field;
-    	}
-
-    	protected function getpermissionList(Request $request,$field = [],$role_name = 'rid'){
-    		try{
-    			$role_id = $this->getTokenData($request,$role_name);
-    			if(!$role_id){
-    				return false;
-    			}
-    			$router = $request->input('router',$this->table);
-    			if(!$field){
-    				$field = ['*'];
-    			}else{
-    				if(!is_array($field)){
-    					$field = \explode(',',$field);
-    				}
-    			}
-    			$where = [
-    				['RoleID','=',$role_id],
-    				['Router','=',$router]
-    			];
-
-    			$object = Db::table('grant')
-    						->join('menu','MenuID','=','menu.ID')
-    						->select(...$field)
-    						->where($where)
-    						->first();
-    			return $object;
-    		}catch(\Exception $e){
-    			return false;
-    		}
-    	}
-
-    	/**
-    	 * 获取操作权限列表
-    	 * @param  Request $request [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getGrantsList(Request $request): array
-    	{
-    		// return ['is_refresh','is_add','is_modify','is_back','is_export','is_import','is_init','is_clear'];
-    		// return [
-    		// 	['key'=>'is_refresh','title'=>'刷新'],
-    		// 	['key'=>'is_add','title'=>'新增'],
-    		// 	['key'=>'is_modify','title'=>'修改'],
-    		// 	['key'=>'is_import','title'=>'导入'],
-    		// 	['key'=>'is_export','title'=>'导出'],
-    		// 	['key'=>'is_init','title'=>'初始化'],
-    		// 	['key'=>'is_clear','title'=>'清空'],
-    		// 	['key'=>'is_back','title'=>'返回'],
-    		// ];
-
-            // var_dump('uri: '.$request->uri());
-            try{
-	    		$router = $request->input('router',$this->table);
-	            $router = str_replace("_","/",$router);
-	            $sign = $this->getTokenData($request,'sign');
-	            // var_dump('router: '.$router);
-	            // var_dump('sign: '.$sign);
-	            if(is_array($sign)){
-	            	return $sign;
-	            }
-	            if(!$router || !$sign){
-	            	return [];
-	            }
-	            $field = $this->getList($request,'handle',true);
-
-                $object = Db::table('grant')
-                            ->join('role','RoleID','=','role.ID')
-                            ->join('menu','MenuID','=','menu.ID')
-                            ->select(...$field)
-                            ->where([['Sign','=',$sign],['Router','=',$router]])
-                            ->first();
-                // var_dump($object);
-                $result = [];
-                if($object){
-                    foreach($object as $key => $val){
-                        if($val === 1){
-                            array_push($result,$key);
-                        }
-                    }
-                }
-                
-                return $result;
-            }catch(\Exception $e){
-            	// var_dump('error: '.$e->getMessage());
-                return [];
-            }
-    	}
-
-    	/**
-    	 * 获取显示表头
-    	 * @param  Request $request [description]
-    	 * @return [type]           [description]
-    	 */
-    	protected function getMapList(Request $request): array
-    	{
-    		if(!$this->fields || !count($this->fields)){
-    			$this->fields = $this->getList($request,'fields');
-    		}
-    		if(!$this->fields){
-    			return [];
-    		}
-    		$map = [];
-    		foreach($this->fields as $field){
-				if($field['is_show'] && !in_array($field['field_name'],$this->filter_field)){
-					$children = ['type'=>$field['show_type'],'label'=>$field['comment'],'prop'=>$field['map_name']];
-					if(in_array($field['map_name'],['pic','img','logo','picture'])){
-						$children['type'] = 'img';
-					}
-					if($field['align']){
-						$children['align'] = $field['align'];
-					}
-					if($field['width']){
-						if($this->layer > 1 && $field['map_name'] == 'title'){
-							$children['width'] = 180;
-						}elseif($field['map_name'] == 'create_time'){
-							$children['width'] = 180;
-						}else{
-							$children['width'] = $field['width'];
-						}
-					}
-					if($field['prefix']){
-						$children['prefix'] = $field['prefix'];
-					}
-					if($field['suffix']){
-						$children['suffix'] = $field['suffix'];
-					}
-					// if($field['callback']){
-					// 	$children['callback'] = $field['callback'];
-					// }
-					array_push($map,$children);
-				}
-			}
-    		return $map;
-    	}
-
-    	protected function tree(mixed $data): mixed
-    	{
-    		if(!$data || $this->layer == 1){
-        		return [];
-        	}
-
-        	$arr = [];
-        	$pid = $data[0]->pid ?? 0;
-        	foreach($data as $item){
-        		if($item->pid == $pid){
-        			array_push($arr,$item);
-
-        			if($item->number){
-        				foreach($data as $values){
-        					if($values->pid == $item->id){
-        						array_push($arr,$values);
-
-        						if($values->number){
-        							foreach($data as $value){
-        								if($value->pid == $values->id){
-        									array_push($arr,$value);
-
-        									if($value->number){
-        										foreach($data as $val){
-        											if($val->pid == $value->id){
-        												array_push($arr,$val);
-
-        												if($val->number){
-        													foreach($data as $v){
-        														if($v->pid == $val->id){
-        															array_push($arr,$v);
-        														}
-        													}
-        												}
-        											}
-        										}
-        									}
-        								}
-        							}
-        						}
-        					}
-        				}
-        			}
-        		}
-        	}
-
-        	return $arr;
-    	}
-
-    	protected function child(mixed $data): mixed
-    	{
-    		if(!$data || $this->layer == 1){
-        		return [];
-        	}
-
-        	$arr = [];
-        	$pid = $data[0]->pid ?? 0;
-
-        	for($i=0;$i<count($data);$i++){
-        		if(!property_exists($data[$i],'label') && property_exists($data[$i],'title')){
-        			$data[$i]->label = $data[$i]->title;
-        		}
-        		if(!property_exists($data[$i],'value') && property_exists($data[$i],'id')){
-        			$data[$i]->value = $data[$i]->id;
-        		}
-        	}
-
-        	foreach($data as $item){
-        		if($item->pid == $pid){
-
-        			if($item->number){
-        				$child1 = [];
-        				foreach($data as $values){
-        					if($values->pid == $item->id){
-        						if($values->number){
-        							$child2 = [];
-        							foreach($data as $value){
-        								if($value->pid == $values->id){
-        									if($value->number){
-        										$child3 = [];
-        										foreach($data as $val){
-        											if($val->pid == $value->id){
-        												if($val->number){
-        													$child4 = [];
-        													foreach($data as $v){
-        														if($v->pid == $val->id){
-        															array_push($child4,$v);
-        														}
-        													}
-        													if($child4){
-        														$val->children = $child4;
-        													}
-        												}
-
-        												array_push($child3,$val);
-        											}
-        										}
-        										if($child3){
-        											$value->children = $child3;
-        										}
-        									}
-
-        									array_push($child2,$value);
-        								}
-        							}
-        							if($child2){
-        								$values->children = $child2;
-        							}
-
-        						}
-        						array_push($child1,$values);
-        					}
-        				}
-        				if($child1){
-        					$item->children = $child1;
-        				}
-        			}
-
-        			array_push($arr,$item);
-        		}
-        	}
-
-        	return $arr;
+    		return true;
     	}
 
     	// 获取配置参数
-    	protected function getConfig($key,$flag = false){
-    		if(isset($this->config[$key])){
-    			if(!$flag){
-	    			return $this->config[$key];
-	    		}
-	    		$val = $this->config[$key];
-	    		if($val || $val == '1' || $val == 1){
-	    			return true;
-	    		}
-	    		return false;
+    	protected function getConfig($key,$type = 'int'){
+    		$value = isset($this->config[$key]) ? $this->config[$key] : false;
+
+    		switch(strtolower($type)){
+    			case 'int':
+    				$value = $value&&is_numeric($value) ? (int)$value : 0;
+    				break;
+    			case 'bool':
+    			case 'boolean':
+    				$value = $value ? true : false;
+    				break;
+    			case 'arr':
+    			case 'array':
+    				$value = $this->getDecodeData($value);
+    				break;
+    			default:
     		}
-    		return false;
+
+    		return $value;
     	}
 
         /**
@@ -2713,6 +2518,28 @@
 	        	return $this->getExceptionError($e);
 	        }
         }
+
+        /**
+         * 生成随机唯一编码
+         * @param  Request $request [description]
+         * @return [type]           [description]
+         */
+    	public function getCodeData(Request $request){
+    		$len = $request->input('len',($request->input('length',$this->code_length)));
+    		$field = $request->input('field','');
+    		if(!$field){
+    			$field = $this->convert($this->table).'Code';
+    		}else{
+    			$field = $this->convert($field);
+    		}
+    		
+    		if(!$field || !$this->fieldExists($field)){
+    			return ['code' => 1,'msg'=> '无效的编码字段'];
+    		}
+    		$type = $request->input('type',1);
+
+    		return $this->createUniqueCode($field,$len,$type);
+    	}
 
     	protected function getMaxSort(int $pid = 0,$flag = true): int
     	{
@@ -2787,201 +2614,425 @@
     		}
     	}
 
-    	protected function getFieldsList(Request $request){
-    		try{
-    			if($this->is_schema){
-    				$result = $this->getList($request,'schema');
-    				if($result && count($result)){
-    					return $result;
+    	protected function tree(mixed $data): mixed
+    	{
+    		if(!$data || $this->layer == 1){
+        		return [];
+        	}
+
+        	$arr = [];
+        	$pid = $data[0]->pid ?? 0;
+        	foreach($data as $item){
+        		if($item->pid == $pid){
+        			array_push($arr,$item);
+
+        			if($item->number){
+        				foreach($data as $values){
+        					if($values->pid == $item->id){
+        						array_push($arr,$values);
+
+        						if($values->number){
+        							foreach($data as $value){
+        								if($value->pid == $values->id){
+        									array_push($arr,$value);
+
+        									if($value->number){
+        										foreach($data as $val){
+        											if($val->pid == $value->id){
+        												array_push($arr,$val);
+
+        												if($val->number){
+        													foreach($data as $v){
+        														if($v->pid == $val->id){
+        															array_push($arr,$v);
+        														}
+        													}
+        												}
+        											}
+        										}
+        									}
+        								}
+        							}
+        						}
+        					}
+        				}
+        			}
+        		}
+        	}
+
+        	return $arr;
+    	}
+
+
+    	protected function child(mixed $data): mixed
+    	{
+    		if(!$data || $this->layer == 1){
+        		return $data;
+        	}
+
+        	$arr = [];
+        	$pid = $data[0]->pid ?? 0;
+
+        	for($i=0;$i<count($data);$i++){
+        		if(!property_exists($data[$i],'label') && property_exists($data[$i],'title')){
+        			$data[$i]->label = $data[$i]->title;
+        		}
+        		if(!property_exists($data[$i],'value') && property_exists($data[$i],'id')){
+        			$data[$i]->value = $data[$i]->id;
+        		}
+        	}
+
+        	foreach($data as $item){
+        		if($item->pid == $pid){
+
+        			if($item->number){
+        				$child1 = [];
+        				foreach($data as $values){
+        					if($values->pid == $item->id){
+        						if($values->number){
+        							$child2 = [];
+        							foreach($data as $value){
+        								if($value->pid == $values->id){
+        									if($value->number){
+        										$child3 = [];
+        										foreach($data as $val){
+        											if($val->pid == $value->id){
+        												if($val->number){
+        													$child4 = [];
+        													foreach($data as $v){
+        														if($v->pid == $val->id){
+        															array_push($child4,$v);
+        														}
+        													}
+        													if($child4){
+        														$val->children = $child4;
+        													}
+        												}
+
+        												array_push($child3,$val);
+        											}
+        										}
+        										if($child3){
+        											$value->children = $child3;
+        										}
+        									}
+
+        									array_push($child2,$value);
+        								}
+        							}
+        							if($child2){
+        								$values->children = $child2;
+        							}
+
+        						}
+        						array_push($child1,$values);
+        					}
+        				}
+        				if($child1){
+        					$item->children = $child1;
+        				}
+        			}
+
+        			array_push($arr,$item);
+        		}
+        	}
+
+        	return $arr;
+    	}
+
+    	protected function getTokenData(Request $request,$key = ''){
+    		$token = TokenService::getTokenData($request);
+    		if($key){
+    			if($key === 'is_admin'){
+    				$rid = $token->rid;
+    				$obj = Db::table('role')->select('IsAdmin')->where('ID',$rid)->first();
+    				if($obj && is_object($obj)){
+    					return $obj->IsAdmin > 0 ? true : false;
     				}
-    			}
-    			$res = Db::select("SHOW FULL FIELDS FROM `".$this->tab."`");
-    			// var_dump('get fields res:',$res);
-    			if(!$res){
     				return false;
-    			}
-    			$fields = [];
-    			for($i=0;$i<count($res);$i++){
-    				$type = $res[$i]->Type;
-    				$length = 0;
-    				$is_must = 0;
-    				if(\strpos($type,'(') !== false){
-    					$temp = \explode('(',$res[$i]->Type);
-    					if(isset($temp[0])){
-    						$type = $temp[0];
-    					}
-    					if(isset($temp[1])){
-    						$length = (int)\substr($temp[1],0,\strlen($temp[1])-1);
-    					}
+    			}elseif($key === 'is_super'){
+    				$rid = $token->rid;
+    				$obj = Db::table('role')->select('IsAdmin')->where('ID',$rid)->first();
+    				if($obj && is_object($obj)){
+    					return $obj->IsAdmin > 1 ? true : false;
     				}
-    				if(in_array($res[$i]->Field,['Title',$this->convert($this->table).'Title',$this->convert($this->table).'Name'])){
-    					 $is_must = 1;
-    				}
-    				array_push($fields,[
-    					'id' 			 => $i+1,
-    					'table_id' 		 => 0,
-    					'table' 		 => $this->table,
-    					'comment' 		 => $res[$i]->Comment,
-    					'field_name' 	 => $res[$i]->Field,
-    					'map_name' 		 => $this->convert($res[$i]->Field,false),
-    					'field_type' 	 => $type,
-    					'length' 		 => $length,
-    					'is_primary_key' => $res[$i]->Key == 'PRI' ? 1 : 0,
-    					'is_key' 		 => $res[$i]->Key == 'MUL' ? 1 : 0,
-    					'is_unique' 	 => 0,
-    					'is_must' 		 => $is_must,
-    					'is_show' 		 => 1,
-    					'is_add' 		 => 1,
-    					'is_mod' 		 => 1,
-    					'is_search' 	 => 0,
-    					'show_type' 	 => 'varchar',
-    					'form_type' 	 => 'input',
-    					'width' 		 => 0,
-    					'align' 		 => $this->align,
-    					'default_value'  => $res[$i]->Default,
-    					'rules' 		 => [],
-    					'prefix' 		 => '',
-    					'suffix' 		 => '',
-    					'prompt' 		 => '',
-    					'callback_field' => '',
-    					'callback_key'   => '',
-    					'callback_title' => '',
-    					'after' 		 => '',
-    					'status' 		 => 1,
-    				]);
+    				return false;
+    			}else{
+    				return \property_exists($token,$key) ? $token->$key : false;
     			}
+    		}
+
+    		return $token;
+    	}
+
+    	/**
+    	 * 获取token数据
+    	 * @param  Request $request [description]
+    	 * @param  string  $key     [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getTokenList(Request $request,$key = ''): mixed
+    	{
+    		return $this->getTokenData($request,$key);
+    	}
+
+    	/**
+    	 * 获取表字段列表
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getFieldsList(Request $request): array
+    	{
+    		if(!$this->table || !$this->tab){
+    			return [];
+    		}
+
+    		$fields = [];
+    		if($this->is_field){
+    			$field = [
+    				'field.ID as id',
+    				'TableID as table_id',
+    				'table.Title as table',
+    				'Comment as comment',
+    				'FieldName as field_name',
+    				'field.MapName as map_name',
+    				'Placeholder as placeholder',
+    				'FieldType as field_type',
+    				'field.Length as length',
+    				'IsPrimaryKey as is_primary_key',
+    				'IsKey as is_key',
+    				'IsUnique as is_unique',
+    				'IsMust as is_must',
+    				'IsShow as is_show',
+    				'IsAdd as is_add',
+    				'IsMod as is_mod',
+    				'IsSearch as is_search',
+    				'IsAction as is_action',
+    				'ShowType as show_type',
+    				'FormType as form_type',
+    				'field.Width as width',
+    				'field.Align as align',
+    				'DefaultValue as default_value',
+    				'Children as children',
+    				'Rules as rules',
+    				'Prefix as prefix',
+    				'Suffix as suffix',
+    				'Prompt as prompt',
+    				'CallbackField as callback_field',
+    				'CallbackKey as callback_key',
+    				'CallbackTitle as callback_title',
+    				'field.After as after',
+    				'field.Status as status',
+    				'field.Sort as sort',
+    			];
+    			$where = [
+    				['field.IsDel','=',0],
+    				['table.IsDel','=',0],
+    				['table.Title','=',$this->table]
+    			];
+    			$object = Db::table('field')
+    						->join('table','TableID','=','table.ID')
+    						->select(...$field)
+    						->where($where)
+    						->get();
+
+    			if($object){
+    				foreach($object as $k => $v){
+    					$object[$k]->schema = true;
+    				}
+    				$fields = $object->toArray();
+    			}
+    		}
+
+    		if(!is_array($this->fields) || !$this->fields){
+	    		$object = Db::select("SHOW FULL FIELDS FROM `".$this->tab."`");
+	    		if(!$object){
+	    			return [];
+	    		}
+
+				for($i=0;$i<count($object);$i++){
+					$type = $object[$i]->Type;
+					$comment = $object[$i]->Comment;
+					$placeholder = $object[$i]->Comment;
+					$field = $object[$i]->Field;
+					$prop = $this->convert($object[$i]->Field,false);
+					$length = 0;
+					$showType = 'varchar';
+					$formType = 'input';
+					$is_show = 1;
+					$is_add = 1;
+					$is_mod = 1;
+					$is_must = 0;
+					$is_search = 0;
+					$is_action = 1;
+					$rules = [];
+					$children = [];
+					if(\strpos($type,'(') !== false){
+						$temp = \explode('(',$object[$i]->Type);
+						if(isset($temp[0])){
+							$type = $temp[0];
+						}
+						if(isset($temp[1])){
+							$length = (int)\substr($temp[1],0,\strlen($temp[1])-1);
+						}
+					}
+					
+					array_push($fields,[
+						'id' 			 => $i+1,
+						'schema'		 => false,
+						'table_id' 		 => 0,
+						'table' 		 => $this->table,
+						'comment' 		 => $comment,
+						'field_name' 	 => $field,
+						'map_name' 		 => $prop,
+						'placeholder' 	 => $placeholder,
+						'field_type' 	 => $type,
+						'length' 		 => $length,
+						'is_primary_key' => $object[$i]->Key == 'PRI' ? 1 : 0,
+						'is_key' 		 => $object[$i]->Key == 'MUL' ? 1 : 0,
+						'is_unique' 	 => 0,
+						'is_must' 		 => $is_must,
+						'is_show' 		 => $is_show,
+						'is_add' 		 => $is_add,
+						'is_mod' 		 => $is_mod,
+						'is_search' 	 => $is_search,
+						'is_action' 	 => $is_action,
+						'show_type' 	 => $showType,
+						'form_type' 	 => $formType,
+						'width' 		 => 0,
+						'align' 		 => $this->align,
+						'default_value'  => $object[$i]->Default,
+						'rules' 		 => $rules,
+						'children' 		 => $children,
+						'prefix' 		 => '',
+						'suffix' 		 => '',
+						'prompt' 		 => '',
+						'callback_field' => '',
+						'callback_key'   => '',
+						'callback_title' => '',
+						'after' 		 => '',
+						'status' 		 => 1,
+						'sort' 		 	 => 1,
+					]);
+				}
+
+				$this->fields = $fields;
+			}
+			return $this->fields;
+    	}
+
+    	/**
+    	 * 获取查询字段
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getFieldList(Request $request,$flag = false): array
+    	{
+    		$fields = $this->getList($request,'fields');
+    		// var_dump('get fields: ',$fields);
+    		if(!$fields || !is_array($fields) || isset($fields['code'])){
+    			return [];
+    		}
+
+    		foreach($fields as $k => $v){
+    			if(in_array($v['field_name'],$this->exclude)){
+    				unset($fields[$k]);
+    			}
+    		}
+
+    		if($flag === true){
+    			$field = [];
+    			foreach($fields as $f){
+    				if($f['is_show']){
+    					array_push($field,$this->table . '.' . $f['field_name'] . ' as ' . $f['map_name']);
+    				}
+    			}
+    			// ['table.Field as field']
+    			return $field;
+    		}elseif($flag === false){
+    			$field = [];
+    			foreach($fields as $f){
+    				if($f['is_show']){
+    					array_push($field,$f['field_name'] . ' as ' . $f['map_name']);
+    				}
+    			}
+    			// ['Field as field']
+    			return $field;
+    		}elseif($flag === 'key'){
+    			$field = [];
+    			foreach($fields as $f){
+    				$field[$f['map_name']] = $f['field_name'];
+    			}
+    			// ['field' => 'Field']
+    			return $field;
+    		}else{
     			return $fields;
-    		}catch(\Exception $e){
-    			return $this->getExceptionError($e);
     		}
     	}
 
     	/**
-    	 * 获取字段
+    	 * 获取查询条件参数
     	 * @param  Request $request [description]
-    	 * @param  string  $type    [description]
     	 * @return [type]           [description]
     	 */
-    	protected function getFieldList(Request $request,mixed $flag = false){
-    		try{
-    			$exclude = ['CreateIP','UpdateTime','UpdateIP','DeleteTime','DeleteIP'];
-    			$fields = $this->fields ? $this->fields : $this->getList($request,'fields');
-    			// var_dump($fields);
-    			if($fields){
-	    			$field = [];
-	    			if($flag === false){
-	    				foreach($fields as $item){
-	    					if(!in_array($item['field_name'],$exclude)){
-								array_push($field,$item['field_name']." as " . $item['map_name']);
-							}
-						}
-	    				$this->field = $field;
-	    			}elseif($flag === true){
-	    				foreach($fields as $item){
-	    					if(!in_array($item['field_name'],$exclude)){
-								array_push($field,"" . $this->table . ".".$item['field_name']. " as " . $item['map_name']);
-							}
-						}
-	    				$this->field = $field;
-	    			}elseif($flag == 'field'){
-	    				foreach($fields as $item){
-	    					if(!in_array($item['field_name'],$exclude)){
-								$field[$item['field_name']] = $item['map_name'];
-							}
-						}
-	    				$this->field = $field;
-	    			}elseif($flag == 'key'){
-	    				$keys = [];
-	    				$vals = [];
-	    				foreach($fields as $item){
-	    					if(!in_array($item['field_name'],$exclude)){
-	    						array_push($keys,$item['field_name']);
-	    						array_push($vals,$item['map_name']);
-	    					}
-						}
-    					array_push($field,$keys,$vals);
-	    			}else{
-	    				$field = $fields;
-	    			}
-	    			// var_dump($field);
-	    			return $field;
-	    		}else{
-	    			return false;
-	    		}
-    		}catch(\Exception $e){
-    			return false;
-    		}
-    	}
-
-    	// 获取表注释title
-    	protected function getTableTitle(): string
-    	{
-    		try{
-    			if($this->title && !empty($this->title)){
-    				return $this->title;
-    			}
-	    		$sql = "SELECT TABLE_COMMENT as comment FROM INFORMATION_SCHEMA.Tables where table_schema = '".$this->dbname."' AND table_name = '".$this->tab."'";
-	    		$result = Db::select($sql);
-	    		// var_dump($result);
-	    		return ($result && isset($result[0])) ? $result[0]->comment : '';
-	    	}catch(\Exception $e){
-	    		return '';
-	    	}
-    	}
-
-    	// 获取查询条件
     	protected function getWhere(Request $request): array
     	{
     		$where = [];
-    		if($this->fieldExists('is_del')){
+    		if($this->fieldExists('IsDel')){
     			array_push($where,[$this->table.'.IsDel','=',0]);
     		}
+    		// if($this->fieldExists('Status')){
+    		// 	if($this->status_value){
+    		// 		for($i=0;$i<$this->status_value;$i++){
+    		// 			if(isset($this->status_value[$i]['value']) && $this->status_value[$i]['value'] === 1){
+    		// 				array_push($where,[$this->table.'.Status','=',1]);
+    		// 				break;
+    		// 			}
+    		// 		}
+    		// 	}
+    		// }
 
     		return $where;
     	}
 
     	/**
-         * 获取分页数
-         * @param  Request $request [description]
-         * @param  string  $key     [description]
-         * @return [type]           [description]
-         */
-        protected function getLimit(Request $request,int $psize = 10,string $pageKey = 'page',string $key = 'pagesize'): array
-        {
-            $page = $request->input($pageKey);
-            if(empty($page) || !is_numeric($page) || !$page){
-                $page = 1;
-            }
-            
-            $pagesize = $request->input($key);
-            if(empty($pagesize) || !is_numeric($pagesize) || !$pagesize){
-                $pagesize = $psize;
-            }
-            $limit = [($page - 1) * $pagesize,$pagesize];
-            return $limit;
-        }
-
-    	// 是否存在某个字段
-    	protected function fieldExists(string $field = '',array $data = []): bool
-    	{
-    		if(!$data || !is_array($data) || !count($data)){
-    			$data = ($this->fields && count($this->fields)) ? $this->fields : $this->getList(request(),'fields');
-    		}
-    		// var_dump($data);
-			if(!$data || !count($data)){
-				return false;
-			}
-    		
-    		$flag = false;
-    		foreach($data as $item){
-    			$field = $this->convert($field);
-    			if($item['field_name'] == $field){
-    				$flag = true;
+    	 * 获取option选项
+    	 * @param  [type] $data [description]
+    	 * @param  string $type [description]
+    	 * @return [type]       [description]
+    	 */
+    	protected function getOption($type = 'cate'){
+    		$data = [];
+    		switch($type){
+    			case 'cate':
+    				$data = $this->getCateValue();
     				break;
-    			}
+    			case 'type':
+    				$data = $this->getTypeValue();
+    				break;
+    			case 'status':
+    				$data = $this->getStatusValue();
+    				break;
+    			default:
+    		}
+    		if(!$data){
+    			return [];
     		}
 
-    		return $flag;
+    		$options = [];
+    		if($this->isIndexArray($data)){
+	    		foreach($data as $k => $v){
+	    			$option[$this->option_label] = $v;
+	    			$option[$this->option_value] = (int)$k;
+	    			array_push($options,$option);
+	    		}
+	    	}else{
+	    		foreach($data as $k => $v){
+	    			array_push($options,$v);
+	    		}
+	    	}
+
+	    	return $options;
     	}
 
     	protected function setIncrement($field,$id = 0,$val = 1){
@@ -3030,8 +3081,213 @@
     		}
     	}
 
+    	public function setSwitch(Request $request,$id = 0){
+    		try{
+    			if(!$id){
+    				return 100007;
+    			}
+
+    			$key = $request->post('prop',$request->post('prop',''));
+    			if(!$key){
+    				return '无效的数据字段';
+    			}
+    			if(!$this->fieldExists($key)){
+    				return '无效的数据字段';
+    			}
+
+    			$field = $this->convert($key) . ' as ' . $key;
+    			$where = [
+    				['IsDel','=',0],
+    				[$this->convert($this->primaryKey),'=',$id],
+    			];
+    			$object = Db::table($this->table)
+    						->select($field)
+    						->where($where)
+    						->first();
+    			if($object){
+    				$sql = "UPDATE `".$this->tab."` SET `".$this->convert($key)."` = ? WHERE `".$this->convert($this->primaryKey)."` = ?";
+    				$result = Db::update($sql,[!$object->$key,$id]);
+    				if($result !== false){
+    					return ['code' => 0,'msg' => 'success'];
+    				}
+
+    				return '操作失败';
+    			}
+
+    			return '数据不存在或已被删除';
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
+    	}
+
+    	/**
+    	 * 编辑单个元素
+    	 * @param Request $request [description]
+    	 * @param integer $id      [description]
+    	 */
+    	public function setEditor(Request $request,$id = 0){
+    		try{
+    			if(!$id){
+    				return 100007;
+    			}
+
+    			$obj = $this->getList($request,$id);
+    			if(!$obj || !is_object($obj)){
+    				return '数据不存在或已被删除';
+    			}
+
+    			$post = $request->post();
+    			if(!$post){
+    				return '无效的数据参数';
+    			}
+
+    			$data = [];
+    			$flag = false;
+    			foreach($post as $key => $val){
+    				if($this->fieldExists($key)){
+    					$data[$this->convert($key)] = $val;
+    					if($val != $obj->$key){
+    						$flag = true;
+    					}
+    				}
+    			}
+
+    			if(!$flag){
+    				return ['code' => 0,'msg' => 'success'];
+    			}
+
+    			if(!$data){
+    				return '无效的数据参数';
+    			}
+
+    			$result = $this->updateData($request,$data,$id);
+    			if($result !== false){
+    				return ['code' => 0,'msg' => 'success'];
+    			}
+
+
+    			return '数据修改失败';
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
+    	}
+
+    	/**
+    	 * 统一评分
+    	 * @param Request $request [description]
+    	 * @param [type]  $id      [description]
+    	 */
+    	public function setRating(Request $request,$id){
+    		try{
+    			$id = $id ? $id : $request->input('id',0);
+    			$cate_id = $request->post('cate_id',1);
+    			$value = $request->post('value');
+
+    			$table = 'User';
+    			if($this->fieldExists('CateID')){
+    				if(!$cate_id || !is_numeric($cate_id) || !in_array((int)$cate_id,[1,2])){
+    					return '无效的评分类型';
+    				}
+
+    				$table = (int)$cate_id === 1 ? 'User' : 'Store';
+    			}
+
+    			if(!$id || !is_numeric($id) || $id < 0){
+    				return 100007;
+    			}
+
+    			$_class_name = $this->getClassName($table);
+    			if($_class_name){
+    				$service = new $_class_name();
+    				$obj = $service->getList($request,$id);
+    				if(!$obj || !is_object($obj)){
+    					return '无效的评分对象';
+    				}
+    			}
+
+    			if(is_numeric($value) || $value < $this->min_rating || $value > $this->max_rating){
+    				return '无效的评分值';
+    			}
+
+    			$data = [
+    				'CateID' => $cate_id,
+    				'Value'  => $value
+    			];
+    			if($cate_id === 1){
+    				$data['UserID'] = $id;
+    			}else{
+    				$data['StoreID'] = $id;
+    			}
+
+    			return $this->insertData($request,$data);
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
+    	}
+
+    	/**
+    	 * 统一点赞
+    	 * @param Request $request [description]
+    	 * @param integer $id      [description]
+    	 */
+    	public function setLikes(Request $request,$id = 0){
+    		try{
+    			$id = $id ? $id : $request->input('id',0);
+    			$cate_id = $request->post('cate_id',1);
+
+    			$table = 'User';
+    			if($this->fieldExists('CateID')){
+    				if(!$cate_id || !is_numeric($cate_id) || !in_array((int)$cate_id,[1,2])){
+    					return '无效的点赞类型';
+    				}
+
+    				$table = (int)$cate_id === 1 ? 'User' : 'Store';
+    			}
+
+    			if(!$id || !is_numeric($id) || $id < 0){
+    				return 100007;
+    			}
+
+    			$_class_name = $this->getClassName($table);
+    			if($_class_name){
+    				$service = new $_class_name();
+    				$obj = $service->getList($request,$id);
+    				if(!$obj || !is_object($obj)){
+    					return '无效的点赞对象';
+    				}
+    			}
+
+    			$data = ['CateID' => $cate_id];
+    			if($cate_id === 1){
+    				$data['UserID'] = $id;
+    			}else{
+    				$data['StoreID'] = $id;
+    			}
+
+    			$result = $this->insertData($request,$data);
+    			if($result !== false){
+    				$table = $cate_id === 1 ? 'user' : 'store';
+    				Db::table($table)->where('ID',$id)->increment('Likes');
+
+    				return true;
+    			}
+
+    			return false;
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
+    	}
+
+    	public function setStatus(Request $request,$id = 0){
+    		try{
+
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
+    	}
+
     	// 审核
-    	public function setCheck(Request $request){
+    	public function setChecked(Request $request){
     		try{
     			$id = $request->post('id',0);
     			$value = $request->post('value');
@@ -3099,6 +3355,172 @@
     		}
     	}
 
+        protected function getNextValue($val,$data = []){
+        	if(!$data){
+        		return '';
+        	}
+
+        	$result = '';
+        	foreach($data as $item){
+        		if($item['value'] === $val){
+        			$result = isset($item['next']) ? $item['next'] : '';
+        			break;
+        		}
+        	}
+
+        	return $result;
+        }
+
+    	protected function getOptionsData($data,$type = 'select'){
+    		return $this->getFieldOption($data,$type);
+    	}
+
+        protected function getFieldOption($data,$type = 'select'){
+            if(!$data || !is_array($data) || !count($data)){
+                return [];
+            }
+            
+            if($this->isIndexArray($data)){
+            	$options = [];
+            	foreach($data as $k => $v){
+            		$option[$this->option_label] = $v;
+            		$option[$this->option_value] = (int)$k;
+            		array_push($options,$option);
+            	}
+            	return $options;
+            }
+
+            return $data;
+        }
+
+    	/**
+    	 * 获取类别选项值
+    	 * @return [type] [description]
+    	 */
+    	protected function getCateValue(){
+    		if(\property_exists($this,'cate_value')){
+    			if($this->isIndexArray($this->cate_value)){
+    				$options = [];
+    				foreach($this->cate_value as $k => $v){
+    					array_push($options,['label'=>$v,'value'=>(int)$k]);
+    				}
+    				return $options;
+    			}
+    			return $this->cate_value;
+    		}
+
+    		$cate_table = $this->cate_table ? $this->cate_table : $this->table . '_cate';
+    		$_class_name = $this->getClassName($this->convert($cate_table));
+    		if($_class_name){
+	    		$service = new $_class_name();
+	    		return $service->getList(\request(),'option');
+	    	}
+	    	return [];
+    	}
+
+    	/**
+    	 * 获取类型选项值
+    	 * @return [type] [description]
+    	 */
+    	protected function getTypeValue(){
+    		if(\property_exists($this,'type_value')){
+    			if($this->isIndexArray($this->type_value)){
+    				$options = [];
+    				foreach($this->type_value as $k => $v){
+    					array_push($options,['label'=>$v,'value'=>(int)$k]);
+    				}
+    				return $options;
+    			}
+    			return $this->type_value;
+    		}
+    		return [];
+    	}
+
+    	/**
+    	 * 获取状态选项值
+    	 * @return [type] [description]
+    	 */
+    	protected function getStatusValue(){
+    		if(\property_exists($this,'status_value')){
+    			if($this->isIndexArray($this->status_value)){
+    				$options = [];
+    				foreach($this->status_value as $k => $v){
+    					array_push($options,['label'=>$v,'value'=>(int)$k]);
+    				}
+    				return $options;
+    			}
+    			return $this->status_value;
+    		}
+    		return [];
+    	}
+
+        protected function getFieldValue($val,$type = 'status',$key = 'label'){
+        	if(is_array($type)){
+        		$arr = $type;
+        	}else{
+        		$property = $type.'_value';
+        		if(property_exists($this,$property)){
+        			$arr = $this->$property;
+        		}else{
+        			$arr = [];
+        		}
+        	}
+        	
+        	if(!$arr){
+        		return '';
+        	}
+
+        	if($this->isIndexArray($arr)){
+            	return isset($arr[$val]) ? $arr[$val] : '未知';
+        	}else{
+        		foreach($arr as $item){
+        			if($item['value'] == $val){
+        				return $item[$key];
+        				break;
+        			}
+        		}
+
+        		return '';
+        	}
+        }
+
+        protected function getPropertyValue(mixed $value = 0,string $key = ''): string
+        {
+        	if($key && property_exists($this,$key)){
+        		if(count($this->$key) === count($this->$key, COUNT_RECURSIVE)){
+        			return isset($this->$key[$value]) ? $this->$key[$value] : $value;
+        		}else{
+        			$val = '';
+        			foreach($this->$key as $item){
+        				if($item['id'] === $value){
+        					if(isset($item['color'])){
+        						$val = '<span style="color:'.$item['color'].';">'.$item['title'].'</span>';
+        					}else{
+        						$val = $item['title'];
+        					}
+        				}
+        			}
+
+        			return $val;
+        		}
+        	}
+
+        	return $value;
+        }
+
+    	// 是否存在某个字段
+    	protected function fieldExists(string $field = '',array $data = []): bool
+    	{
+    		$data = $data ? $data : $this->getList(\request(),'field','key');
+    		// var_dump($data);
+			if(!$data || !count($data)){
+				return false;
+			}
+
+			return isset($data[$this->convert($field,false)]) ? true : false;
+    	}
+
+
 		// 检查字段值是否已存在
 		public function checkExists($data,$id = 0){
 			try{
@@ -3118,39 +3540,345 @@
 			}
 		}
 
-    	// 获取token数据
-    	protected function getTokenData(Request $request,string $key = ''): mixed
+		/**
+		 * 核验验证码
+		 * @param  Request $request [description]
+		 * @param  [type]  $code    [description]
+		 * @param  string  $type    [description]
+		 * @return [type]           [description]
+		 */
+		public function checkValidateCode(Request $request,$code,$type = 'numcode'){
+			try{
+				$captcha = '';
+				$key = $this->prefix.$type;
+				if(class_exists('Redis') && ($request->host(true) !== 'localhost' || $request->host(true) !== '127.0.0.1')){
+					switch($type){
+						case 'numcode':
+							$token = $request->header('token',$request->input('token'));
+							break;
+						case 'smscode':
+							$token = $request->header('token',$request->input('mobile'));
+							break;
+						case 'emailcode':
+							$token = $request->header('token',$request->input('email'));
+							break;
+						default:
+							$token = $request->header('token',$request->input('token'));
+					}
+					
+					if($token && $token != "[object Promise]"){
+						$key = $key . '_' . $token;
+						$captcha = \support\Redis::get($key);
+						// var_dump('get captcha by redis: '.$captcha);
+					}
+				}
+				if(!$captcha){
+					$captcha = $request->session()->get($key);
+					// var_dump('get captcha by session: '.$captcha);
+				}
+
+				if($captcha){
+					// var_dump('code: '.strtolower($code).' captcha: '.strtolower($captcha).' token: '.$token);
+					if(!$code || !$captcha || empty($code) || empty($captcha) || strtolower($code) !== strtolower($captcha)){
+						return false;
+					}
+
+					$request->session()->forget($key);
+					if(class_exists('Redis') && ($request->host(true) !== 'localhost' || $request->host(true) !== '127.0.0.1')){
+						\support\Redis::del($key);
+					}
+					return true;
+				}
+				return false;
+			}catch(\Exception $e){
+				// var_dump('error: '.$e->getMessage());
+				return false;
+			}
+		}
+
+        public function makePassword($password){
+        	return \password_hash($password, PASSWORD_BCRYPT,["cost" => 12]);
+        }
+
+        public function checkPassword($password,$checkpwd){
+        	return \password_verify($password,$checkpwd);
+        }
+
+        public function getIPAddress(Request $request,$flag = true){
+        	$result = \dackou\Ip::getIp($request);
+        	// var_dump('ip: ',$result);
+        	if(!$result || !is_array($result) || isset($result['code']) || !isset($result['country'])){
+        		return '';
+        	}
+        	return $flag ? $result['country'] : $result;
+        }
+
+        public function getCity(Request $request){
+        	$res = \dackou\Ip::getIp($request);
+        	// var_dump($res);
+        }
+
+    	/**
+    	 * 获取分页参数
+    	 * @param  Request $request [description]
+    	 * @return [type]           [description]
+    	 */
+    	protected function getLimit(Request $request,int $page = 1,int $pagesize = 10): array
     	{
-    		if(\class_exists('\dackou\Token')){
-    			if($key == 'rid' || $key == 'role_id'){
-    				$sign = \dackou\Token::getTokenData($request,'sign');
-    				if(is_string($sign) && $sign){
-    					$object = Db::table('role')
-    								->select('ID as id')
-    								->where('Sign',$sign)
-    								->first();
-    					if($object){
-    						return $object->id;
-    					}
-    					return '';
-    				}
-    				return '';
-    			}
-	    		return \dackou\Token::getTokenData($request,$key);
-	    	}
-	    	return '';
+    		$page = $request->input($this->pagekey,$page);
+            if(empty($page) || !is_numeric($page) || !$page){
+                $page = 1;
+            }
+            
+            $pagesize = $request->input($this->pagesize_key,$pagesize);
+            if(empty($pagesize) || !is_numeric($pagesize) || !$pagesize){
+                $pagesize = 10;
+            }
+            $offset = ((int)$page - 1) * (int)$pagesize;
+            $limit = (int)$pagesize;
+            return [$offset,$limit];
+    	}
+
+		/**
+		 * 获取参数信息
+		 * @param  string $key [description]
+		 * @return [type]      [description]
+		 */
+    	protected function getOptionData($key = ''): array
+    	{
+    		if(!$key || \trim($key) == '' || \is_null($key)){
+    			return [];
+    		}
+
+    		if(!\is_array($key)){
+    			$key = \explode(',',$key);
+    		}
+    		try{
+                $field = [
+                    "option.ID as id",
+                    "option.Title as title",
+                    "option.Key as key",
+                    "option.ValueType as value_type",
+                    "option.DefaultValue as default_value",
+                    "option.Value as value"
+                ];             
+                $object = Db::table("option")
+                                ->select(...$field)
+                                ->where([['Level','=',2],['FormType','<>','divider']])
+                                ->whereIn('Tag',$key)
+                                ->get(); 
+                // var_dump($object);
+                $result = [];
+                if($object){
+                    foreach($object as $item){
+                    	$value = $item->value;
+
+                    	switch($item->value_type){
+                    		case 2:
+                    		case 3:
+                    			$value = $value ? (int)$value : 0;
+                    			break;
+                    		case 4:
+                    			$value = $value ? \round($value,1) : 0;
+                    			break;
+                    		case 5:
+                    			$value = $value ? \round($value,2) : 0;
+                    			break;
+                    		case 6:
+                    			$value = $value ? \round($value,3) : 0;
+                    			break;
+                    		case 7:
+                    			$value = $value ? \round($value,4) : 0;
+                    			break;
+                    		case 8:
+                    			$value = $value ? ($value ? 1 : 0) : 0;
+                    			break;
+                    		case 9:
+                    			$value = $value ? ($value ? true : false) : false;
+                    			break;
+                    		case 10:
+                    			$value = $value ? $this->getDecodeData($value) : [];
+                    			break;
+                    		case 11:
+                    			$value = $value ? $this->getDecodeData($value,true) : [];
+                    			break;
+                    		default:
+                    	}
+                        $result[$item->key] = $value;
+                    }
+                }
+
+                return $result;
+            }catch(\Exception $e){
+                return [];
+            }
+    	}
+
+    	protected function getDiffTime($time,$flag = false){
+    		if(!is_numeric($time)){
+    			$time = strtotime($time);
+    		}
+
+    		// 计算时间差（秒）
+		    $current_time = time();
+		    $diff_seconds = $current_time - $time;
+
+		    if(!$flag){
+		    	return $diff_seconds;
+		    }
+
+		    // 如果时间戳是未来的，返回"刚刚"
+		    if($diff_seconds < 0){
+		        return '刚刚';
+		    }
+
+		    // 按从大到小顺序判断（先判断较大的时间段）
+		    $time_levels = [
+		        63115200 => '2年前',  // 2年（按365.25天计算，更精确）
+        		31557600 => '1年前',  // 1年（按365.25天计算）
+		        15552000 => '6个月前',
+		        12960000 => '5个月前',
+		        7776000 => '3个月前',
+		        5184000 => '2个月前',
+		        2592000 => '1个月前',
+		        1296000 => '15天前',
+		        864000 => '10天前',
+		        432000 => '5天前',
+		        259200 => '3天前',
+		        172800 => '2天前',
+		        86400 => '1天前',
+		        36000 => '10小时前',
+		        18000 => '5小时前',
+		        10800 => '3小时前',
+		        7200  => '2小时前',
+		        3600  => '1小时前',
+		        1800  => '半小时前',
+		        600   => '10分钟前',
+		        300   => '5分钟前',
+		        60    => '1分钟前'
+		    ];
+
+		    foreach($time_levels as $seconds => $text) {
+		        if ($diff_seconds >= $seconds) {
+		            return $text;
+		        }
+		    }
+		    
+		    // 小于1分钟的情况
+		    if ($diff_seconds < 60) {
+		        if ($diff_seconds <= 0) {
+		            return '刚刚';
+		        }
+		        return $diff_seconds . '秒前';
+		    }
+		    
+		    return '刚刚';
+    	}
+
+    	protected function getCityName($province_id = 0,$city_id = 0,$district_id = 0,$street_id = 0){
+    		$cityname = '';
+    		if($province_id){
+                $province = Db::table('city')->select('Title as title')->where('ID',$province_id)->first();
+                if($province && is_object($province)){
+                    $cityname .= $province->title;
+
+                    if($city_id){
+                        $city = Db::table('city')->select('Title as title')->where('ID',$city_id)->first();
+                        if($city && is_object($city)){
+                            $cityname .= $city->title;
+
+                            if($district_id){
+                                $district = Db::table('city')->select('Title as title')->where('ID',$district_id)->first();
+                                if($district && is_object($district)){
+                                    $cityname .= $district->title;
+
+                                    if($street_id){
+                                        $street = Db::table('city')->select('Title as title')->where('ID',$street_id)->first();
+                                        if($street && is_object($street)){
+                                            $cityname .= $street->title;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return $cityname;
+    	}
+
+    	/**
+    	 * 判断是否索引数组
+    	 * @param  [type]  $arr [description]
+    	 * @return boolean      [description]
+    	 */
+    	protected function isIndexArray($arr){
+    		if(!is_array($arr)){
+    			return false;
+    		}
+    		return count($arr) === count($arr, COUNT_RECURSIVE);
+    	}
+
+    	/**
+    	 * 数组转对象
+    	 * @param  [type] $arr [description]
+    	 * @return [type]      [description]
+    	 */
+    	protected function arrayToObject($arr){
+    		$object = new \stdClass();
+			foreach ($arr as $key => $value) {
+			    $object->$key = $value;
+			}
+			return $object;
+    	}
+
+    	/**
+    	 * 判读是否主字段
+    	 * @param  [type]  $field [description]
+    	 * @return boolean        [description]
+    	 */
+    	protected function isField($field,$type = 'title'){
+    		$flag = false;
+    		$field = $this->convert($field);
+    		$table = $this->convert($this->table);
+    		switch($type){
+    			case 'title':
+    				if($field == 'Title' || $field == $table || $field == $table . 'Name' || $field == $table . 'Title'){
+		    			$flag = true;
+		    		}
+		    		break;
+		    	case 'code':
+		    		if($field == $table . 'Code'){
+		    			$flag = true;
+		    		}
+		    		break;
+		    	case 'full_name':
+		    		$flag = \strpos($field,'FullName') !== false ? true : false;
+		    		break;
+		    	case 'end_name':
+		    		$flag = \strpos($field,'EnName') !== false ? true : false;
+		    		break;
+		    	default:
+		    		$flag = $field == $this->convert($type) ? true : false;
+    		}
+    		
+    		return $flag;
     	}
 
     	// 大小写转
 		protected function convert(string $str,bool $flag = true): string
 		{
 			$map = [
-				'AccountID' => 'uid',
-				'UserName'  => 'username',
-				'NickName'  => 'nickname',
-				'Authentication'  => 'password',
-				'OrderCode'  => 'order_code',
-				'Description'  => 'desc',
+				'AccountID' 	 => 'uid',
+				'UserName'  	 => 'username',
+				'NickName'  	 => 'nickname',
+				'Authentication' => 'password',
+				'OrderCode'  	 => 'order_code',
+				'Description'    => 'desc',
+				'OpenidWechat'   => 'openid',
+				'UnionidWechat'  => 'unionid',
+				'CreateIP'  	 => 'create_ip',
 			];
 
 			foreach($map as $key => $val){
@@ -3219,73 +3947,466 @@
 			return $payload;
 		}
 
-		/**
-		 * 核验验证码
-		 * @param  Request $request [description]
-		 * @param  [type]  $code    [description]
-		 * @param  string  $type    [description]
-		 * @return [type]           [description]
-		 */
-		public function checkValidateCode(Request $request,$code,$type = 'numcode'){
-			try{
-				$key = $this->prefix.$type;
-				$captcha = $request->session()->get($key);
-				// var_dump('check session '.$key.': '.$captcha);
-				if($captcha){
-					// var_dump('code: '.strtolower($code).' captcha: '.strtolower($captcha).' token: '.$token);
-					if(!$code || !$captcha || empty($code) || empty($captcha) || strtolower($code) !== strtolower($captcha)){
-						return false;
-					}
+    	/**
+    	 * 获取编辑器组件options
+    	 * @param  string $editor [description]
+    	 * @return [type]         [description]
+    	 */
+    	protected function getEditorOptions($editor = ''){
+    		$editor = $editor ? $editor : $this->editor;
+    		// var_dump('editor: '.$editor);
+			$maxFileSize = 200 * 1024 * 1024;
+    		switch($editor){
+    			case 'wang':
+    				return ['type'=>'wang','mode'=>'default','prefix'=>$this->prefix,'image'=>['server'=>$this->host['api'].'upload/wang'],'video'=>['server'=>$this->host['api'].'upload/wang?path=video','maxFileSize'=> 100 * 1024 * 1024,'chunkSize'=>10 * 1024 * 1024]];
+    				// return ['type'=>'wang','prefix'=>$this->prefix,'image'=>['server'=>$this->host['api'].'upload/'.$editor],'video'=>['server'=>$this->host['api'].'upload/chunk','maxFileSize'=>100*1024*1024,'chunkSize'=>3*1024*1024]];
+    			case 'umo':
+    				return ['type'=>'umo','is_ai'=>$this->is_ai,'action'=>$this->host['api'].'upload/chunk','prefix'=>$this->prefix,'maxFileSize'=>100*1024*1024,'chunkSize'=>3*1024*1024,'video'=>['maxFileSize'=>$maxFileSize]];
+    			default:
+    				return ['type'=>'wang','prefix'=>$this->prefix,'image'=>['server'=>$this->host['api'].'upload/'.$editor],'video'=>['server'=>$this->host['api'].'upload/chunk','maxFileSize'=>100*1024*1024,'chunkSize'=>3*1024*1024]];
+    		}
+    	}
 
-					$request->session()->forget($key);
-					return true;
+    	/**
+    	 * 获取上传组件option
+    	 * @param  string  $type  [description]
+    	 * @param  integer $limit [description]
+    	 * @return [type]         [description]
+    	 */
+    	protected function getUploadOptions($type = 'img',$limit = 1,$size = 'default',$desc = '',$upload = ''){
+    		
+    		switch($type){
+    			case 'img':
+    			case 'pic':
+    				return ['type'=>'img','limit'=>$limit,'size'=>$size,'prefix'=>$this->prefix,'action'=>$this->host['api'].'upload','desc'=>$desc];
+    			case 'card':
+    				return ['type'=>'card','limit'=>$limit,'size'=>$size,'prefix'=>$this->prefix,'action'=>$this->host['api'].'upload','desc'=>$desc];
+    			case 'file':
+    				return ['type'=>'file','limit'=>$limit,'size'=>$size,'prefix'=>$this->prefix,'action'=>$this->host['api'].'upload','desc'=>$desc];
+    			case 'cert':
+    				return ['type'=>'cert','limit'=>$limit,'size'=>$size,'prefix'=>$this->prefix,'action'=>$this->host['api'].'upload/cert','desc'=>$desc];
+    			default: 
+    				return ['type'=>'img','limit'=>$limit,'size'=>$size,'prefix'=>$this->prefix,'action'=>$this->host['api'].'upload','desc'=>$desc];
+    		}
+    	}
+
+    	// 检查用户是否管理员
+    	protected function checkIsAdmin(Request $request,$id = 0,$flag = false){
+    		if(!$id){
+    			$id = $this->getTokenData($request,'rid');
+    		}
+    		
+    		if(!is_numeric($id) || !$id || $id < 0){
+    			return false;
+    		}
+
+    		$field = $flag ? 'IsSuper as is_admin' : 'IsAdmin as is_admin';
+    		if(strlen($id) <= 4){ 			// 角色父ID
+    			$object = Db::table('role')->select($field)->where('ID',$id)->first();
+    		}else{					// 会员ID
+    			$where = [
+    				[$this->prefix.'user.IsDel','=',0],
+    				[$this->prefix.'user.Status','=',1],
+    				['AccountID','=',$id],
+    				[$this->prefix.'role.IsDel','=',0]
+    			];
+    			$object = Db::table('user')
+    						->join('role','RoleID','=','role.ID')
+    						->select($field)
+    						->where($where)
+    						->first();
+    		}
+
+    		return $object&&$object->is_admin ? true : false;
+    	}
+
+    	// protected function toArray($object){
+    	// 	return $object;
+    	// }
+
+    	// 检查敏感字符
+    	protected function checkSensitive($str){
+    		$sensitive = [" ","\\","*","\/","\'","?","#","<",">","=","&"];
+    		$flag = false;
+    		foreach($sensitive as $sen){
+    			if(strpos($str,$sen) !== false){
+    				$flag = true;
+    				break;
+    			}
+    		}
+
+    		return $flag;
+    	}
+
+    	// 数据隐藏
+    	protected function getEncodeStr($str,$type = 'mobile'){
+    		if(!$str){
+    			return $str;
+    		}
+
+    		switch($type){
+    			case 'mobile':
+    				$str = substr($str,0,3) . '****' . substr($str,strlen($str)-4);
+    				break;
+    			case 'idcard':
+    				$str = substr($str,0,4) . '****' . substr($str,strlen($str)-4);
+    				break;
+    			case 'email':
+    				$temp = explode('@',$str);
+    				$str = substr($temp[0],0,2) . '***@' . $temp[1]; 
+    				break;
+    			default:
+    		}
+
+    		return $str;
+    	}
+
+    	// 获取两日期之间的日期列表
+    	protected function getDateInterval($start_date,$end_date,$country = 'CN', $language = 'zh'){
+    		$start = \DateTime::createFromFormat('Y-m-d', $start_date);
+		    $end = \DateTime::createFromFormat('Y-m-d', $end_date);
+		    
+		    if (!$start || !$end) {
+		        return []; // 日期格式无效返回空数组
+		    }
+		    
+		    if($start > $end){
+		        // 如果开始日期大于结束日期，交换两者
+		        $temp = $start;
+		        $start = $end;
+		        $end = $temp;
+		    }
+
+		    // 2. 初始化节假日查询器
+	        try{
+	        	if(class_exists('\Suzunone\DateHolidays\Holidays')){
+		            // 设置时区为中国标准时间
+		            $holidays = new \Suzunone\DateHolidays\Holidays($country, null, null, [
+		                'languages' => $language,
+		                'timezone' => 'Asia/Shanghai'
+		            ]);
+		        }else{
+		        	$holidays = null;
+		        }
+	        }catch(\Exception $e){
+	            // 如果不支持该国节假日，继续执行但节假日判断始终为false
+	            $holidays = null;
+	        }
+
+	        // 3. 遍历日期范围并收集信息
+            $result = [];
+            $current = clone $start;
+            $weekdayMap = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+            while ($current <= $end) {
+                $dateStr = $current->format('Y-m-d');
+                
+                // 获取星期几信息（使用getdate获取本地化星期名称）
+                $dateInfo = getdate($current->getTimestamp());
+                
+                // 判断是否为节假日
+                $isHoliday = false;
+                $holidayName = null;
+                
+                if ($holidays !== null) {
+                    $holidayResult = $holidays->isHoliday($dateStr);
+                    if ($holidayResult !== false) {
+                        $isHoliday = true;
+                        $holidayName = $holidayResult[0]['name'] ?? '节假日';
+                    }
+                }
+                
+                // 组装每天的数据
+                $result[] = [
+                    'date' => $dateStr,
+                    'week' => $dateInfo['weekday'],   // 英文星期，如"Monday"
+                    'weekname' => $weekdayMap[$dateInfo['wday']], // 中文星期
+                    'weekid' => $dateInfo['wday'], // 0(周日)~6(周六)
+                    'is_holiday' => $isHoliday ? 1 : 0,
+                    'holiday_name' => !is_null($holidayName) ? $holidayName : '',
+                ];
+                
+                $current->modify('+1 day');
+            }
+            
+            return $result;
+    	}
+
+        protected function getBirth($idcard){
+        	return substr($idcard,6,4).'-'.substr($idcard,10,2).'-'.substr($idcard,12,2);
+        }
+
+        protected function getGender($idcard){
+        	$num = substr($idcard,16,1);
+            return $num % 2 === 0 ? 2 : 1;
+        }
+
+        /**
+         * [getAge description]
+         * @param  [type] $idcard [description]
+         * @return [type]         [description]
+         */
+        protected function getAge($birth){
+            // $birth = $this->getBirth($idcard);
+            // var_dump($birth);
+            if(trim($birth) == '' || !$birth){
+                return 0;
+            }
+            list($birthYear, $birthMonth, $birthDay) = explode('-', $birth);
+            list($currentYear, $currentMonth, $currentDay) = explode('-', date('Y-m-d'));
+            $age = $currentYear - $birthYear - 1;
+            
+            if($currentMonth > $birthMonth || $currentMonth == $birthMonth && $currentDay >= $birthDay)
+
+            $age++;
+
+            return $age;
+        }
+
+        /**
+         * 推算生肖
+         * @param  [type] $idcard [description]
+         * @return [type]         [description]
+         */
+        protected function getZodiac($idcard){
+        	// 提取出生年份
+		    if (strlen($idcard) == 18) {
+		        $year = intval(substr($idcard, 6, 4));  // YYYY
+		    } elseif (strlen($idcard) == 15) {
+		        $year = intval(substr($idcard, 6, 2));  // YY
+		        // 15位身份证年份补全（假设1900-1999年出生）
+		        $year = ($year < 30 ? 2000 + $year : 1900 + $year);
+		    } else {
+		        return '';
+		    }
+		    
+		    // 生肖对应地支（以农历新年为界，此处按公历年份简化处理，大多数情况适用）
+		    $zodiacs = [
+		        '鼠', '牛', '虎', '兔', '龙', '蛇',
+		        '马', '羊', '猴', '鸡', '狗', '猪'
+		    ];
+
+		    // 以1900年为基准（1900年是鼠年）
+	        $index = ($year - 1900) % 12;
+	        // 处理负数情况（虽然年份不会小于1900，但做安全处理）
+	        if ($index < 0) $index += 12;
+	        
+	        return $zodiacs[$index];
+        }
+
+        /**
+         * 推算星座
+         * @param  [type] $idcard [description]
+         * @return [type]         [description]
+         */
+        protected function getConstellation($idcard){
+        	if (strlen($idcard) == 18) {
+		        $birth = substr($idcard, 6, 8);  // YYYYMMDD
+		        $month = intval(substr($birth, 4, 2));
+		        $day = intval(substr($birth, 6, 2));
+		    } elseif (strlen($idcard) == 15) {
+		        $birth = substr($idcard, 6, 6);  // YYMMDD
+		        $month = intval(substr($birth, 2, 2));
+		        $day = intval(substr($birth, 4, 2));
+		    } else {
+		        return '';
+		    }
+
+		    // 星座对应日期
+	        $constellations = [
+	            ['name' => '摩羯座', 'start' => [1, 1], 'end' => [1, 19]],
+	            ['name' => '水瓶座', 'start' => [1, 20], 'end' => [2, 18]],
+	            ['name' => '双鱼座', 'start' => [2, 19], 'end' => [3, 20]],
+	            ['name' => '白羊座', 'start' => [3, 21], 'end' => [4, 19]],
+	            ['name' => '金牛座', 'start' => [4, 20], 'end' => [5, 20]],
+	            ['name' => '双子座', 'start' => [5, 21], 'end' => [6, 20]],
+	            ['name' => '巨蟹座', 'start' => [6, 21], 'end' => [7, 22]],
+	            ['name' => '狮子座', 'start' => [7, 23], 'end' => [8, 22]],
+	            ['name' => '处女座', 'start' => [8, 23], 'end' => [9, 22]],
+	            ['name' => '天秤座', 'start' => [9, 23], 'end' => [10, 22]],
+	            ['name' => '天蝎座', 'start' => [10, 23], 'end' => [11, 21]],
+	            ['name' => '射手座', 'start' => [11, 22], 'end' => [12, 21]],
+	            ['name' => '摩羯座', 'start' => [12, 22], 'end' => [12, 31]],
+	        ];
+
+	        foreach ($constellations as $const) {
+		        $startMonth = $const['start'][0];
+		        $startDay = $const['start'][1];
+		        $endMonth = $const['end'][0];
+		        $endDay = $const['end'][1];
+
+		        if (($month == $startMonth && $day >= $startDay) || ($month == $endMonth && $day <= $endDay)) {
+		            return $const['name'];
+		        }
+		    }
+
+		    return '';
+        }
+
+        protected function isBase64Image($string) {
+		    if (empty($string)) {
+		        return false;
+		    }
+		    
+		    // 检查是否为Data URI格式（如data:image/png;base64,...）
+		    if (strpos($string, 'data:image') === 0 && strpos($string, 'base64,') !== false) {
+		        return true;
+		    }
+		    
+		    // 检查是否为纯Base64字符串（可选）
+		    // Base64字符串通常只包含字母、数字、+、/和=
+		    $string = str_replace(["\r", "\n", " "], "", $string);
+		    if (strlen($string) % 4 !== 0) {
+		        return false;
+		    }
+		    
+		    if (!preg_match('/^[a-zA-Z0-9\/\+=]+$/', $string)) {
+		        return false;
+		    }
+		    
+		    // 尝试解码验证
+		    $decoded = base64_decode($string, true);
+		    if ($decoded === false) {
+		        return false;
+		    }
+		    
+		    // 检查解码后的数据是否为图片
+		    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+		    $mime = finfo_buffer($finfo, $decoded);
+		    finfo_close($finfo);
+		    
+		    return strpos($mime, 'image/') === 0;
+		}
+
+    	/**
+    	 * 格式化图片
+    	 * @param  [type] $img  [description]
+    	 * @param  string $path [description]
+    	 * @return [type]       [description]
+    	 */
+        protected function getImage($img,$path = ''){
+        	if(empty($img) || !$img){
+        		return $img;
+        	}
+            if(strtolower(substr($img,0,4)) != 'http'){
+            	$url = isset($this->host['local']) ? $this->host['local'] : \str_replace('api','admin',$this->host['api']);
+                $img = $url . !empty($path) ? $path . '/' . $img : $img;
+            }
+            
+            return $img;
+        }
+
+        /**
+         * 格式化价格
+         * @param  [type]  $price   [description]
+         * @param  integer $decimal [description]
+         * @param  integer $divisor [description]
+         * @return [type]           [description]
+         */
+        protected function formatPrice($price,$decimal = 2,$divisor = 100){
+        	return $this->formatAmount($price,$decimal,$divisor);
+        }
+
+        /**
+         * 格式化数字
+         * @param  [type]  $amount  [description]
+         * @param  integer $decimal [description]
+         * @param  integer $divisor [description]
+         * @return [type]           [description]
+         */
+        protected function formatAmount($amount,$decimal = 2,$divisor = 100){
+        	if(!is_numeric($amount) || !$amount){
+        		return $amount;
+        	}
+        	return \round(($amount / $divisor),$decimal);
+        }
+
+        /**
+         * 格式化日期
+         * @param  string $time [description]
+         * @return [type]       [description]
+         */
+        protected function getDateTime($time = '',$format = 'Y-m-d H:i:s'){
+        	if(empty($time) || !is_numeric($time) || !$time){
+        		return $time;
+        	}
+        	return \date($format,$time);
+        }
+
+    	protected function getWeek($time,$type = 'w'){
+    		if(empty($time) || !is_numeric($time) || !$time){
+        		return $time;
+        	}
+    		return \date($type,$time);
+    	}
+
+        /**
+         * 格式化数组json
+         * @param  mixed|string $arr [description]
+         * @return [type]            [description]
+         */
+		protected function getJsonData(mixed $arr = ''): string
+		{
+			if(is_array($arr)){
+				return \json_encode($arr);
+			}
+			return $arr;
+		}
+
+		/**
+		 * 格式化json字符串
+		 * @param  mixed|string $str  [description]
+		 * @param  boolean      $flag [description]
+		 * @return [type]             [description]
+		 */
+		protected function getDecodeData(mixed $str = '',$flag = true): mixed
+		{
+			if(empty($str) || !$str){
+				return $str;
+			}
+			if(\is_array($str) || !is_string($str)){
+				return $str;
+			}
+			if(\is_array($flag)){
+				return $flag;
+			}
+			try{
+				$result = \json_decode($str,$flag);
+				if(\json_last_error() === JSON_ERROR_NONE){
+					return $result;
 				}
-				return false;
+
+				return [$str];
 			}catch(\Exception $e){
-				// var_dump('error: '.$e->getMessage());
-				return false;
+				// var_dump($e->getMessage());
+				return [];
 			}
 		}
 
-        public function makePassword($password){
-        	return \password_hash($password, PASSWORD_BCRYPT,["cost" => 12]);
-        }
+		protected function getUploadData(mixed $arr = [],$flag = true): array
+		{
+			if(!$arr){
+				return [];
+			}
 
-        public function checkPassword($password,$checkpwd){
-        	return \password_verify($password,$checkpwd);
-        }
+			if(is_string($arr)){
+				$arr = explode(',',$arr);
+			}
 
-        public function getIPAddress(Request $request,$flag = true){
-        	$result = \dackou\Ip::getIp($request);
-        	if(!$result || !is_array($result) || isset($result['code']) || !isset($result['country'])){
-        		return '';
-        	}
-        	return $flag ? $result['country'] : $result;
-        }
+			if($arr){
+				$data = [];
+				foreach($arr as $val){
+					if($val){
+						$temp = explode('/',$val);
+						$name = end($temp);
+						array_push($data,['name'=>$name,'url'=>$val]);
+					}
+				}
+				return $data;
+			}
 
-        protected function getPropertyValue(mixed $value = 0,string $key = ''): string
-        {
-        	if($key && property_exists($this,$key)){
-        		if(count($this->$key) === count($this->$key, COUNT_RECURSIVE)){
-        			return isset($this->$key[$value]) ? $this->$key[$value] : $value;
-        		}else{
-        			$val = '';
-        			foreach($this->$key as $item){
-        				if($item['id'] === $value){
-        					if(isset($item['color'])){
-        						$val = '<span style="color:'.$item['color'].';">'.$item['title'].'</span>';
-        					}else{
-        						$val = $item['title'];
-        					}
-        				}
-        			}
-
-        			return $val;
-        		}
-        	}
-
-        	return $value;
-        }
+			return [];
+		}
 
         /**
          * 设置session
@@ -3337,6 +4458,11 @@
         	}
         }
 
+        /**
+         * 获取类名
+         * @param  [type] $class [description]
+         * @return [type]        [description]
+         */
         protected function getClassName($class){
         	if(\preg_match('/[A-Z]/',\lcfirst($class))){
 				$temp = \lcfirst($class);
@@ -3366,221 +4492,12 @@
 			}
         }
 
-        protected function getBirth($idcard){
-        	return substr($idcard,6,4).'-'.substr($idcard,10,2).'-'.substr($idcard,12,2);
-        }
-
-        protected function getGender($idcard){
-        	$num = substr($idcard,16,1);
-            return $num % 2 === 0 ? 2 : 1;
-        }
-
-        /**
-         * [getAge description]
-         * @param  [type] $idcard [description]
-         * @return [type]         [description]
-         */
-        protected function getAge($birth){
-            // $birth = $this->getBirth($idcard);
-            // var_dump($birth);
-            if(trim($birth) == '' || !$birth){
-                return 0;
-            }
-            list($birthYear, $birthMonth, $birthDay) = explode('-', $birth);
-            list($currentYear, $currentMonth, $currentDay) = explode('-', date('Y-m-d'));
-            $age = $currentYear - $birthYear - 1;
-            
-            if($currentMonth > $birthMonth || $currentMonth == $birthMonth && $currentDay >= $birthDay)
-
-            $age++;
-
-            return $age;
-        }
-
-    	/**
-    	 * 获取编辑器组件options
-    	 * @param  string $editor [description]
-    	 * @return [type]         [description]
-    	 */
-    	protected function getEditorOptions($editor = 'wang'){
-    		$editor = $editor ? $editor : $this->editor;
-    		switch($editor){
-    			case 'wang':
-    				return ['type'=>'wang','prefix'=>$this->prefix,'image'=>['server'=>$this->host['api'].'upload/'.$editor],'video'=>['server'=>$this->host['api'].'upload/video']];
-    			case 'umo':
-    				return ['type'=>'emo','is_ai'=>$this->is_ai,'action'=>$this->host['api'].'upload/'.$editor,'prefix'=>$this->prefix];
-    			default:
-    				return ['type'=>'wang','prefix'=>$this->prefix,'image'=>['server'=>$this->host['api'].'upload/'.$editor],'video'=>['server'=>$this->host['api'].'upload/video']];
-    		}
-    	}
-
-    	/**
-    	 * 获取上传组件option
-    	 * @param  string  $type  [description]
-    	 * @param  integer $limit [description]
-    	 * @return [type]         [description]
-    	 */
-    	protected function getUploadOptions($type = 'img',$limit = 1){
-    		switch($type){
-    			case 'img':
-    			case 'pic':
-    				return ['type'=>'img','limit'=>$limit,'size'=>'default','action'=>$this->host['api'].'upload'];
-    			case 'card':
-    				return ['type'=>'card','limit'=>$limit,'size'=>'default','action'=>$this->host['api'].'upload'];
-    			default: 
-    				return ['type'=>'img','limit'=>$limit,'size'=>'default','action'=>$this->host['api'].'upload'];
-    		}
-    	}
-
-        protected function getImage($img,$path = ''){
-        	if(empty($img) || !$img){
-        		return $img;
-        	}
-            if(strtolower(substr($img,0,4)) != 'http'){
-                $img = $this->host['img'] . !empty($path) ? $path . '/' . $img : $img;
-            }
-            
-            return $img;
-        }
-
-        protected function formatPrice($price,$decimal = 2,$divisor = 100){
-        	return $this->formatAmount($price,$decimal,$divisor);
-        }
-
-        protected function formatAmount($amount,$decimal = 2,$divisor = 100){
-        	if(!is_numeric($amount)){
-        		return $amount;
-        	}
-        	return \number_format(($amount / $divisor),$decimal);
-        }
-
-        protected function getDateTime($time = ''){
-        	if(empty($time) || !$time || !is_numeric($time)){
-        		return $time;
-        	}
-        	return \date('Y-m-d H:i:s',$time);
-        }
-
-		protected function getJsonData(mixed $arr = ''): string
-		{
-			if(is_array($arr)){
-				return json_encode($arr);
-			}
-			return $arr;
-		}
-
-        protected function getFieldValue($val,$arr){
-            return isset($arr[$val]) ? $arr[$val] : '未知';
-        }
-
-        protected function getNextValue($val,$data = []){
-        	if(!$data){
-        		return '';
-        	}
-
-        	$result = '';
-        	foreach($data as $item){
-        		if($item['value'] === $val){
-        			$result = isset($item['next']) ? $item['next'] : '';
-        			break;
-        		}
-        	}
-
-        	return $result;
-        }
-
-        protected function getFieldOption($data,$type = 'checkbox'){
-            if(!$data || !is_array($data) || !count($data)){
-                return [];
-            }
-            if(isset($data[0]['label']) || isset($data[0]['title'])){
-            	return $data;
-            }
-
-            $option = [];
-            foreach($data as $key => $val){
-            	if(is_array($val)){
-            		foreach($val as $item){
-            			$child = [
-            				'type' 	=> 'option',
-            				'label' => $item['title'] ?? $item['label'],
-            				'value' => (int)$item['id'] ?? (int)$item['value'],
-            			];
-            			if(isset($item['key'])){
-            				$child['key'] = $item['key'];
-            			}
-            			if(isset($item['desc'])){
-            				$child['desc'] = $item['desc'];
-            			}
-            			if(isset($item['color'])){
-            				$child['color'] = $item['color'];
-            			}
-            			if(isset($item['callback'])){
-            				$child['callback'] = $item['callback'];
-            			}
-            			array_push($option,$child);
-            		}
-            	}else{
-            		array_push($option,['type'=>'option','label'=>$val,'value'=>(int)$key]);
-            	}
-            }
-
-            return $option;
-        }
-
-		protected function getDecodeData(mixed $str = '',$flag = true): array
-		{
-			if(empty($str) || !$str ){
-				return $str;
-			}
-			if(\is_array($str) || !is_string($str)){
-				return $str;
-			}
-			if(\is_array($flag)){
-				return $flag;
-			}
-			try{
-				$result = \json_decode($str,$flag);
-				if(\json_last_error() === JSON_ERROR_NONE){
-					return $result;
-				}
-
-				return [$str];
-			}catch(\Exception $e){
-				var_dump($e->getMessage());
-				return [];
-			}
-		}
-
-		protected function getOptionsData(mixed $str = ''): array
-		{	
-			if(empty($str) || !$str){
-				return [];
-			}
-			try{
-				$result = \json_decode($str,true);
-				if(\json_last_error() === JSON_ERROR_NONE){
-					$temp = [];
-					foreach($result as $key => $val){
-						// array_push($temp,['type'=>'option','label'=>$key,'value' => $val]);
-						$temp[$key] = $val;
-					}
-
-					return $temp;
-				}
-
-				return [];
-			}catch(\Exception $e){
-				return [];
-			}
-		}
-
         /**
          * 返回异常结果数据
          * @param  [type] $e [description]
          * @return [type]    [description]
          */
-        protected function getExceptionError(\Exception $e): array
+        protected function getExceptionError(\Exception $e,$dump = false): array
         {
             $data = [
                 'code'  => $e->getCode() ? $e->getCode() : 1,
@@ -3589,9 +4506,10 @@
                 'method'=> \request()->action,
                 'msg'   => $e->getMessage()
             ];
-            // var_dump('exception error:',$data);
+            if($dump){
+            	\var_dump('exception error:',$data);
+            }
             return $data;
         }
-
 	}
 ?>

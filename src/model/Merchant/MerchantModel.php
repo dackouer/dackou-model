@@ -10,6 +10,7 @@
 		protected $table = 'Merchant';
 		protected $title = '商户';
 		protected $option_key = 'system';
+		protected $action = 'action';
 		protected $status_value = [-1=>'已停用',0=>'待审核',1=>'正常'];
 		protected $type_value = [0=>'形象店',1=>'旗舰店',2=>'专营店'];
 
@@ -17,9 +18,6 @@
 			try{
 				$field = $this->getList($request,'field',true);
 				array_push($field,'RealName as realname');
-				array_push($field,'province.Title as province');
-				array_push($field,'city.Title as city');
-				array_push($field,'district.Title as district');
 				$is_merchant = isset($this->config['system_is_merchant'])&&$this->config['system_is_merchant'] ? true : false;
 				if($is_merchant){
 					array_push($field,DB::raw('(SELECT COUNT(ID) FROM '.$this->prefix.'goods WHERE MerchantID = '.$this->tab.'.ID AND IsDel = 0) as goods_number'));
@@ -29,17 +27,11 @@
 
 				$rows = Db::table($this->table)
 							->join('user',$this->table.'.UserID','=','user.AccountID')
-							->join('city as province','ProvinceID','=','province.ID')
-							->join('city as city','CityID','=','city.ID')
-							->join('city as district','DistrictID','=','district.ID')
 							->where($where)
 							->count();
 				[$offset,$limit] = $this->getLimit($request);
 				$object = Db::table($this->table)
 							->join('user',$this->table.'.UserID','=','user.AccountID')
-							->join('city as province','ProvinceID','=','province.ID')
-							->join('city as city','CityID','=','city.ID')
-							->join('city as district','DistrictID','=','district.ID')
 							->select(...$field)
 							->where($where)
 							->offset($offset)
@@ -48,11 +40,7 @@
 				if($object){
 					foreach($object as $k => $v){
 						$object[$k]->create_time = $this->getDateTime($object[$k]->create_time);
-						$object[$k]->city = $object[$k]->province . '-' . $object[$k]->city . '-' . $object[$k]->district;
 						$object[$k]->status_title = $this->status_value[$object[$k]->status];
-
-						unset($object[$k]->province);
-						unset($object[$k]->district);
 					}
 				}
 
@@ -99,7 +87,7 @@
 			}
 
 			$user_id = $request->post('user_id',0);
-			if(!$user_id || !is_numeric($user_id) || $user_id <= 0){
+			if(!$user_id || $user_id <= 0){
 				return '无效的审核员';
 			}
 
@@ -113,7 +101,7 @@
 				return '无效的审核员';
 			}
 
-			$type = $request->post('type');
+			$type = $request->post('type',$request->post('key'));
 			if(!in_array($type,['check'])){
 				return '无效的审核参数';
 			}
@@ -171,12 +159,23 @@
 			if(!$user || !is_object($user)){
 				return '无效的用户';
 			}
-			if(!in_array($user->group_id,[14,15])){
-				return '该用户不允许创建商户';
+
+			$role_id = $user->role_id;
+			$_class_name = $this->getClassName('Role');
+			$service = new $_class_name();
+			$role = $service->getList($request,$role_id);
+			if(!$role || !is_object($role)){
+				return '无效的用户';
 			}
-			if($user->is_auth && $user->is_auth == 3){
-				return '该用户已认证商户';
-			}
+
+
+
+			// if(!in_array($user->group_id,[14,15])){
+			// 	return '该用户不允许创建商户';
+			// }
+			// if($user->is_auth && $user->is_auth == 3){
+			// 	return '该用户已认证商户';
+			// }
 
 			$merchant = $this->getList($request,'user',$user_id);
 			if($merchant && is_array($merchant) && count($merchant)){
@@ -211,6 +210,44 @@
 			if(!$city){
 				return '请选择商户所在城市';
 			}
+			$province_id = $city['province'] ?? $city['province_id'] ?? $city[0] ?? $city[0][0];
+			$city_id = $city['city'] ?? $city['city_id'] ?? $city[1] ?? $city[1][0];
+			$district_id = $city['district'] ?? $city['district_id'] ?? $city[2] ?? $city[2][0];
+
+			if($province_id > 100){
+				$province_id /= 100;
+			}
+
+			$city_name = '';
+
+			$_class_name = $this->getClassName('City');
+			$service = new $_class_name();
+			$province = $service->getList($request,$province_id);
+			if(!$province || !is_object($province)){
+				return '无效的城市';
+			}
+
+			$city_name .= $province->title;
+
+			$_class_name = $this->getClassName('City');
+			$service = new $_class_name();
+			$citys = $service->getList($request,$city_id);
+			if(!$citys || !is_object($citys)){
+				return '无效的城市';
+			}
+
+			$city_name .= '-' . $citys->title;
+
+			$_class_name = $this->getClassName('City');
+			$service = new $_class_name();
+			$district = $service->getList($request,$district_id);
+			if(!$district || !is_object($district)){
+				return '无效的城市';
+			}
+
+			$city_name .= '-' . $district->title;
+
+
 			if(!$address){
 				return '详细地址不能为空';
 			}
@@ -231,9 +268,10 @@
 			$data['hotline'] = $hotline;
 			$data['email'] = $email;
 			$data['website'] = $website;
-			$data['province_id'] = $city['province'] ?? $city[0][0];
-			$data['city_id'] = $city['city'] ?? $city[1][0];
-			$data['district_id'] = $city['district'] ?? $city[2][0];
+			$data['province_id'] = $province_id;
+			$data['city_id'] = $city_id;
+			$data['district_id'] = $district_id;
+			$data['city_name'] = $city_name;
 			$data['address'] = $address;
 			$data['content'] = $content;
 			$data['user_id'] = $user_id;	
@@ -245,6 +283,27 @@
 		{
 			if($id){
 				$data = $this->getList($request,$id);
+			}
+
+			$action_name = $request->input('action','');
+
+			if($action_name === 'app'){
+				$action = [
+					['type'=>'input','label'=>'商户名称','prop'=>'merchant_name','value'=>$data->merchant_name ?? '','required'=>true],
+					['type'=>'input','label'=>'法人代表','prop'=>'legal_name','value'=>$data->legal_name ?? ''],
+					['type'=>'input','label'=>'统一信用代码','prop'=>'credit_code','value'=>$data->credit_code ?? ''],
+					['type'=>'input','label'=>'您的姓名','prop'=>'contact_name','value'=>$data->contact_name ?? ''],
+					['type'=>'input','label'=>'身份证号','prop'=>'idcard','value'=>$data->idcard ?? ''],
+					['type'=>'input','label'=>'公司电话','prop'=>'telphone','value'=>$data->telphone ?? ''],
+					['type'=>'input','label'=>'手机号码','prop'=>'mobile','value'=>$data->mobile ?? '','required'=>true],
+					['type'=>'input','label'=>'客服热线','prop'=>'hotline','value'=>$data->hotline ?? '','required'=>true],
+					['type'=>'input','label'=>'邮箱地址','prop'=>'email','value'=>$data->email ?? ''],
+					['type'=>'input','label'=>'企业网址','prop'=>'website','value'=>$data->website ?? ''],
+					['type'=>'city','label'=>'所在城市','prop'=>'city','value'=>$id ? ['province'=>$data->province_id,'city'=>$data->city_id,'district'=>$data->district_id] : [],'required'=>true],
+					['type'=>'input','label'=>'详细地址','prop'=>'address','value'=>$data->address ?? '','required'=>true],
+				];
+
+				return $action;
 			}
 
 			$user_id = $request->input('user_id',0);
@@ -262,12 +321,8 @@
 				$userForm,
 				['type'=>'input','label'=>'商户名称','prop'=>'merchant_name','value'=>$data->merchant_name ?? '','rules'=>['required'=>true,'message'=>'商户名称不能为空']],
 				// ['type'=>'input','label'=>'商户编码','prop'=>'merchant_code','value'=>$data->merchant_code ?? '','slot'=>['suffix'=>['value'=>'自动生成','color'=>'#409EFF','callback'=>'code']],'rules'=>['required'=>true,'message'=>'商户编码不能为空']],
-				['type'=>'upload','label'=>'商户Logo','prop'=>'logo','value'=>$data->logo ?? [],'uploadAttrs'=>[
-					'type'=>'img','limit'=>1,'size'=>'small','action'=>$this->host['api'].'upload'
-				],'rules'=>['required'=>false,'message'=>'请上传商户Logo']],
-				['type'=>'upload','label'=>'商户图片','prop'=>'picture','value'=>$data->picture ?? [],'uploadAttrs'=>[
-					'type'=>'card','limit'=>5,'size'=>'default','action'=>$this->host['api'].'upload'
-				]],
+				['type'=>'upload','label'=>'商户Logo','prop'=>'logo','value'=>$data->logo ?? [],'attrs'=>$this->getUploadOptions('img',1,'small'),'rules'=>['required'=>false,'message'=>'请上传商户Logo']],
+				['type'=>'upload','label'=>'商户图片','prop'=>'picture','value'=>$data->picture ?? [],'attrs'=>$this->getUploadOptions('card',5)],
 				['type'=>'switch','label'=>'直营','prop'=>'is_direct','value'=>$data->is_direct ?? 0],
 				['type'=>'radio-group','label'=>'授权类型','prop'=>'type','value'=>$data->type ?? 0,'children'=>[
 					['type'=>'option','label'=>'形象店','value'=>0],
@@ -284,7 +339,7 @@
 				['type'=>'input','label'=>'企业网址','prop'=>'website','value'=>$data->website ?? ''],
 				['type'=>'city','label'=>'所在城市','prop'=>'city','value'=>$id ? ['province'=>$data->province_id,'city'=>$data->city_id,'district'=>$data->district_id] : [],'rules'=>['required'=>true,'message'=>'请选择所在城市']],
 				['type'=>'input','label'=>'详细地址','prop'=>'address','value'=>$data->address ?? '','rules'=>['required'=>true,'message'=>'详细地址不能为空']],
-				['type'=>'editor','label'=>'商户详情','prop'=>'content','value'=>$data->content ?? '','editorOptions'=>[
+				['type'=>'editor','label'=>'商户详情','prop'=>'content','value'=>$data->content ?? '','attrs'=>[
 					'type'=>'wang','image'=>['server'=>$this->host['api'].'upload/editor'],'video'=>['server'=>$this->host['api'].'upload/video']
 				]]
 			];
@@ -310,7 +365,7 @@
 				['type'=>'varchar','label'=>'手机号码','prop'=>'mobile','width'=>130],
 				['type'=>'varchar','label'=>'客服热线','prop'=>'hotline','width'=>140],
 				['type'=>'varchar','label'=>'网址','prop'=>'website'],
-				['type'=>'varchar','label'=>'所在城市','prop'=>'city','width'=>200],
+				['type'=>'varchar','label'=>'所在城市','prop'=>'city_name','width'=>200],
 				['type'=>'varchar','label'=>'认证用户','prop'=>'realname'],
 			];
 			if($is_merchant){

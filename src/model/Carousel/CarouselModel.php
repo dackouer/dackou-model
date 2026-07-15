@@ -10,6 +10,30 @@
 		protected $title = '轮播图';
 		public $layer = 2;
 		protected $cate_value = [0=>'其它',1=>'mini',2=>'app',3=>'web'];
+        protected $map_exclude = ['CreateTime','LinkUrl','CateID'];
+        protected $key_value = [
+        	'mini' => [
+        		['label'=>'首页(home)','value'=>'home'],
+        		['label'=>'新闻页(news)','value'=>'news'],
+        		['label'=>'文章页(article)','value'=>'article'],
+        		['label'=>'活动页(activity)','value'=>'activity'],
+        		['label'=>'商品页(goods)','value'=>'goods'],
+        	],
+        	'app' => [
+        		['label'=>'首页(home)','value'=>'home'],
+        		['label'=>'新闻页(news)','value'=>'news'],
+        		['label'=>'文章页(article)','value'=>'article'],
+        		['label'=>'活动页(activity)','value'=>'activity'],
+        		['label'=>'商品页(goods)','value'=>'goods'],
+        	],
+        	'web' => [
+        		['label'=>'首页(home)','value'=>'home'],
+        		['label'=>'新闻页(news)','value'=>'news'],
+        		['label'=>'文章页(article)','value'=>'article'],
+        		['label'=>'活动页(activity)','value'=>'activity'],
+        		['label'=>'商品页(goods)','value'=>'goods'],
+        	]
+        ];
 
 		protected function getAllList(Request $request){
 			try{
@@ -53,7 +77,9 @@
 
 		protected function getPageList(Request $request){
 			try{
-				$field = $this->getList($request,'field');
+				$field = $this->getList($request,'field',true);
+				array_push($field,'page.Title as page_title');
+				array_push($field,'page.Url as page_url');
 				$where = $this->getWhere($request);
 
 				$cate_id = $request->input('cate_id',1);
@@ -62,10 +88,12 @@
 				}
 
 				$rows = Db::table($this->table)
+							->join('page','PageID','=','page.ID')
 							->where($where)
 							->count();
 				[$offset,$limit] = $this->getLimit($request);
 				$object = Db::table($this->table)
+							->join('page','PageID','=','page.ID')
 							->select(...$field)
 							->where($where)
 							->orderBy($this->table.'.Level','asc')
@@ -87,42 +115,98 @@
 			if(!$key || empty($key)){
 				return [];
 			}
-			try{
-				if(is_string($key) && \strpos($key, ',') === false){
-					$field = $this->getList($request,'field');
-					$where = $this->getWhere($request);
-					array_push($where,[$this->table.'.IsValid','=',1]);
-					array_push($where,[$this->table.'.IsDel','=',0]);
-					array_push($where,[$this->table.'.Key','=',$key]);
-					$object = Db::table($this->table)
-								->select(...$field)
-								->where($where)
-								->orderBy('Sort','asc')
-								->get();
-					if($object){
-						foreach($object as $k => $v){
-							unset($object[$k]->create_time);
-							unset($object[$k]->create_ip);
-							unset($object[$k]->update_time);
-							unset($object[$k]->update_ip);
-							unset($object[$k]->delete_time);
-							unset($object[$k]->delete_ip);
-							unset($object[$k]->cate_id);
-							unset($object[$k]->is_del);
-							unset($object[$k]->key);
-							unset($object[$k]->is_valid);
-							unset($object[$k]->sort);
-						}
-						$object = $this->child($object);
-						return $object[0];
-					}
-					return [];
-				}else{
 
-				}
-			}catch(\Exception $e){
-				return $this->getExceptionError($e);
+			$field = $this->getList($request,'field',true);
+			array_push($field,'page.Url as page_url');
+			$where = $this->getWhere($request);
+			array_push($where,[$this->table.'.IsValid','=',1]);
+			array_push($where,[$this->table.'.Key','=',$key]);
+			$cate_id = $request->input('cate_id',1);
+			if(in_array($cate_id,[1,2,3])){
+				array_push($where,[$this->table.'.CateID','=',$cate_id]);
 			}
+
+			$object = Db::table($this->table)
+						->join('page','PageID','=','page.ID')
+						->select(...$field)
+						->where($where)
+						->orderBy($this->table.'.Sort','asc')
+						->get();
+			if($object){
+				$data = [];
+				$child = [];
+				foreach($object as $k => $v){
+					if(!$v->pid){
+						$data = [
+							'id'		=>$v->id,
+							'title'		=>$v->title,
+							'pic'		=>$v->pic,
+							'width'		=>$v->width,
+							'height'	=>$v->height,
+							'radius'	=>$v->radius,
+							'spacing'	=>$v->spacing,
+							'padding'	=>$v->padding,
+							'url'		=>$v->page_url,
+						];
+					}else{
+						array_push($child,[
+							'id'		=>$v->id,
+							'title'		=>$v->title,
+							'pic'		=>$v->pic,
+							'width'		=>$v->width,
+							'height'	=>$v->height,
+							'radius'	=>$v->radius,
+							'spacing'	=>$v->spacing,
+							'padding'	=>$v->padding,
+							'url'		=>$v->page_url,
+						]);
+					}
+				}
+				$data['children'] = $child;
+
+				return $data;
+			}
+
+			return [];
+
+
+			
+			// try{
+			// 	if(is_string($key) && \strpos($key, ',') === false){
+			// 		$field = $this->getList($request,'field');
+			// 		$where = $this->getWhere($request);
+			// 		array_push($where,[$this->table.'.IsValid','=',1]);
+			// 		array_push($where,[$this->table.'.IsDel','=',0]);
+			// 		array_push($where,[$this->table.'.Key','=',$key]);
+			// 		$object = Db::table($this->table)
+			// 					->select(...$field)
+			// 					->where($where)
+			// 					->orderBy('Sort','asc')
+			// 					->get();
+			// 		if($object){
+			// 			foreach($object as $k => $v){
+			// 				unset($object[$k]->create_time);
+			// 				unset($object[$k]->create_ip);
+			// 				unset($object[$k]->update_time);
+			// 				unset($object[$k]->update_ip);
+			// 				unset($object[$k]->delete_time);
+			// 				unset($object[$k]->delete_ip);
+			// 				unset($object[$k]->cate_id);
+			// 				unset($object[$k]->is_del);
+			// 				unset($object[$k]->key);
+			// 				unset($object[$k]->is_valid);
+			// 				unset($object[$k]->sort);
+			// 			}
+			// 			$object = $this->child($object);
+			// 			return $object[0];
+			// 		}
+			// 		return [];
+			// 	}else{
+
+			// 	}
+			// }catch(\Exception $e){
+			// 	return $this->getExceptionError($e);
+			// }
 		}
 
 		protected function validate(Request $request,$id = 0,$obj = null){
@@ -214,6 +298,7 @@
 				$data['spacing'] = $spacing;
 				$data['padding'] = $padding;
 				$data['radius'] = $radius;
+				$data['page_id'] = 1;
 			}else{
 				$pic = $request->post('pic');
 				if(is_array($pic)){
@@ -301,45 +386,25 @@
 				['type'=>'select','label'=>'父级','prop'=>'pid','value'=>$id ? $data->pid : $pid,'hidden'=>true,'children'=>$pidData],
 			];
 			if((!$id && !$pid) || ($id && !$data->pid)){
-				array_push($action,['type'=>'input','label'=>'标识key','prop'=>'key','value'=>$id ? $data->key : '','rules'=>['required'=>true,'message'=>'标识key不能为空']]);
-				array_push($action,['type'=>'form-group','label'=>'宽高','prop'=>'fgroup','delimiter'=>'-','children'=>[
+				array_push($action,['type'=>'select','label'=>'标识key','prop'=>'key','value'=>$id ? $data->key : '','children'=>$this->key_value[$this->cate_value[$cate_id]],'rules'=>['required'=>true,'message'=>'标识key不能为空']]);
+				array_push($action,['type'=>'group','label'=>'宽高','prop'=>'fgroup','delimiter'=>'-','children'=>[
 					['type'=>'input','label'=>'宽度','prop'=>'width','value'=>$id ? $data->width : '','placeholder'=>'0','attrs'=>['style'=>['width'=>'180px']],'slot'=>['prefix'=>['value'=>'宽度'],'suffix'=>['value'=>'px']]],
 					['type'=>'input','label'=>'高度','prop'=>'height','value'=>$id ? $data->height : '','placeholder'=>'0','attrs'=>['style'=>['width'=>'180px']],'slot'=>['prefix'=>['value'=>'高度'],'suffix'=>['value'=>'px']]],
 				]]);
-				array_push($action,['type'=>'form-group','label'=>'内外间距','prop'=>'fspacing','delimiter'=>'-','children'=>[
+				array_push($action,['type'=>'group','label'=>'内外间距','prop'=>'fspacing','delimiter'=>'-','children'=>[
 					['type'=>'input','label'=>'外间距','prop'=>'spacing','value'=>$id ? $data->spacing : '','placeholder'=>'0','attrs'=>['style'=>['width'=>'180px']],'slot'=>['prefix'=>['value'=>'外距'],'suffix'=>['value'=>'px']]],
 					['type'=>'input','label'=>'内间距','prop'=>'padding','value'=>$id ? $data->padding : '','placeholder'=>'0','attrs'=>['style'=>['width'=>'180px']],'slot'=>['prefix'=>['value'=>'内距'],'suffix'=>['value'=>'px']]],
 				]]);
 				array_push($action,['type'=>'input','label'=>'圆角','prop'=>'radius','value'=>$id ? $data->radius : '','placeholder'=>'0','slot'=>['suffix'=>['value'=>'px']]]);
 			}else{
-				array_push($action,['type'=>'upload','label'=>'图片','prop'=>'pic','value'=>$id ? $data->pic : '','uploadAttrs'=>[
-					'type'=>'img','limit'=>1,'size'=>'default','action'=>$this->host['api'].'upload'
-				],'rules'=>['required'=>false,'message'=>'请上传图片']]);
-				array_push($action,['type'=>'cascader','label'=>'链接','prop'=>'page_id','value'=>$id?$data->page_id:[],'attrs'=>['placeholder'=>'选择链接','options'=>$page],'rules'=>['required'=>true,'message'=>'请选择链接']]);
+				array_push($action,['type'=>'upload','label'=>'图片','prop'=>'pic','value'=>$id ? $data->pic : '','attrs'=>$this->getUploadOptions('img'),'required'=>true]);
+				array_push($action,['type'=>'cascader','label'=>'链接','prop'=>'page_id','value'=>$id?$data->page_id:[],'children'=>$page,'required'=>true]);
 			}
 
 			array_push($action,['type'=>'switch','label'=>'有效','prop'=>'is_valid','value'=>$id ? $data->is_valid : 1],
 				['type'=>'input','label'=>'排序','prop'=>'sort','value'=>$id ? $data->sort : $sort]);
 
 			return $action;
-		}
-
-		protected function getMapList(Request $request): array
-		{
-			return [
-				['type'=>'id','label'=>'ID','prop'=>'id','align'=>'start'],
-				['type'=>'varchar','label'=>'标题名称','prop'=>'title','align'=>'start','width'=>200],
-				['type'=>'varchar','label'=>'标识','prop'=>'key'],
-				['type'=>'img','label'=>'图片','prop'=>'pic'],
-				['type'=>'varchar','label'=>'宽度','prop'=>'width'],
-				['type'=>'varchar','label'=>'高度','prop'=>'height'],
-				['type'=>'varchar','label'=>'外间距','prop'=>'spacing'],
-				['type'=>'varchar','label'=>'内间距','prop'=>'padding'],
-				['type'=>'varchar','label'=>'圆角','prop'=>'radius'],
-				['type'=>'varchar','label'=>'链接','prop'=>'page_id'],
-				['type'=>'switch','label'=>'有效','prop'=>'is_valid'],
-				['type'=>'varchar','label'=>'排序','prop'=>'sort'],
-			];
 		}
 	}
 ?>

@@ -10,58 +10,59 @@
 		protected $is_schema = false;
 		protected $status_value = [0 => '未导入',1 => '已导入'];
 
-		protected function getFieldList(Request $request,mixed $flag = false){
-			$field = [
-				"ID as id",
-				"TableID as table_id",
-				"Comment as comment",
-				"FieldName as field_name",
-				"MapName as map_name",
-				"FieldType as field_type",
-				"Length as length",
-				"IsPrimaryKey as is_primary_key",
-				"IsKey as is_key",
-				"IsUnique as is_unique",
-				"IsMust as is_must",
-				"IsShow as is_show",
-				"IsAdd as is_add",
-				"IsMod as is_mod",
-				"IsSearch as is_search",
-				"ShowType as show_type",
-				"FormType as form_type",
-				"Width as width",
-				"Align as align",
-				"DefaultValue as default_value",
-				"Rules as rules",
-				"Prefix as prefix",
-				"Suffix as suffix",
-				"Prompt as prompt",
-				"CallbackField as callback_field",
-				"CallbackKey as callback_key",
-				"CallbackTitle as callback_title",
-				"After as after",
-				"Status as status",
-				"Sort as sort",
-				"CreateTime as create_time"
+		protected function getFieldList(Request $request,mixed $flag = false): array
+		{
+			$fields = [
+				'id' 				=> 'ID',
+				'table_id' 			=> 'TableID',
+				'comment' 			=> 'Comment',
+				'field_name' 		=> 'FieldName',
+				'map_name' 			=> 'MapName',
+				'field_type' 		=> 'FieldType',
+				'length' 			=> 'Length',
+				'is_primary_key' 	=> 'IsPrimaryKey',
+				'is_key' 			=> 'IsKey',
+				'is_unique' 		=> 'IsUnique',
+				'is_must' 			=> 'IsMust',
+				'is_show' 			=> 'IsShow',
+				'is_add' 			=> 'IsAdd',
+				'is_mod' 			=> 'IsMod',
+				'is_search' 		=> 'IsSearch',
+				'show_type' 		=> 'ShowType',
+				'form_type' 		=> 'FormType',
+				'width' 			=> 'Width',
+				'align' 			=> 'Align',
+				'default_value' 	=> 'DefaultValue',
+				'rules' 			=> 'Rules',
+				'prefix' 			=> 'Prefix',
+				'suffix' 			=> 'Suffix',
+				'prompt' 			=> 'Prompt',
+				'callback_field' 	=> 'CallbackField',
+				'callback_key' 		=> 'CallbackKey',
+				'callback_title' 	=> 'CallbackTitle',
+				'after' 			=> 'After',
+				'status' 			=> 'Status',
+				'sort' 				=> 'Sort',
+				'create_time' 		=> 'CreateTime',
 			];
 
 			if($flag === true){
-				for($i=0;$i<count($field);$i++){
-					$field[$i] = $this->table . '.' . $field[$i];
+				$field = [];
+				foreach($fields as $k => $v){
+					array_push($field,$this->table.'.'.$v . ' as ' . $k);
 				}
-			}
-			
-			if($flag === 'key'){
-				$keys = [];
-				$vals = [];
-				foreach($field as $item){
-					[$key,$val] = explode(" as ",$item);
-					array_push($keys,$key);
-					array_push($vals,$val);
+    			return $field;
+    		}elseif($flag === false){
+				$field = [];
+				foreach($fields as $k => $v){
+					array_push($field,$v . ' as ' . $k);
 				}
-				return [$keys,$vals];
-			}
-			return $field;
+    			return $field;
+    		}elseif($flag === 'key'){
+    			return $fields;
+    		}else{
+    			return $fields;
+    		}
 		}
 
 		// 默认数据
@@ -176,14 +177,16 @@
 			}
 		}
 
-		protected function getOptionList(Request $request,mixed $data = [],mixed $field = []): array
+		protected function getOptionList(Request $request,mixed $param = null,array $disabled = [],array $fields = [])
 		{
 			try{
 				$field = ["ID as value","FieldName as label"];
-				$data = $data ? $data : ['TableID' => 1];
+				$param = $param ? $param : ['TableID' => 1];
 				$where = [['IsDel','=',0]];
-				foreach($data as $key => $val){
-					array_push($where,[$key,'=',$val]);
+				if($param && is_array($param)){
+					foreach($param as $key => $val){
+						array_push($where,[$key,'=',$val]);
+					}
 				}
 				$object = Db::table($this->table)
 							->select(...$field)
@@ -214,7 +217,7 @@
 
 				$service = new TableModel();
 				$option = $service->getList($request,'option');
-				\array_unshift($option,['type'=>'option','label'=>'-All-','value'=>'']);
+				// array_unshift($option,['type'=>'option','label'=>'-All-','value'=>'']);
 
 				$action = [
 					['type'=>'select','label'=>'数据表','prop'=>'tab_id','value'=>$tab_id,'children'=>$option]

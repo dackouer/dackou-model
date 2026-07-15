@@ -77,43 +77,19 @@
 			if(!$iv){
 				return 100007;
 			}
-
-			$this->config = $this->getConfig($request,$type);
-
 			try{
+				$this->config = $this->getConfig($request,$type);
+				var_dump($this->config);
 				$app = new Application($this->config);
 				$utils = $app->getUtils();
 				$res = $utils->codeToSession($code);
 				var_dump('code to session:');
 				var_dump($res);
-				// $res = [
-				// 	"session_key"	=> "UAa4gLoDmKQf/OKRFtlZdQ=="
-  				// 	"openid"		=> "otu5F4wVTLcfCmqBNxLpjHn6islg"
-  				// ];
-  				if($res && isset($res['session_key']) && isset($res['openid'])){
-  					$session = $utils->decryptSession($res['session_key'], $iv, $encrypted_data);
-  					
-  					if($session && isset($session['nickName'])){
-  						$session['type'] = $type;
-  						$session['openId'] = $res['openid'];
-  						$user = $this->authUser($request,$session);
-  						var_dump('user success: ');
-  						var_dump($user);
-  						if($user && is_array($user)){
-  							return $user;	// 成功
-  						}
-  						return '用户更新失败';
-  					}else{
-  						return '解密失败';
-  					}
-  				}else{
-  					return 'session获取失败';
-  				}
 
-  				return false;
+				return $res;
 
 			}catch(\Exception $e){
-				// var_dump($e->getMessage());
+				var_dump($e->getMessage());
 				return $this->getErrorMessage($e);
 			}
 		}
@@ -136,11 +112,11 @@
 			var_dump($session);
 			if($session && isset($session['openid'])){
 				var_dump('openid: '.$session['openid']);
-				$this->config = $this->getConfig($request,$type);
-
-				$data = json_encode(['code' => $code]);
 
 				try{
+					$this->config = $this->getConfig($request,$type);
+					$data = json_encode(['code' => $code]);
+
 					$app = new Application($this->config);
 					$access = $app->getAccessToken();
 					$accessToken = $access->getToken();
@@ -154,12 +130,14 @@
 					var_dump($result);
 					if($result['errcode'] === 0 && isset($result['phone_info'])){
 						$result['phone_info']['openid'] = $session['openid'];
+						$result['phone_info']['unionid'] = $session['unionid'] ?? '';
 
 						return $result['phone_info'];
 					}
 					return ['code' => $result['errcode'],'msg' => $result['errmsg']];
 					// return ($result['errcode'] === 0 && isset($result['phone_info'])) ? $result['phone_info'] : ['code' => $result['errcode'],'msg' => $result['errmsg']];
 				}catch(\Exception $e){
+					var_dump('Exception error: ',$this->getErrorMessage($e));
 					return $this->getErrorMessage($e);
 				}
 			}else{
@@ -539,6 +517,7 @@
 				$key = 'bank';
 			}
 			$result = $service->getList($request,'key',$key);
+			var_dump('config result: ',$result);
 			if($result){
 				switch($type){
 					case 'wechat':
@@ -553,14 +532,14 @@
 						        'redirect_url' => $result['merchant_mch_backurl'],
 						    ],
 
-							'mch_id' => $result['merchant_mch_id'],
+							'mch_id' => $result['merchant_mch_id'] ?? $result['merchant_mchid'] ?? '',
 							// 商户证书
 						    'private_key' => config_path() . '/cert/wechat/apiclient_key.pem',
 						    'certificate' => config_path() . '/cert/wechat/apiclient_cert.pem',
 						    // v3 API 秘钥
 			    			'secret_key' => $result['merchant_api_v3_key'],
 			    			// v2 API 秘钥
-			    			'v2_secret_key' => $result['merchant_api_key'],
+			    			'v2_secret_key' => $result['merchant_api_key'] ?? $result['merchant_api_v2_key'],
 			    			'platform_certs' => [],
 			    			'http' => [
 						        'throw'  => true, // 状态码非 200、300 时是否抛出异常，默认为开启
@@ -571,19 +550,19 @@
 						break;
 					case 'mini':
 						$config = [
-							'app_id' => $result['mini_appid'],
-						    'secret' => $result['mini_appsecret'],
-						    'token' => $result['wechat_token'],
+							'app_id' => $result['mini_appid'] ?? $result['mini_app_id'],
+						    'secret' => $result['mini_appsecret'] ?? '',
+						    'token' => $result['wechat_token'] ?? '',
 						    'aes_key' => '',
 
-							'mch_id' => $result['merchant_mch_id'],
+							'mch_id' => $result['merchant_mch_id'] ?? $result['merchant_mchid'] ?? '',
 							// 商户证书
 						    'private_key' => config_path() . '/cert/wechat/apiclient_key.pem',
 						    'certificate' => config_path() . '/cert/wechat/apiclient_cert.pem',
 						    // v3 API 秘钥
-			    			'secret_key' => $result['merchant_api_v3_key'],
+			    			'secret_key' => $result['merchant_api_v3_key'] ?? '',
 			    			// v2 API 秘钥
-			    			'v2_secret_key' => $result['merchant_api_key'],
+			    			'v2_secret_key' => $result['merchant_api_key'] ?? $result['merchant_api_v2_key'],
 			    			'platform_certs' => [],
 			    			'http' => [
 						        'throw'  => true, // 状态码非 200、300 时是否抛出异常，默认为开启
@@ -598,14 +577,14 @@
 						    'secret' => $result['wechat_open_appsecret'],
 						    'token' => $result['wechat_token'],
 						    'aes_key' => '',
-							'mch_id' => $result['merchant_mch_id'],
+							'mch_id' => $result['merchant_mch_id'] ?? $result['merchant_mchid'] ?? '',
 							// 商户证书
 						    'private_key' => config_path() . '/cert/wechat/apiclient_key.pem',
 						    'certificate' => config_path() . '/cert/wechat/apiclient_cert.pem',
 						    // v3 API 秘钥
 			    			'secret_key' => $result['merchant_api_v3_key'],
 			    			// v2 API 秘钥
-			    			'v2_secret_key' => $result['merchant_api_key'],
+			    			'v2_secret_key' => $result['merchant_api_key'] ?? $result['merchant_api_v2_key'],
 			    			'platform_certs' => [],
 			    			'http' => [
 						        'throw'  => true, // 状态码非 200、300 时是否抛出异常，默认为开启

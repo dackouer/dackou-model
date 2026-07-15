@@ -54,53 +54,5 @@
             
             return $data;
         }
-
-        protected function getActionList(Request $request,$id = 0): array
-        {
-            try{
-                if($id){
-                    $data = $this->getList($request,$id);
-                }
-
-                $pid = $request->input('pid',0);
-                $level = $request->input('level',1);
-                $ilevel = [];
-                for($i=1;$i<=$this->layer;$i++){
-                    array_push($ilevel,['type'=>'option','label'=>$i.'级','value'=>$i]);
-                }
-                $ipid = [];
-                if($this->layer == 2){
-                    $ipid = $this->getList($request,'option',['Title'=>'title','ID'=>'id'],['PID'=>0]);
-                }elseif($this->layer == 3){
-                    $ipid = $this->getList($request,'option',['Title'=>'title','ID'=>'id'],['Level'=>2]);
-                }
-                $sort = $this->getMaxSort($pid);
-
-                $action = [
-                    ['type'=>'input','label'=>'类别名称','prop'=>'title','value'=>$id ? $data->title : '','rules'=>['required'=>true,'message'=>'类别名称不能为空']],
-                    ['type'=>'upload','label'=>'图标','prop'=>'pic','value'=>$id ? $data->pic : '','uploadAttrs'=>[
-                        'type'=>'img','size'=>'small','limit'=>1,'action'=>$this->host['api'].'upload'
-                    ]],
-                    ['type'=>'select','label'=>'层级','prop'=>'level','value'=>$id ? $data->level : $level,'hidden'=>true,'children'=>$ilevel],
-                    ['type'=>'select','label'=>'父级','prop'=>'pid','value'=>$id ? $data->pid : $pid,'hidden'=>true,'children'=>$ipid],
-                    ['type'=>'input','label'=>'排序','prop'=>'sort','value'=>$id ? $data->sort : $sort],
-                ];
-
-                return $action;
-            }catch(\Exception $e){
-                return $this->getExceptionError($e);
-            }
-        }
-
-        protected function getMapList(Request $request): array
-        {
-            return [
-                ['type'=>'id','label'=>'ID','prop'=>'id'],
-                ['type'=>'varchar','label'=>'类别名称','prop'=>'title'],
-                ['type'=>'img','label'=>'图片','prop'=>'pic'],
-                ['type'=>'varchar','label'=>'排序','prop'=>'sort'],
-                ['type'=>'varchar','label'=>'创建时间','prop'=>'create_time'],
-            ];
-        }
 	}
 ?>

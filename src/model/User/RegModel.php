@@ -5,6 +5,7 @@
 	use support\Db;
 	use dackou\Preg;
 	use dackou\Generateion;
+	use dackou\service\Token\TokenService;
 
 	class RegModel extends \dackou\Model{
 		protected $table = 'User';
@@ -16,7 +17,6 @@
     	public function checkReg(Request $request){
     		$type = $request->input('type','username');
     		$_method = 'checkRegBy' . \ucfirst($type);
-
     		if(\method_exists($this, $_method)){
     			return $this->$_method($request);
     		}
@@ -29,6 +29,7 @@
     			$username = trim($request->post('username',''));
     			$password = trim($request->post('password',''));
     			$checkpwd = trim($request->post('checkpwd',''));
+    			$numcode = trim($request->post('numcode',''));
 
     			if(!$username){
     				return '请输入用户名';
@@ -49,6 +50,14 @@
     				return '密码确认有误';
     			}
 
+    			if(!$numcode){
+    				return '验证码不能为空';
+    			}
+
+    			if(!$this->checkValidateCode($request,$numcode,'numcode')){
+    				return '验证码不正确';
+    			}
+
     			$data['username'] = $username;
 
     			$gener = Generateion::create();
@@ -59,7 +68,10 @@
     			$data['password'] = $this->makePassword($password);
     			$data['reg_ip'] = $request->getRealIp($safe_mode=true);
     			$data['ip_address'] = $this->getIPAddress($request);
-    			$data['role_id'] = $this->getRoleId();
+    			$data['role_id'] = $this->getRoleId($request);
+    			$data['province_id'] = 1;
+    			$data['city_id'] = 1;
+    			$data['district_id'] = 1;
     			$data['status'] = 1;
 
     			$result = $this->insertData($request,$data);
@@ -93,7 +105,7 @@
     				return '短信验证码不能为空';
     			}
     			if(!$this->checkValidateCode($request,$smscode,'smscode')){
-    				// return '短信验证码不正确';
+    				return '短信验证码不正确';
     			}
 
     			$user = $this->getList($request,'mobile',$mobile);
@@ -116,7 +128,10 @@
     				$data['password'] = $this->makePassword($password);
     				$data['reg_ip'] = $request->getRealIp($safe_mode=true);
     				$data['ip_address'] = $this->getIPAddress($request);
-    				$data['role_id'] = $this->getRoleId();
+    				$data['role_id'] = $this->getRoleId($request);
+    				$data['province_id'] = 1;
+    				$data['city_id'] = 1;
+    				$data['district_id'] = 1;
     				$data['status'] = 1;
     				
     				$result = $this->insertData($request,$data);
@@ -138,6 +153,70 @@
     				return $result;
     			}
 
+    		}catch(\Exception $e){
+    			return $this->getExceptionError($e);
+    		}
+    	}
+
+    	private function checkRegByEmail($request){
+    		try{
+    			$email = trim($request->post('email',''));
+    			$password = trim($request->post('password',''));
+    			$checkpwd = trim($request->post('checkpwd',''));
+    			$numcode = trim($request->post('numcode',''));
+
+    			if(!$email){
+    				return '请输入邮箱地址';
+    			}
+    			if(!Preg::isEmail($email)){
+    				return '邮箱地址格式不正确';
+    			}
+    			if($this->checkExists(['Email'=>$email],0)){
+    				return '邮箱地址已存在';
+    			}
+    			if(!$password){
+    				return '请输入密码';
+    			}
+    			if(!$checkpwd){
+    				return '请确认密码';
+    			}
+    			if($checkpwd !== $password){
+    				return '密码确认有误';
+    			}
+
+    			if(!$numcode){
+    				return '验证码不能为空';
+    			}
+
+    			if(!$this->checkValidateCode($request,$numcode,'numcode')){
+    				return '验证码不正确';
+    			}
+
+    			$data['email'] = $email;
+
+    			$gener = Generateion::create();
+    			$data['uuid'] = $gener['uuid'];
+    			$data['uid'] = $gener['uid'];
+    			$data['token'] = $gener['token'];
+    			$data['invite_code'] = $gener['invite'];
+    			$data['password'] = $this->makePassword($password);
+    			$data['reg_ip'] = $request->getRealIp($safe_mode=true);
+    			$data['ip_address'] = $this->getIPAddress($request);
+    			$data['role_id'] = $this->getRoleId($request);
+    			$data['province_id'] = 1;
+    			$data['city_id'] = 1;
+    			$data['district_id'] = 1;
+    			$data['status'] = 1;
+
+    			$result = $this->insertData($request,$data);
+    			if($result){
+    				return [
+    					'uid' => $data['uid'],
+    					'email' => $email
+    				];
+    			}
+
+    			return $result;
     		}catch(\Exception $e){
     			return $this->getExceptionError($e);
     		}
@@ -166,8 +245,20 @@
     		}
     	}
 
-    	private function getRoleId(){
-    		return 1501;
+    	protected function getRoleId(Request $request){
+    		if(isset($this->config['user_default_reg_role_id']) && $this->config['user_default_reg_role_id']){
+    			return $this->config['user_default_reg_role_id'];
+    		}
+
+    		$_class_name = $this->getClassName('Role');
+    		$service = new $_class_name();
+
+    		$obj = $service->getList($request,'default');
+    		if($obj && is_object($obj)){
+    			return $obj->id;
+    		}
+
+    		return 0;
     	}
 
     	private function getSign($role_id){
@@ -201,7 +292,7 @@
 						'expire' 	=> date('Y-m-d H:i:s',(time()+24*3600*365*10))
 	    			];
 	    		}
-	    		$result = \dackou\Token::createToken($data);
+	    		$result = TokenService::createToken($data);
 	    		return $result['token'];
 	    	}catch(\Exception $e){
 	    		return '';

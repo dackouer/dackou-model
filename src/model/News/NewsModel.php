@@ -10,6 +10,7 @@
         protected $action = 'action';
         protected $page = true;
         protected $default_pic = '';
+        protected $map_exclude = ['UserID'];
         protected $original_value = [1=>'原创',0=>'引用'];
         protected $status_value = [-1=>'被拒绝',0=>'待审核',1=>'正常'];
 
@@ -52,6 +53,45 @@
             }
         }
 
+        protected function getMiniList(Request $request){
+            $_class_name = $this->getClassName('NewsCate');
+            $service = new $_class_name();
+            $cate = $service->getList($request);
+
+            $_class_name = $this->getClassName('Carousel');
+            $service = new $_class_name();
+            $carousel = $service->getList($request,'key','news');
+
+            // $data = $this->getList($request,'top',10);
+            $data = $this->getList($request,'page');
+
+            if(!$data || isset($data['code'])){
+                return $data;
+            }
+
+            return [
+                'cate' => $cate,
+                'carousel' => $carousel,
+                'rows' => $data['rows'],
+                'data' => $data['data']
+            ];
+        }
+
+        // 从公众号导入文章到新闻
+        protected function importFromWechat(Request $request,$data){
+            try{
+                $result = $this->insertData($request,$data['data']);
+                var_dump('importFromWechat:',$result);
+                if($result !== false){
+                    return ['num' => $data['num'],'data' => $data['data']];
+                }
+
+                return '导入失败';
+            }catch(\Exception){
+                return $this->getExceptionError($e);
+            }
+        }
+
         /**
          * [validate description]
          * @param  Request $request [description]
@@ -59,6 +99,93 @@
          * @return [type]           [description]
          */
         protected function validate(Request $request,$id = 0,$obj = null){
+            $action = $request->input('action','');
+
+            if($action === 'wechat'){
+                // 从公众号导入文章
+                $user_id = $request->post('user_id');
+
+                if(!$user_id || !is_numeric($user_id) || $user_id <= 0){
+                    return '未登录';
+                }
+
+                $_user_class = $this->getClassName('User');
+                $service = new $_user_class();
+                $user = $service->getList($request,$user_id);
+                if(!$user || !is_object($user)){
+                    return '无效的操作人';
+                }
+
+                $post = $request->post('data',[]);
+                if(!$post || !is_array($post) || !count($post)){
+                    return '无效的导入数据';
+                }
+
+                $news = [];
+                $num = 0;
+                $ip = $request->getRealIp($safe_mode = true);
+                $time = time();
+                foreach($post as $key => $item){
+                    $cate_id = $item['cate_id'] ?? 0;
+                    $media_id = $item['media_id'];
+                    $title = $item['title'];
+                    $author = $item['author'];
+                    $pic = $item['thumb_url'];
+                    $desc = $item['digest'];
+                    $source_name = '公众号';
+                    $source_url = $item['url'];
+                    $content = $item['content'];
+                    $create_time = $item['create_time'] ?? $time;
+                    $update_time = $item['update_time'] ?? $time;
+
+                    if(!$this->checkExists(['MediaID' => $media_id],0)){
+                        if(empty($cate_id)){
+                            return "请选择第".($key+1)."条文章类别";
+                        }
+
+                        if(!is_numeric($cate_id) || !$cate_id){
+                            return "第".($key+1)."条文章类别格式有误";
+                        }
+                        
+                        $service = new NewsCateModel();
+                        $cate = $service->getList($request,$cate_id);
+                        if(!$cate || !is_object($cate)){
+                            return "第".($key+1)."条文章类别无效";
+                        }
+
+                        array_push($news,[
+                            'CateID'     => $cate_id,
+                            'MediaID'    => $media_id,
+                            'Title'      => $title,
+                            'Author'     => $author,
+                            'Pic'        => $pic,
+                            'Desc'       => $desc,
+                            'SourceName' => $source_name,
+                            'SourceUrl'  => $source_url,
+                            'Content'    => $content,
+                            'UserID'     => $user_id,
+                            'Status'     => 1,
+                            'CreateTime' => $create_time,
+                            'CreateIP'   => $ip,
+                            'UpdateTime' => $update_time
+                        ]);
+                    }else{
+                        $num++;
+                    }
+                }
+
+                if(!$news || !count($news)){
+                    return '文章已全部导入';
+                }
+
+                $data['callback'] = 'importFromWechat';
+                $data['num'] = $num;
+                $data['data'] = $news;
+
+                return $data;
+            }
+
+
             $user_id = $request->post('user_id');
             $cate_id = $request->post('cate_id');
             $title = trim($request->post('title',''));
@@ -89,7 +216,7 @@
             if(!is_numeric($cate_id) || !$cate_id){
                 return 100910;
             }
-
+            
             $service = new NewsCateModel();
             $cate = $service->getList($request,$cate_id);
             if(!$cate || !is_object($cate)){
@@ -100,8 +227,8 @@
                 return 100904;
             }
 
-            if(strlen($title) < 10 || strlen($title) > 40){
-                return $this->title.'标题长度不能小于10或大于40';
+            if(strlen($title) < 10){
+                return $this->title.'标题长度不能小于10';
             }
 
             if($this->checkExists(['Title' => $title],$id)){
@@ -145,10 +272,11 @@
             if(!$id){
                 $data['status'] = 1;
             }
-
+            
             return $data;
         }
 
+        
         protected function getActionList(Request $request,$id = 0): array
         {
             if($id){
@@ -164,15 +292,11 @@
             }
 
             $action = [
-                ['type'=>'select','label'=>$this->title.'类别','prop'=>'cate_id','value'=>$data->cate_id ?? '','children'=>$cate,'rules'=>['required'=>true,'message'=>'请选择'.$this->title.'类别']],
-                ['type'=>'input','label'=>$this->title.'标题','prop'=>'title','value'=>$data->title ?? '','rules'=>['required'=>true,'message'=>$this->title.'标题不能为空']],
-                ['type'=>'input','label'=>$this->title.'描述','prop'=>'desc','value'=>$data->desc ?? '','attrs'=>['type'=>'textarea'],'rules'=>['required'=>true,'message'=>$this->title.'描述不能为空']],
-                ['type'=>'upload','label'=>'图片','prop'=>'picture','value'=>$data->picture ?? [],'uploadAttrs'=>[
-                    'type'=>'card','limit'=>5,'size'=>'default','action'=>$this->host['api'].'upload'
-                ],'rules'=>['required'=>false,'message'=>'请上传图片']],
-                ['type'=>'editor','label'=>$this->title.'内容','prop'=>'content','value'=>$data->content ?? '','editorOptions'=>[
-                    'type'=>'wang','image'=>['server'=>$this->host['api'].'upload/editor'],'video'=>['server'=>$this->host['api'].'upload/video']
-                ],'rules'=>['required'=>true,'message'=>$this->title.'内容不能为空']],
+                ['type'=>'select','label'=>$this->title.'类别','prop'=>'cate_id','value'=>$data->cate_id ?? '','children'=>$cate,'required'=>true],
+                ['type'=>'input','label'=>$this->title.'标题','prop'=>'title','value'=>$data->title ?? '','required'=>true],
+                ['type'=>'input','label'=>$this->title.'描述','prop'=>'desc','value'=>$data->desc ?? '','attrs'=>['type'=>'textarea'],'required'=>true],
+                ['type'=>'upload','label'=>'图片','prop'=>'picture','value'=>$data->picture ?? [],'attrs'=>$this->getUploadOptions('card',5),'required'=>true],
+                ['type'=>'editor','label'=>$this->title.'内容','prop'=>'content','value'=>$data->content ?? '','attrs'=>$this->getEditorOptions(),'required'=>true],
                 ['type'=>'radio-group','label'=>'是否原创','prop'=>'is_original','value'=>$data->is_original ?? 1,'children'=>$original],
                 ['type'=>'input','label'=>'引用地址','prop'=>'source_url','value'=>$data->source_url ?? '','hidden'=>true],
                 ['type'=>'input','label'=>'原创作者','prop'=>'author','value'=>$data->author ?? '','hidden'=>true],
@@ -182,6 +306,7 @@
             return $action;
         }
 
+        
         protected function getMapList(Request $request): array
         {
             return [
@@ -191,6 +316,7 @@
                 ['type'=>'img','label'=>'图片','prop'=>'pic'],
                 ['type'=>'varchar','label'=>'查看次数','prop'=>'hits'],
                 ['type'=>'varchar','label'=>'作者','prop'=>'author'],
+                ['type'=>'varchar','label'=>'来源','prop'=>'source_name'],
                 ['type'=>'switch','label'=>'原创','prop'=>'is_original'],
                 ['type'=>'switch','label'=>'开启评论','prop'=>'is_comment'],
                 ['type'=>'varchar','label'=>'评论数','prop'=>'comments'],

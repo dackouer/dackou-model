@@ -6,6 +6,7 @@
 	class AboutModel extends \dackou\Model{
 		protected $table = 'About';
 		protected $title = '关于我们';
+		protected $action = 'action';
 
 		protected function getActionList(Request $request,$id = 0): array
 		{
@@ -14,10 +15,10 @@
 			}
 
 			$action = [
-				['type'=>'input','label'=>'标题','prop'=>'title','value'=>$data->title ?? '','rules'=>['required'=>true,'message'=>'标题不能为空']],
+				['type'=>'input','label'=>'标题','prop'=>'title','value'=>$data->title ?? '','required'=>true],
 				['type'=>'input','label'=>'关键词','prop'=>'keyword','value'=>$data->keyword ?? '','attrs'=>['type'=>'textarea']],
-				['type'=>'upload','label'=>'图片','prop'=>'pic','value'=>$data->pic ?? '','uploadAttrs'=>$this->getUploadOptions('img')],
-                ['type'=>'editor','label'=>'内容','prop'=>'content','value'=>$data->content ?? '','editorOptions'=>$this->getEditorOptions('umo'),'rules'=>['required'=>true,'message'=>$this->title.'内容不能为空']],
+				['type'=>'upload','label'=>'图片','prop'=>'pic','value'=>$data->pic ?? '','attrs'=>$this->getUploadOptions('img')],
+                ['type'=>'editor','label'=>'内容','prop'=>'content','value'=>$data->content ?? '','attrs'=>$this->getEditorOptions(),'required'=>true],
 			];
 
 			return $action;

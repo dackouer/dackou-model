@@ -14,7 +14,6 @@
 		 */
 		public function send(Request $request,$data = []){	
 			$mode = isset($data['mode']) ? $data['mode'] : trim($request->post('mode',$this->default));
-			// var_dump('mode: '.$mode);
 			if(in_array($mode,['register','login'])){
 				$result = self::sendAliyun($request,$data);
 			}else{

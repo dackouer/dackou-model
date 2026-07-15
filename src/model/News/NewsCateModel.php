@@ -6,6 +6,7 @@
 	class NewsCateModel extends \dackou\Model{
 		protected $table = 'NewsCate';
         protected $title = '新闻类别';
+        protected $page = false;
 
         /**
          * [validate description]
@@ -78,7 +79,7 @@
 
                 $action = [
                     ['type'=>'input','label'=>'类别名称','prop'=>'title','value'=>$id ? $data->title : '','rules'=>['required'=>true,'message'=>'类别名称不能为空']],
-                    ['type'=>'upload','label'=>'图标','prop'=>'pic','value'=>$id ? $data->pic : '','uploadAttrs'=>[
+                    ['type'=>'upload','label'=>'图标','prop'=>'pic','value'=>$id ? $data->pic : '','attrs'=>[
                         'type'=>'img','size'=>'small','limit'=>1,'action'=>$this->host['api'].'upload'
                     ]],
                     ['type'=>'select','label'=>'层级','prop'=>'level','value'=>$id ? $data->level : $level,'hidden'=>true,'children'=>$ilevel],

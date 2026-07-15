@@ -8,6 +8,8 @@
 	use dackou\model\Order\OrderModel;
 
 	class WechatService{
+		private $mp_appid = '';
+		private $mp_appsecret = '';
 		private $appid = '';
 		private $appsecret = '';
 		private $token = '';
@@ -33,6 +35,12 @@
 		private function setConfig(){
 			$config = config('payment');
 			if($config && isset($config['wechat']) && isset($config['wechat']['default'])){
+				if(isset($config['wechat']['default']['mp_app_id'])){
+					$this->mp_appid = $config['wechat']['default']['mp_app_id'];
+				}
+				if(isset($config['wechat']['default']['mp_app_secret'])){
+					$this->mp_appsecret = $config['wechat']['default']['mp_app_secret'];
+				}
 				if(isset($config['wechat']['default']['mini_app_id'])){
 					$this->appid = $config['wechat']['default']['mini_app_id'];
 				}
@@ -58,15 +66,6 @@
 					$this->certificate = $config['wechat']['default']['mch_public_cert_path'];
 				}
 			}
-
-			// var_dump('appid: '.$this->appid);
-			// var_dump('appsecret: '.$this->appsecret);
-			// var_dump('token: '.$this->token);
-			// var_dump('mchid: '.$this->mchid);
-			// var_dump('keyv2: '.$this->keyv2);
-			// var_dump('keyv3: '.$this->keyv3);
-			// var_dump('private_key: '.$this->private_key);
-			// var_dump('certificate: '.$this->certificate);
 
 			$this->config = [
 				'mch_id' => $this->mchid,
@@ -433,9 +432,86 @@
 	        return ['code' => 0,'msg' => 'success','data' => $base64Img];
 		}
 
+		/**
+		 * 获取公众号文章列表
+		 * @param  Request $request [description]
+		 * @return [type]           [description]
+		 */
+		public function getArticle(Request $request){
+			$access_token = $this->getAccessToken('mp');
+			if(is_array($access_token) && isset($access_token['code'])){
+				return $access_token;
+			}
+			// var_dump('access_token: '.$this->access_token);
+			
+			$url = "https://api.weixin.qq.com/cgi-bin/material/get_materialcount?access_token={$access_token}";
+			$response = $this->httpRequest($url);
+		    $result = json_decode($response, true);
+		    $rows = $result['news_count'] ?? 0;  // 图文素材总条数
+		    // var_dump('rows: '.$rows);
+
+			$page = $request->input('page',1);
+			$pagesize = $request->input('pagesize',10);
+			$offset = $pagesize * ($page - 1);
+
+			// 获取已成功发布的消息列表
+			// $url = "https://api.weixin.qq.com/cgi-bin/freepublish/batchget?access_token={$access_token}";
+
+			// 获取已发布的图文信息
+			// $url = "https://api.weixin.qq.com/cgi-bin/freepublish/getarticle?access_token={$access_token}";
+
+			$url = "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token={$access_token}";
+			$data = [
+				'type'   => 'news',
+		        'offset' => $offset,
+		        'count'  => $pagesize,
+		        'no_content' => 0,
+		    ];
+
+		    $data = json_encode($data);
+		    $response = $this->httpRequest($url,$data);
+		    $result = json_decode($response, true);
+		    var_dump('get article: ',$result);
+	        if(isset($result['errcode']) && $result['errcode'] != 0){
+	            return ['code'=> 1,'msg' => $result['errmsg']];
+	        }
+	        
+	        // $rows = $result['total_count'] ?? 0;
+	        $articles = [];
+            if(isset($result['item']) && is_array($result['item']) && $result['item']){
+            	var_dump('get news item:',$result['item'][0]);
+                foreach ($result['item'] as $item) {
+                    $media_id = $item['media_id'] ?? $item['article_id'] ?? '';
+                    $create_time = $item['content']['create_time'] ?? $item['update_time'] ?? 0;
+                    $update_time = $item['content']['update_time'] ?? $item['update_time'] ?? 0;
+                    // 图文素材可能包含多个子图文（多图文）
+                    $news_items = $item['content']['news_item'] ?? [];
+                    foreach ($news_items as $news) {
+                    	// if(!$news['is_deleted']){
+	                        $articles[] = [
+	                            'media_id'            => $media_id,
+	                            'title'               => $news['title'],
+	                            'author'              => $news['author'],
+	                            'digest'              => $news['digest'],
+	                            'content'             => $news['content'] ?? '',          // HTML 内容
+	                            'content_source_url'  => $news['content_source_url'] ?? '',
+	                            'thumb_url'           => $news['thumb_url'],
+	                            'url'                 => $news['url'],             // 微信永久链接
+	                            'show_cover_pic'      => $news['show_cover_pic'] ?? '',
+	                            'thumb_media_id'      => $news['thumb_media_id'] ?? '',
+	                            'create_time'		  => $create_time,
+	                            'update_time'		  => $update_time,
+	                        ];
+	                    // }
+                    }
+                }
+            }
+
+		    return ['code' => 0,'rows' => $rows,'data' => $articles];
+		}
 
 
-	    private function httpRequest($url, $data) {
+	    private function httpRequest($url, $data = []) {
 	        $ch = curl_init();
 	        curl_setopt($ch, CURLOPT_URL, $url);
 	        curl_setopt($ch, CURLOPT_POST, 1);
@@ -448,8 +524,10 @@
 	    }
 
 		// 获取AccessToken
-	    private function getAccessToken() {
-	        $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={$this->appid}&secret={$this->appsecret}";
+	    private function getAccessToken($type = 'mini') {
+	    	$appid = $type === 'mini' ? $this->appid : $this->mp_appid;
+	    	$appsecret = $type === 'mini' ? $this->appsecret : $this->mp_appsecret;
+	        $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={$appid}&secret={$appsecret}";
 	        $result = file_get_contents($url);
 	        // var_dump($result);
 	        $result = json_decode($result, true);

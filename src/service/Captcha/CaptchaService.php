@@ -2,6 +2,7 @@
 	namespace dackou\service\Captcha;
 
 	use support\Request;
+	use support\Redis;
 	use Webman\Captcha\CaptchaBuilder;
 
 	class CaptchaService{
@@ -30,11 +31,19 @@
 			// 获取图片二进制数据
 			$img = $builder->get();
 
-			return $img;
+			$type = trim($request->input('type',''));
+			return $type === 'img' ? response($img,200,['Content-Type' => 'image/jpeg']) : $img;
 			// var_dump($img);
 			// $base64Img = "data:image/png;base64,".base64_encode($img);
 			// return ['code' => 0,'msg' => 'success','data' => $base64Img];
 			// return response($img,200,['Content-Type' => 'image/jpeg']);
+		}
+
+		public function getCode(Request $request){
+			$key = self::$prefix.$this->key;
+			$session_code = $request->session()->get($key);
+
+			return $session_code;
 		}
 
 		/**
@@ -43,7 +52,10 @@
 		 * @return [type]           [description]
 		 */
 		public function check(Request $request){
-			$session_code = $request->session()->get($this->key);
+			$numcode = trim($request->input($this->key,$request->input('code')));
+			$key = self::$prefix.$this->key;
+			$session_code = $request->session()->get($key);
+			// var_dump('check session_code: '.$session_code);
 			if(!$numcode || !$session_code || strtolower($numcode) !== strtolower($session_code)){
 				return false;
 			}
@@ -68,8 +80,18 @@
 				self::$prefix = $this->getPrefix();
 			}
 			$key = self::$prefix.$this->key;
+			// var_dump('token: '. $request->header('token',$request->input('token')));
+			if($this->is_redis && class_exists('Redis') && ($request->host(true) !== 'localhost' || $request->host(true) !== '127.0.0.1')){
+				$token = $request->header('token',$request->input('token'));
+				if($token){
+					$key = $key . '_' . $token;
+					Redis::set($key,$code);
+					// var_dump('captcha create redis: ' . $key . ': '. Redis::get($key));
+				}
+
+			}
 			$request->session()->set($key,$code);
-			var_dump('captcha create session '.$key.': '.$request->session()->get($key));
+			// var_dump('captcha create session '.($key).': '.$request->session()->get($key));
 		}
 	}
 ?>

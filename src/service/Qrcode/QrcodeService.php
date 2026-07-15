@@ -12,11 +12,13 @@
 	use Endroid\QrCode\Label\Font\OpenSans;
 	use Endroid\QrCode\RoundBlockSizeMode;
 	use Endroid\QrCode\Writer\PngWriter;
+	use Endroid\QrCode\Color\Color;
 
 	use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 	use Endroid\QrCode\Label\Alignment\LabelAlignmentCenter;
 	use Endroid\QrCode\Label\Font\NotoSans;
 	use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
+
 
 	class QrcodeService{
 		private $path = '';
@@ -26,7 +28,7 @@
 		}
 
 		/**
-		 * 生成二维码
+		 * 生成文本二维码
 		 * @param  Request $request [description]
 		 * @param  array   $data    [description]
 		 * @return [type]           [description]
@@ -78,6 +80,72 @@
 				return $result;
 			}catch(\Exception $e){
 				// var_dump($e->getMessage());
+				return $this->getExceptionError($e);
+			}
+		}
+
+		/**
+		 * 创建url链接二维码
+		 * @param  Request $request [description]
+		 * @param  array   $data    [description]
+		 * @return [type]           [description]
+		 */
+		public function createUrl(Request $request,$data = []){
+			try{
+				$content = isset($data['content']) ? $data['content'] : ($request->input('content',''));
+				$url = isset($data['url']) ? $data['url'] : ($request->input('url',''));
+				if(!$url){
+					return 'url地址不能为空';
+				}
+				$size = isset($data['size']) ? $data['size'] : (isset($data['width']) ? $data['width'] : $request->input('width',1024));
+				$margin = isset($data['margin']) ? $data['margin'] : $request->input('margin',10);
+				$logo = isset($data['logo']) ? $data['logo'] : ($request->input('logo',''));
+
+				// $builder = new Builder(
+				//     writer: new PngWriter(),
+				//     writerOptions: [],
+				//     validateResult: false,
+				//     data: $url,
+				//     encoding: new Encoding('UTF-8'),
+				//     errorCorrectionLevel: ErrorCorrectionLevel::High,
+				//     size: $size,
+				//     margin: $margin,
+				//     roundBlockSizeMode: RoundBlockSizeMode::Margin,
+				//     logoPath: $logo, // Logo文件路径
+				//     logoResizeToWidth: 50,
+				//     logoPunchoutBackground: true,
+			    //     labelText: $content,
+			    //     labelFont: new OpenSans(20),
+			    //     labelAlignment: LabelAlignment::Center,
+				// );
+
+				// url + logo + text
+				$builder = new Builder(
+				    writer: new PngWriter(),
+				    writerOptions: [],
+				    validateResult: false,
+				    data: $url,
+				    encoding: new Encoding('UTF-8'),
+				    errorCorrectionLevel: ErrorCorrectionLevel::High,
+				    size: $size,
+				    margin: $margin,
+				    roundBlockSizeMode: RoundBlockSizeMode::Margin,
+				    logoPath: $logo,
+				    logoResizeToWidth: 50,
+				    logoPunchoutBackground: true,
+				    labelText: $content,
+				    labelFont: new OpenSans(20),
+				    labelAlignment: LabelAlignment::Center
+				);
+
+				$result = $builder->build();
+
+				// 输出到浏览器
+				// header('Content-Type: '.$result->getMimeType());
+				// echo $result->getString();
+				
+				return $result;
+			}catch(\Exception $e){
 				return $this->getExceptionError($e);
 			}
 		}

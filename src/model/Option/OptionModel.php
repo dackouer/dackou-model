@@ -7,6 +7,7 @@
 	class OptionModel extends \dackou\Model{
 		protected $table = 'Option';
     	protected $show_method = 'tree';
+    	protected $action_width = 800;
     	protected $truncate = true;
 		public $layer = 2;
 		public $digit = 2;
@@ -107,30 +108,33 @@
 				['id'=>1701,'title'=>'开启注册','key'=>'user_reg_enable','form_type'=>'switch','value_type'=>8,'rows'=>0,'default_value'=>1,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>1],
 				['id'=>1702,'title'=>'开启登录','key'=>'user_login_enable','form_type'=>'switch','value_type'=>8,'rows'=>0,'default_value'=>1,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>2],
 				['id'=>1703,'title'=>'手机号自动注册','key'=>'user_auto_reg_mobile','form_type'=>'switch','value_type'=>8,'rows'=>0,'default_value'=>1,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>3],
-				['id'=>1704,'title'=>'账号ID默认长度','key'=>'user_account_length','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>8,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'位','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>4],
-				['id'=>1705,'title'=>'邀请码默认长度','key'=>'user_invite_length','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>8,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'位','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>5],
-				['id'=>1706,'title'=>'Token过期时间','key'=>'user_token_expire_time','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>7200,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'秒','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>6],
-				['id'=>1707,'title'=>'Token刷新时间','key'=>'user_token_refresh_time','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>7200,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'秒','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>7],
-				['id'=>1708,'title'=>'默认注册密码','key'=>'user_default_password','form_type'=>'input','value_type'=>1,'rows'=>0,'default_value'=>'','size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>8],
-				['id'=>1709,'title'=>'注册赠送积分','key'=>'user_reg_send_score','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>9],
-				['id'=>1710,'title'=>'注册赠送余额','key'=>'user_reg_send_balance','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>10],
-				['id'=>1711,'title'=>'注册赠送平台币','key'=>'user_reg_send_coin','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>11],
-				['id'=>1712,'title'=>'签到赠送积分','key'=>'user_sign_send_score','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>12],
-				['id'=>1713,'title'=>'连续签到设置','key'=>'user_continual_sign','form_type'=>'milut_form','value_type'=>1,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'{"title":"第几天","days":"连续天数","value":"赠送积分"}','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>13],
-				['id'=>1714,'title'=>'分享赠送积分','key'=>'user_share_send_score','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>14],
-				['id'=>1715,'title'=>'分享赠送余额','key'=>'user_share_send_balance','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>15],
-				['id'=>1716,'title'=>'分享赠送平台币','key'=>'user_share_send_coin','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>16],
-				['id'=>1717,'title'=>'开启注册日志','key'=>'user_is_log_reg','form_type'=>'switch','value_type'=>8,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>17],
-				['id'=>1718,'title'=>'开启登录日志','key'=>'user_is_log_login','form_type'=>'switch','value_type'=>8,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>18],
-				['id'=>1719,'title'=>'网页操作间隔','key'=>'user_hand_interval','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>30,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'秒','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>19],
-				['id'=>1720,'title'=>'注册登录操作间隔','key'=>'user_login_interval','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>180,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'秒','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>20],
-				['id'=>1721,'title'=>'登录错误次数','key'=>'user_login_error_number','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>5,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'次','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>21],
-				['id'=>1722,'title'=>'用户自动激活','key'=>'user_is_active','form_type'=>'switch','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>22],
-				['id'=>1723,'title'=>'邀请码必填','key'=>'user_is_invite','form_type'=>'switch','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>23],
-				['id'=>1724,'title'=>'实名认证短信必填','key'=>'user_auth_is_smscode','form_type'=>'switch','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>24],
-				['id'=>1725,'title'=>'默认注册角色ID','key'=>'user_default_reg_role_id','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>'','size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>25],
-				['id'=>1726,'title'=>'用户名敏感词','key'=>'user_sensitive_word','form_type'=>'textarea','value_type'=>1,'rows'=>0,'default_value'=>'admin,root,manage,master,administrator','size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>26],
-				['id'=>1727,'title'=>'默认头像','key'=>'user_default_face','form_type'=>'upload_face','value_type'=>1,'rows'=>0,'default_value'=>'','size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>27],
+				['id'=>1704,'title'=>'用户自动激活','key'=>'user_is_active','form_type'=>'switch','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>04],
+				['id'=>1705,'title'=>'账号ID默认长度','key'=>'user_account_length','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>8,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'位','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>5],
+				['id'=>1706,'title'=>'邀请码默认长度','key'=>'user_invite_length','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>8,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'位','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>6],
+				['id'=>1707,'title'=>'Token过期时间','key'=>'user_token_expire_time','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>7200,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'秒','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>7],
+				['id'=>1708,'title'=>'Token刷新时间','key'=>'user_token_refresh_time','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>7200,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'秒','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>8],
+				['id'=>1709,'title'=>'默认注册密码','key'=>'user_default_password','form_type'=>'input','value_type'=>1,'rows'=>0,'default_value'=>'','size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>9],
+				['id'=>1710,'title'=>'注册赠送积分','key'=>'user_reg_send_score','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>10],
+				['id'=>1711,'title'=>'注册赠送余额','key'=>'user_reg_send_balance','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>11],
+				['id'=>1712,'title'=>'注册赠送平台币','key'=>'user_reg_send_coin','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>12],
+				['id'=>1713,'title'=>'签到赠送积分','key'=>'user_sign_send_score','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>13],
+				['id'=>1714,'title'=>'连续签到设置','key'=>'user_continual_sign','form_type'=>'milut_form','value_type'=>1,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'{"title":"第几天","days":"连续天数","value":"赠送积分"}','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>14],
+				['id'=>1715,'title'=>'分享赠送积分','key'=>'user_share_send_score','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>15],
+				['id'=>1716,'title'=>'分享赠送余额','key'=>'user_share_send_balance','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>16],
+				['id'=>1717,'title'=>'分享赠送平台币','key'=>'user_share_send_coin','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>17],
+				['id'=>1718,'title'=>'分享赠送二级积分','key'=>'user_share_super_score','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>18],
+				['id'=>1719,'title'=>'分享赠送二级余额','key'=>'user_share_super_balance','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>19],
+				['id'=>1720,'title'=>'分享赠送二级平台币','key'=>'user_share_super_coin','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>20],
+				['id'=>1721,'title'=>'开启注册日志','key'=>'user_is_log_reg','form_type'=>'switch','value_type'=>8,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>21],
+				['id'=>1722,'title'=>'开启登录日志','key'=>'user_is_log_login','form_type'=>'switch','value_type'=>8,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>22],
+				['id'=>1723,'title'=>'网页操作间隔','key'=>'user_hand_interval','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>30,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'秒','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>23],
+				['id'=>1724,'title'=>'注册登录操作间隔','key'=>'user_login_interval','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>180,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'秒','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>24],
+				['id'=>1725,'title'=>'登录错误次数','key'=>'user_login_error_number','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>5,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'次','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>25],
+				['id'=>1726,'title'=>'邀请码必填','key'=>'user_is_invite','form_type'=>'switch','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>26],
+				['id'=>1727,'title'=>'实名认证短信必填','key'=>'user_auth_is_smscode','form_type'=>'switch','value_type'=>2,'rows'=>0,'default_value'=>0,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>27],
+				['id'=>1728,'title'=>'默认注册角色ID','key'=>'user_default_reg_role_id','form_type'=>'input','value_type'=>2,'rows'=>0,'default_value'=>'','size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>28],
+				['id'=>1729,'title'=>'用户名敏感词','key'=>'user_sensitive_word','form_type'=>'textarea','value_type'=>1,'rows'=>0,'default_value'=>'admin,root,manage,master,administrator','size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>29],
+				['id'=>1730,'title'=>'默认头像','key'=>'user_default_face','form_type'=>'upload_face','value_type'=>1,'rows'=>0,'default_value'=>'','size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>17,'number'=>0,'tag'=>'user','hidden'=>0,'sort'=>30],
 
 				['id'=>1801,'title'=>'开启实名认证','key'=>'auth_enable','form_type'=>'switch','value_type'=>8,'rows'=>0,'default_value'=>1,'size'=>'default','limit'=>0,'options'=>'','prefix'=>'','suffix'=>'','level'=>2,'pid'=>18,'number'=>0,'tag'=>'auth','hidden'=>0,'sort'=>1],
 				['id'=>1802,'title'=>'认证平台','key'=>'auth_platform','form_type'=>'radio-group','value_type'=>1,'rows'=>0,'default_value'=>1,'size'=>'default','limit'=>0,'options'=>'{"阿里云":1,"腾讯云":2,"华为云":3}','prefix'=>'','suffix'=>'','level'=>2,'pid'=>18,'number'=>0,'tag'=>'auth','hidden'=>0,'sort'=>2],
@@ -371,7 +375,7 @@
 				if(is_string($key)){
 					$key = \explode(',',$key);
 				}
-				// var_dump($key);
+				// var_dump('key: ',$key);
 	    		$field = ['ID as id','Title as title','Key as key','Value as value','FormType as form_type','ValueType as value_type','DefaultValue as default_value','Limit as limit'];
 	    		$object = Db::table($this->table)
 	    					->select(...$field)
@@ -454,29 +458,46 @@
 				if(!is_array($field)){
 					$field = \explode(',',$field);
 				}
-				$fields = [];
-				foreach($field as $item){
-					if($this->fieldExists($item)){
-						array_push($fields,$this->convert($item) . ' as ' . $this->convert($item,false));
-					}
-				}
-				if(!$fields){
+				var_dump('field: ',$field);
+				// $fields = [];
+				// foreach($field as $item){
+				// 	if($this->fieldExists($item)){
+				// 		array_push($fields,$this->convert($item) . ' as ' . $this->convert($item,false));
+				// 	}
+				// }
+				var_dump('fields: ',$field);
+				if(!$field){
 					return 100007;
 				}
 
 				$object = Db::table($this->table)
 							->select(['Key as key','Value as value'])
-							->whereIn('Key',$ffields)
+							->whereIn('Key',$field)
 							->get();
+
+				var_dump($object);
 				$result = [];
 				if($object){
 					foreach($object as $item){
 						$result[$item->key] = $item->value;
 					}
 				}
+				var_dump($result);
 				return $result;
 			}catch(\Exception $e){
+				var_dump($this->getExceptionError($e));
 				return $this->getExceptionError($e);
+			}
+		}
+
+		protected function setExcute(Request $request,$data,$flag = ''){
+			// var_dump($data);
+			switch($flag){
+				case '':
+				case 'add':
+					return true;
+				default:
+					return true;
 			}
 		}
 
@@ -488,6 +509,8 @@
 		public function mod(Request $request,$id = 0): mixed
 		{
 			try{
+				var_dump('mod id: ',$id);
+				var_dump('data: ',$request->post());
 				if(strtolower($request->method()) !== 'post'){
 					return 100000;
 				}
@@ -522,12 +545,39 @@
 	    				}
 	    			}
 	    		}
+
+	    		if(\method_exists($this, 'setExcute')){
+	    			if(!$this->setExcute($request,$data,'mod')){
+	    				return '数据修改成功但回调失败';
+	    			}
+	    		}
 	    		// var_dump($data);
 	    		// return 'aa';
 	    		return ['success' => $num,'fail'=> $count];
 			}catch(\Exception $e){
 				return $this->getExceptionError($e);
 			}
+		}
+
+		protected function getTagList(Request $request,$tag = []){
+			if(!$tag){
+				$tag = $request->input('id','');
+				if(!$tag){
+					return [];
+				}
+				if(!is_array($tag)){
+					$tag = explode(',',$tag);
+				}
+			}
+
+			$field = $this->getList($request,'field');
+			$object = Db::table($this->table)
+						->select(...$field)
+						->whereIn("Tag",$tag)
+						->orderBy('Level','asc')
+						->orderBy('Sort','asc')
+						->get();
+			return $object ? $this->child($object) : [];
 		}
 
 		protected function validate(Request $request,$id = 0,$option = null){
@@ -563,16 +613,17 @@
 			}
 
 			if($level > 1){
-				$type = $request->post('type');
+				$type = $request->post('form_type',[]);
 				$type = is_array($type) ? end($type) : $type;
-				$value_type = $request->post('value_type');
+				$value_type = $request->post('value_type',[]);
 				if(is_array($value_type)){
 					$value_type = end($value_type);
 				}
 				if(!$value_type){
 					return '请选择数值类型';
 				}
-				$default_value = trim($request->post('default_value',''));
+				$defaults = $request->post('defaults',[]);
+				$default_value = isset($defaults['default_value']) ? $defaults['default_value'] : (isset($defaults[1]) ? $defaults[1] : '');
 				$rows = $request->post('rows',0);
 				if(empty($rows)){
 					$rows = 0;
@@ -580,7 +631,7 @@
 				if(!is_numeric($rows) || $rows < 0){
 					return '行数只能填数字';
 				}
-				$size = $request->post('size','default');
+				$size = isset($defaults['size']) ? $defaults['size'] : (isset($defaults[0]) ? $defaults[0] : '');
 				$limit = $request->post('limit',1);
 				if(empty($limit)){
 					$limit = 1;
@@ -589,8 +640,9 @@
 					return '上传限制数量只能填数字';
 				}
 				$options = trim($request->post('options',''));
-				$prefix = trim($request->post('prefix',''));
-				$suffix = trim($request->post('suffix',''));
+				$puffix = $request->post('puffix',[]);
+				$prefix = isset($puffix['prefix']) ? $puffix['prefix'] : (isset($puffix[0]) ? $puffix[0] : '');
+				$suffix = isset($puffix['suffix']) ? $puffix['suffix'] : (isset($puffix[1]) ? $puffix[1] : '');
 
 				$data['form_type'] = $type;
 				$data['value_type'] = $value_type;
@@ -601,6 +653,7 @@
 				$data['options'] = $options;
 				$data['prefix'] = $prefix;
 				$data['suffix'] = $suffix;
+
 			}
 
 			if(!$pid &&!$tag){
@@ -615,430 +668,280 @@
 
 			$data['title'] = $title;
 			$data['level'] = $level;
-			$data['pid'] = $pid;
-			$data['tag'] = $pid ? $parent->tag : $tag;
-			$data['sort'] = $sort;
+			$data['pid']   = $pid;
+			$data['tag']   = $pid ? $parent->tag : $tag;
+			$data['sort']  = $sort;
 
-			var_dump($data);
-			return 'aa';
+			// var_dump($data);
+			// return 'aa';
 
 			return $data;
 		}
 
+		protected function getValuetypeList(Request $request){
+			return [
+				['label'=>'字符','value'=>11,'children'=>[
+					['label'=>'字符串','value'=>1]
+				]],
+				['label'=>'整数','value'=>12,'children'=>[
+					['label'=>'正整数','value'=>2],
+					['label'=>'有符号','value'=>3],
+				]],
+				['label'=>'小数','value'=>12,'children'=>[
+					['label'=>'1位精度','value'=>4],
+					['label'=>'2位精度','value'=>5],
+					['label'=>'3位精度','value'=>6],
+					['label'=>'4位精度','value'=>7],
+				]],
+				['label'=>'布尔','value'=>13,'children'=>[
+					['label'=>'01值','value'=>8],
+					['label'=>'真假值','value'=>9],
+				]],
+				['label'=>'数组','value'=>13,'children'=>[
+					['label'=>'字符数组','value'=>10],
+					['label'=>'整数数组','value'=>11],
+					['label'=>'对象数组','value'=>12],
+				]],
+			];
+		}
+
+		private function getChildrenOptions($option,$type = 'select'){
+			if(is_string($option)){
+        		$option = $this->getDecodeData($option);
+        	}
+
+        	if(!$option){
+        		return [];
+        	}
+
+        	$temp = [];
+        	foreach($option as $key => $val){
+        		if(in_array($type,['radio','checkbox'])){
+        			array_push($temp,['label'=>$key,'value' => $val]);
+        		}else{
+        			array_push($temp,['type'=>'option','label'=>$key,'value' => $val]);
+        		}
+        	}
+
+        	return $temp;
+		}
+
 		protected function getActionList(Request $request,$id = 0): array
 		{
-			try{
-				$action_type = $request->input('action','');
-				if(empty($action_type) || !$action_type){
-					if($id){
-						$data = $this->getList($request,$id);
-					}
-
-					$level = $request->input('level',1);
-					$pid = $request->input('pid',0);
-					$ilevel = [];
-					for($i=1;$i<=$this->layer;$i++){
-						array_push($ilevel,['type'=>'option','label'=>$i.'级','value'=>$i]);
-					}
-					if($this->layer == 2){
-						$ipid = $this->getList($request,'option',['Title'=>'title','ID'=>'id'],['PID'=>0]);
-					}elseif($this->layer == 3){
-						$ipid = $this->getList($request,'option',['Title'=>'title','ID'=>'id'],['Level'=>2]);
-					}
-					$sort = $this->getMaxSort($pid);
-
-					$action = [
-						['type'=>'input','label'=>$pid?'参数名称':'标题类别','prop'=>'title','value'=>$id ? $data->title : '','rules'=>['required'=>true,'message'=>($pid?'参数名称':'标题类别').'不能为空']],
-						['type'=>'input','label'=>'字段值','prop'=>'key','value'=>$id ? $data->key : '','rules'=>['required'=>true,'message'=>'字段值不能为空']],
-						['type'=>'select','label'=>'层级','prop'=>'level','value'=>$id ? $data->level : $level,'hidden'=>true,'children'=>$ilevel],
-						['type'=>'select','label'=>'父级','prop'=>'pid','value'=>$id ? $data->pid : $pid,'hidden'=>true,'children'=>$ipid]
-					];
-
-					$form_type = $this->getList($request,'formtype');
-					$value_type = [
-						['label'=>'字符','value'=>11,'children'=>[
-							['label'=>'字符串','value'=>1]
-						]],
-						['label'=>'整数','value'=>12,'children'=>[
-							['label'=>'正整数','value'=>2],
-							['label'=>'有符号','value'=>3],
-						]],
-						['label'=>'小数','value'=>12,'children'=>[
-							['label'=>'1位精度','value'=>4],
-							['label'=>'2位精度','value'=>5],
-							['label'=>'3位精度','value'=>6],
-							['label'=>'4位精度','value'=>7],
-						]],
-						['label'=>'布尔','value'=>13,'children'=>[
-							['label'=>'01值','value'=>8],
-							['label'=>'真假值','value'=>9],
-						]],
-						['label'=>'数组','value'=>13,'children'=>[
-							['label'=>'字符数组','value'=>10],
-							['label'=>'整数数组','value'=>11],
-						]],
-					];
-					if($pid){
-						$rowData = [
-							['type'=>'option','label'=>'1行','value'=>1],
-							['type'=>'option','label'=>'2行','value'=>2],
-							['type'=>'option','label'=>'3行','value'=>3],
-							['type'=>'option','label'=>'4行','value'=>4],
-							['type'=>'option','label'=>'5行','value'=>5],
-							['type'=>'option','label'=>'6行','value'=>6],
-							['type'=>'option','label'=>'7行','value'=>7],
-							['type'=>'option','label'=>'8行','value'=>8],
-							['type'=>'option','label'=>'9行','value'=>9],
-							['type'=>'option','label'=>'10行','value'=>10],
-						];
-
-						$limitData = [
-							['type'=>'option','label'=>'不限','value'=>0],
-							['type'=>'option','label'=>'1个','value'=>1],
-							['type'=>'option','label'=>'2个','value'=>2],
-							['type'=>'option','label'=>'3个','value'=>3],
-							['type'=>'option','label'=>'4个','value'=>4],
-							['type'=>'option','label'=>'5个','value'=>5],
-							['type'=>'option','label'=>'6个','value'=>6],
-							['type'=>'option','label'=>'7个','value'=>7],
-							['type'=>'option','label'=>'8个','value'=>8],
-							['type'=>'option','label'=>'9个','value'=>9],
-							['type'=>'option','label'=>'10个','value'=>10],
-						];
-						array_push($action,['type'=>'cascader','label'=>'表单类型','prop'=>'type','value'=>$data->form_type??[],'attrs'=>['placeholder'=>'表单类型','options'=>$form_type],'rules'=>['required'=>true,'message'=>'请选择表单类型']]);
-						array_push($action,['type'=>'cascader','label'=>'值类型','prop'=>'value_type','value'=>$data->value_type??[],'attrs'=>['placeholder'=>'值类型','options'=>$value_type],'rules'=>['required'=>true,'message'=>'请选择数值类型']]);
-						array_push($action,['type'=>'input','label'=>'默认值','prop'=>'default_value','placeholder'=>'默认值','value'=>$data->default_value??'']);
-						array_push($action,['type'=>'select','label'=>'文本域行数','prop'=>'rows','value'=>$data->rows??'','placeholder'=>'文本域行数','hidden'=>true,'children'=>$rowData]);
-						array_push($action,['type'=>'radio-group','label'=>'大小','prop'=>'size','placeholder'=>'大小','hidden'=>true,'value'=>$data->size??'default','children'=>[
-							['label'=>'小','value'=>'small'],['label'=>'默认','value'=>'default'],['label'=>'大','value'=>'large']
-						]]);
-						array_push($action,['type'=>'select','label'=>'上传限制数量','prop'=>'limit','value'=>$data->limit??1,'placeholder'=>'限制数量','hidden'=>true,'children'=>$limitData]);
-						array_push($action,['type'=>'input','label'=>'选项值','prop'=>'options','placeholder'=>'选项值','hidden'=>true,'value'=>$data->options??'','attrs'=>['type'=>'textarea']]);
-						array_push($action,['type'=>'form-group','label'=>'前后缀','value'=>'','delimiter'=>'-','hidden'=>true,'children'=>[
-							['type'=>'input','label'=>'前缀','prop'=>'prefix','placeholder'=>'前缀','value'=>$data->prefix??'','attrs'=>['style'=>['width'=>'182px']]],
-							['type'=>'input','label'=>'后缀','prop'=>'suffix','placeholder'=>'后缀','value'=>$data->suffix??'','attrs'=>['style'=>['width'=>'182px']]]
-						]]);
-					}
-
-					if(!$pid){
-						array_push($action,['type'=>'input','label'=>'标签','prop'=>'tag','value'=>$id ? $data->tag : '','rules'=>['required'=>true,'message'=>'标签不能为空']]);
-					}
-					array_push($action,['type'=>'input','label'=>'排序','prop'=>'sort','value'=>$id ? $data->sort : $sort]);
-
-					return $action;
-				}elseif($action_type == 'key'){
-					$key = $request->input('id','');
-					if(!$key){
-						return [];
-					}
-					if(!is_array($key)){
-						$key = explode(',',$key);
-					}
-					$field = $this->getList($request,'field');
-					$data = Db::table($this->table)
-								->select(...$field)
-								->whereIn("Tag",$key)
-								->get();
-					// var_dump($data);
-					$action = [];
-					if($data){
-						$data = $this->child($data);
-						// var_dump($data[0]);
-					    foreach($data as $items){
-					        $children = [];
-					        if(property_exists($items,'children') && $items->children){
-					            foreach($items->children as $item){
-					            	if(!$item->hidden){
-						                $type = 'input';
-						                $attrs = [];
-						                $slot = [];
-						                $rules = [];
-						                $childrens = [];
-						                $uploadAttrs = [];
-						                $multiOptions = [];
-						                $placeholder = '';
-						                $value = $item->value ?? $item->default_value;
-
-						                switch($item->form_type){
-						                    case 'input':
-						                        $type = 'input';
-						                        $placeholder = $item->title;
-						                        if($item->prefix){
-						                            $slot['prefix'] = ['value' => $item->prefix];
-						                        }
-						                        if($item->suffix){
-						                            $slot['suffix'] = ['value' => $item->suffix];
-						                        }
-						                        break;
-						                    case 'password':
-						                        $type = 'input';
-						                        $attrs = ['type'=>'password'];
-						                        $placeholder = $item->title;
-						                        if($item->prefix){
-						                            $slot['prefix'] = ['value' => $item->prefix];
-						                        }
-						                        if($item->suffix){
-						                            $slot['suffix'] = ['value' => $item->suffix];
-						                        }
-						                        break;
-						                    case 'textarea':
-						                        $type = 'input';
-						                        $placeholder = $item->title;
-						                        $attrs['type'] = 'textarea';
-						                        // if($item->rows){
-						                        //     $attrs['rows'] = $item->rows;
-						                        // }
-						                        break;
-						                    case 'upload_img':
-						                        $type = 'upload';
-						                        $uploadAttrs['type'] = 'img';
-						                        $uploadAttrs['limit'] = 1;
-						                        $uploadAttrs['size'] = $item->size ?? 'default';
-						                        $uploadAttrs['action'] = $this->host['api'].'upload';
-						                        break;
-						                    case 'upload_logo':
-						                        $type = 'upload';
-						                        $uploadAttrs['type'] = 'img';
-						                        $uploadAttrs['limit'] = 1;
-						                        $uploadAttrs['size'] = $item->size ?? 'small';
-						                        $uploadAttrs['action'] = $this->host['api'].'upload';
-						                        break;
-						                    case 'upload_face':
-						                        $type = 'upload';
-						                        $uploadAttrs['type'] = 'img';
-						                        $uploadAttrs['limit'] = 1;
-						                        $uploadAttrs['size'] = $item->size ?? 'small';
-						                        $uploadAttrs['action'] = $this->host['api'].'upload';
-						                        break;
-						                    case 'upload_picture':
-						                        $type = 'upload';
-						                        $uploadAttrs['type'] = 'card';
-						                        $uploadAttrs['limit'] = 5;
-						                        $uploadAttrs['size'] = $item->size ?? 'default';
-						                        $uploadAttrs['action'] = $this->host['api'].'upload';
-						                        break;
-						                    case 'upload_file':
-						                        $type = 'upload';
-						                        $uploadAttrs['type'] = 'file';
-						                        $uploadAttrs['limit'] = 1;
-						                        $uploadAttrs['size'] = $item->size ?? 'small';
-						                        $uploadAttrs['action'] = $this->host['api'].'upload';
-						                        break;
-						                    case 'upload_local':
-						                        $type = 'upload';
-						                        $uploadAttrs['type'] = 'file';
-						                        $uploadAttrs['limit'] = 1;
-						                        $uploadAttrs['size'] = $item->size ?? 'small';
-						                        $uploadAttrs['action'] = $this->host['api'].'upload/local';
-						                        break;
-						                    case 'upload_cert':
-						                        $type = 'upload';
-						                        $uploadAttrs['type'] = 'cert';
-						                        $uploadAttrs['limit'] = 1;
-						                        $uploadAttrs['size'] = $item->size ?? 'small';
-						                        $uploadAttrs['action'] = $this->host['api'].'upload/cert';
-						                        break;
-						                    case 'upload_voice':
-						                        $type = 'upload';
-						                        $uploadAttrs['type'] = 'file';
-						                        $uploadAttrs['limit'] = 1;
-						                        $uploadAttrs['size'] = $item->size ?? 'default';
-						                        $uploadAttrs['action'] = $this->host['api'].'upload/voice';
-						                        break;
-						                    case 'upload_video':
-						                        $type = 'upload';
-						                        $uploadAttrs['type'] = 'file';
-						                        $uploadAttrs['limit'] = 1;
-						                        // $uploadAttrs['size'] = $item->size ?? 'default';
-						                        $uploadAttrs['action'] = $this->host['api'].'upload/video';
-						                        break;
-						                    case 'select':
-						                        $type = 'select';
-						                        $placeholder = $item->title;
-						                        if($item->options){
-						                            $childrens = $this->setChildrenByOption($item->options);
-						                        }
-						                        break;
-						                    case 'select_milut':
-						                        $type = 'select';
-						                        $placeholder = $item->title;
-						                        $attrs['multiple'] = true;
-						                        if($item->options){
-						                            $childrens = $this->setChildrenByOption($item->options);
-						                        }
-						                        break;
-						                    case 'cascader':
-						                        $type = 'cascader';
-						                        $attrs['placeholder'] = $item->title;
-						                        $attrs['options'] = $item->options;
-						                        break;
-						                    case 'checkbox':
-						                        $type = 'checkbox-group';
-						                        if($value && \strpos($value,'[') !== false){
-						                        	$tmp = [];
-						                        	$value = $this->getDecodeData($value);
-						                        	if(is_array($value) && $value){
-						                        		foreach($value as $v){
-						                        			array_push($tmp,(int)$v);
-						                        		}
-						                        	}
-						                        	$value = $tmp;
-						                        }else{
-						                        	$value = [(int)$value];
-						                    	}
-						                        $options = $this->getDecodeData($item->options);
-						                        $childrens = [];
-						                        foreach($options as $key => $val){
-						                            array_push($childrens,['type'=>'checkbox','label'=>$key,'value'=>(int)$val]);
-						                        }
-						                        break;
-						                    case 'radio':
-						                        $type = 'radio-group';
-						                        $value = (int)$value;
-						                        $options = $this->getDecodeData($item->options);
-						                        // var_dump($options);
-						                        $childrens = [];
-						                        foreach($options as $key => $val){
-						                            array_push($childrens,['type'=>'radio','label'=>$key,'value'=>(int)$val]);
-						                        }
-						                        break;
-						                    case 'datetime':
-						                        $type = 'date-picker';
-						                        $attrs['placeholder'] = $item->title;
-						                        break;
-						                    case 'datetimes':
-						                        $type = 'date-picker';
-						                        $attrs['placeholder'] = $item->title;
-						                        break;
-						                    case 'year':
-						                        $type = 'date-picker';
-						                        $attrs['placeholder'] = $item->title;
-						                        break;
-						                    case 'month':
-						                        $type = 'date-picker';
-						                        $attrs['placeholder'] = $item->title;
-						                        break;
-						                    case 'day':
-						                        $type = 'date-picker';
-						                        $attrs['placeholder'] = $item->title;
-						                        break;
-						                    case 'hour':
-						                        $type = 'date-picker';
-						                        $attrs['placeholder'] = $item->title;
-						                        break;
-						                    case 'editor':
-						                        $type = 'editor';
-						                        $attrs['placeholder'] = $item->title;
-						                        break;
-						                    case 'goods_attr':
-						                        $type = 'form-attr';
-						                        break;
-						                    case 'goods_spec':
-						                        $type = 'form-spec';
-						                        break;
-						                    case 'city':
-						                        $type = 'city';
-						                        break;
-						                    case 'district':
-						                        $type = 'city';
-						                        break;
-						                    case 'provice_city':
-						                        $type = 'city';
-						                        break;
-						                    case 'provice':
-						                        $type = 'city';
-						                        break;
-						                    case 'icon':
-						                        $type = 'icon';
-						                        break;
-						                    case 'color-picker':
-						                        $type = 'color-picker';
-						                        break;
-						                    case 'switch':
-						                        $type = 'switch';
-						                        $attrs['active-value'] = 1;
-						                        $attrs['inactive-value'] = 0;
-						                        break;
-						                    case 'milut_form':
-						                        $type = 'form-multiple';
-						                        $value = $this->getDecodeData($item->value);
-						                        $multiOptions = $this->getOptionsData($item->options);
-						                        break;
-						                    case 'divider':
-						                    	$type = 'divider';
-						                    	$prop = '';
-						                    	$value = '';
-						                    	break;
-						                    default:
-						                        $type = 'input';
-						                        $attrs['placeholder'] = $item->title;
-						                        if($item->prefix){
-						                            $slot['prefix'] = ['value' => $item->prefix];
-						                        }
-						                        if($item->suffix){
-						                            $slot['suffix'] = ['value' => $item->suffix];
-						                        }
-
-						                }
-
-						                $child = [
-						                    'type'  => $type,
-						                    'label' => $item->title,
-						                    'prop'  => $item->key,
-						                    'value' => $value ? $value : $item->value
-						                ];
-
-						                if($item->form_type == 'switch'){
-						                    $child['value'] = (int)$item->value ?? 0;
-						                }
-
-						                if($placeholder){
-						                    $child['placeholder'] = $placeholder;
-						                }
-
-						                if($attrs){
-						                    $child['attrs'] = $attrs;
-						                }
-
-						                if($slot){
-						                    $child['slot'] = $slot;
-						                }
-
-						                if($rules){
-						                    $child['rules'] = $rules;
-						                }
-
-						                if($childrens){
-						                    $child['children'] = $childrens;
-						                }
-
-						                if($uploadAttrs){
-						                    $child['uploadAttrs'] = $uploadAttrs;
-						                }
-
-						                if($multiOptions){
-						                    $child['multiOptions'] = $multiOptions;
-						                }
-
-						                array_push($children,$child);
-						            }
-					            }
-					        }
-					        
-					        if($children){
-					            $items->children = $children;
-					        }
-					        array_push($action,$items);
-					    }
-					}
-
-					return $action;
-				}else{
-					return [];
+			$action_name = $request->input('action','');
+			if(!$action_name){
+				if($id){
+					$data = $this->getList($request,$id);
 				}
 
-			}catch(\Exception $e){
-				return $this->getExceptionError($e);
+				$level = $request->input('level',1);
+				$pid = $request->input('pid',0);
+				$sort = $this->getMaxSort($pid);
+				$formtype = $this->getList($request,'formtype');
+				$valuetype = $this->getList($request,'valuetype');
+
+				$levelOptions = [
+					['label'=>'1层','value'=>1],
+					['label'=>'2层','value'=>2],
+				];
+				$pidOptions = $this->getList($request,'option',['Level'=>1]);
+				$flag = ((!$id && !$pid) || ($id && !$data->pid)) ? false : true;
+
+				if($flag){
+					$action = [
+						['type'=>'input','label'=>'参数名称','prop'=>'title','value'=>$data->title ?? '','required'=>true],
+						['type'=>'input','label'=>'字段名称','prop'=>'key','value'=>$data->key ?? '','required'=>true],
+						['type'=>'select','label'=>'层级','prop'=>'level','value'=>$data->level ?? $level,'hidden'=>true,'disabled'=>true,'children'=>$levelOptions],
+						['type'=>'select','label'=>'父级','prop'=>'pid','value'=>$data->pid ?? $pid,'hidden'=>true,'disabled'=>true,'children'=>$pidOptions],
+						['type'=>'cascader','label'=>'表单类型','prop'=>'form_type','value'=>$data->form_type ?? [],'children'=>$formtype,'required'=>true],
+						['type'=>'cascader','label'=>'值类型','prop'=>'value_type','value'=>$data->value_type ?? [],'children'=>$valuetype,'required'=>true],
+						['type'=>'group','label'=>'前后缀','prop'=>'puffix','value'=>$id ? ['prefix'=>$data->prefix,'suffix'=>$data->suffix] : [],'delimiter'=>'-','children'=>[
+							['type'=>'input','label'=>'前缀','prop'=>'prefix','value'=>$data->prefix ?? '','prefix'=>'前缀','placeholder'=>' ','width'=>300],
+							['type'=>'input','label'=>'后缀','prop'=>'suffix','value'=>$data->suffix ?? '','prefix'=>'后缀','placeholder'=>' ','width'=>300],
+						]],
+						['type'=>'group','label'=>'长度默认值','prop'=>'defaults','value'=>$id ? ['prefix'=>$data->prefix,'suffix'=>$data->suffix] : [],'delimiter'=>'-','children'=>[
+							['type'=>'input','label'=>'长度','prop'=>'size','value'=>$data->size ?? '','prefix'=>'长度','suffix'=>'位','placeholder'=>' ','width'=>300],
+							['type'=>'input','label'=>'默认值','prop'=>'default_value','value'=>$data->default_value ?? '','prefix'=>'默认值','placeholder'=>' ','width'=>300],
+						]],
+						['type'=>'input','label'=>'选项值','prop'=>'options','value'=>$data->options ?? '','attrs'=>['type'=>'textarea','rows'=>3]],
+						['type'=>'input-number','label'=>'限制量','prop'=>'limit','value'=>$data->limit ?? 1,'width'=>400,'attrs'=>['min'=>1,'controls-position'=>'right']],
+						['type'=>'switch','label'=>'管理员权限','prop'=>'is_admin','value'=>$data->is_admin ?? 0],
+						['type'=>'switch','label'=>'隐藏','prop'=>'hidden','value'=>$data->hidden ?? 0],
+						['type'=>'input','label'=>'排序','prop'=>'sort','value'=>$data->sort ?? $sort,'required'=>true],
+					];
+				}else{
+					$action = [
+						['type'=>'input','label'=>'标题名称','prop'=>'title','value'=>$data->title ?? '','required'=>true],
+						['type'=>'input','label'=>'字段值','prop'=>'key','value'=>$data->key ?? '','required'=>true],
+						['type'=>'input','label'=>'标签名','prop'=>'tag','value'=>$data->tag ?? '','required'=>true],
+						['type'=>'input','label'=>'排序','prop'=>'sort','value'=>$data->sort ?? $sort,'required'=>true],
+					];
+				}
+
+				return $action;
+			}elseif($action_name === 'key'){
+				$data = $this->getList($request,'tag');
+				if(!$data){
+					return [];
+				}
+				// var_dump($data[0]);
+				$action = [];
+				$user_is_admin = $this->checkIsAdmin($request);
+				foreach($data as $items){
+			        $children = [];
+			        if(property_exists($items,'children') && $items->children){
+			            foreach($items->children as $item){
+			            	$type = $item->form_type;
+			            	$label = $item->label ?? $item->title;
+			            	$prop = $item->key;
+			            	$value = $item->value;
+			            	if($type === 'switch' || in_array($item->value_type, [2,3,8])){
+			            		$value = (int)$value;
+			            	}
+			            	$width = $item->width ?? 0;
+			            	$placeholder = $item->placeholder ?? '';
+			            	$prefix = $item->prefix;
+			            	$suffix = $item->suffix;
+			            	$min = $item->min ?? 1;
+			            	$max = $item->max ?? 0;
+			            	$delimiter = '';
+			            	$hidden = $item->hidden ?? false;
+			            	$is_admin = $item->is_admin ?? false;
+			            	$attrs = [];
+			            	$child = [];
+
+			            	switch($type){
+			            		case 'password':
+			            			$type = 'input';
+			            			$attrs['type'] = 'password';
+			            			break;
+			            		case 'textarea':
+			            			$type = 'input';
+			            			$attrs['type'] = 'textarea';
+			            			break;
+			            		case 'number':
+			            			$type = 'input-number';
+			            			$attrs['min'] = $min;
+			            			if($max){
+			            				$attrs['max'] = $max;
+			            			}
+			            			$attrs['controls-position'] = 'right';
+			            			break;
+			            		case 'upload_img':
+			            		case 'upload_logo':
+			            		case 'upload_face':
+			            			$type = 'upload';
+			            			$attrs = $this->getUploadOptions();
+			            			break;
+			            		case 'upload_picture':
+			            			$type = 'upload';
+			            			$attrs = $this->getUploadOptions('card',5,$item->size ?? 'default');
+			            			break;
+			            		case 'upload_file':
+			            			$type = 'upload';
+			            			$attrs = $this->getUploadOptions('file');
+			            			break;
+			            		case 'upload_cert':
+			            			$type = 'upload';
+			            			$attrs = $this->getUploadOptions('cert');
+			            			break;
+			            		case 'upload_voice':
+			            			$type = 'upload';
+			            			$attrs = $this->getUploadOptions('voice');
+			            			break;
+			            		case 'upload_video':
+			            			$type = 'upload';
+			            			$attrs = $this->getUploadOptions('video');
+			            			break;
+			            		case 'select_multi':
+			            			$type = 'select';
+			            			$attrs['multiple'] = true;
+			            			break;
+			            		case 'checkbox':
+			            			$type = 'checkbox-group';
+			            			$child = $this->getChildrenOptions($item->options,'checkbox');
+			            			break;
+			            		case 'radio':
+			            			$type = 'radio-group';
+			            			$child = $this->getChildrenOptions($item->options,'radio');
+			            			break;
+			            		case 'datetime':
+			            		case 'datetimes':
+			            			$type = 'date';
+			            			break;
+			            		case 'year':
+			            			$type = 'date';
+			            			break;
+			            		case 'month':
+			            			$type = 'date';
+			            			break;
+			            		case 'day':
+			            			$type = 'date';
+			            			break;
+			            		case 'hour':
+			            			$type = 'date';
+			            			break;
+			            		case 'group':
+			            		case 'multiple':
+			            		case 'table':
+			            		case 'description':
+			            			$delimiter = '-';
+			            			$child = $this->getChildrenOptions($item->options);
+			            			break;
+			            		case 'milut_form':
+			            			$type = 'multiple';
+			            			$delimiter = '-';
+			            			$child = $this->getChildrenOptions($item->options);
+			            			break;
+			            		case 'editor':
+			            			$attrs = $this->getEditorOptions();
+			            			break;
+			            		case 'district':
+			            		case 'province_city':
+			            		case 'province':
+			            			$type = 'city';
+			            			break;
+			            		default:
+			            	}
+
+
+			            	$option = ['type'=>$type,'label'=>$label,'prop'=>$prop,'value'=>$value];
+			            	if($width){
+			            		$option['width'] = $width;
+			            	}
+			            	if($placeholder){
+			            		$option['placeholder'] = $placeholder;
+			            	}
+			            	if($prefix){
+			            		$option['prefix'] = $prefix;
+			            	}
+			            	if($suffix){
+			            		$option['suffix'] = $suffix;
+			            	}
+			            	if($delimiter){
+			            		$option['delimiter'] = $delimiter;
+			            	}
+			            	if($attrs){
+			            		$option['attrs'] = $attrs;
+			            	}
+			            	if($child){
+			            		$option['children'] = $child;
+			            	}
+			            	if($hidden){
+			            		$option['hidden'] = $hidden;
+			            	}
+			            	// var_dump('options: ',$option);
+			            	if(!$is_admin || ($is_admin && $user_is_admin)){
+			            		array_push($children,$option);
+			            	}
+			            }
+			        }
+
+			        $items->children = $children;
+			        array_push($action,$items);
+			    }
+			    
+			    return $action;
 			}
 		}
 
@@ -1055,24 +958,11 @@
 			return false;
 		}
 
-        protected function setChildrenByOption($option){
-        	if(is_string($option)){
-        		$option = $this->getDecodeData($option);
-        	}
-
-        	$temp = [];
-        	foreach($option as $key => $val){
-        		array_push($temp,['type'=>'option','label'=>$key,'value' => $val]);
-        	}
-
-        	return $temp;
-        }
-
 		protected function getMapList(Request $request): array
 		{
 			return [
-				['type'=>'id','label'=>'ID','prop'=>'id'],
-				['type'=>'varchar','label'=>'标题','prop'=>'title'],
+				['type'=>'id','label'=>'ID','prop'=>'id','align'=>'start'],
+				['type'=>'varchar','label'=>'标题','prop'=>'title','align'=>'start'],
 				['type'=>'varchar','label'=>'名称','prop'=>'key'],
 				['type'=>'varchar','label'=>'表单类型','prop'=>'form_type'],
 				['type'=>'varchar','label'=>'值类型','prop'=>'value_type_name'],

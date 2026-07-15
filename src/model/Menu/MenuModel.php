@@ -9,6 +9,7 @@
 		protected $title = '菜单';
     	protected $show_method = 'tree';
     	protected $truncate = true;
+    	protected $action_exclude = ['ModuleID'];
 		public $layer = 3;
 		public $digit = 2;
 
@@ -143,10 +144,9 @@
 		protected function getGrantList(Request $request){
 			try{
 				$role_id = $this->getTokenData($request,'rid');
-				// $role_id = 1102;
 				// var_dump('role_id: '.$role_id);
-				if(!$role_id || (int)($role_id/100) == 12){
-					return 100009;
+				if(!$role_id || (int)($role_id/100) == 11){
+					// return 100009;
 				}
 
 				$field = $this->getList($request,'field',true);
@@ -158,14 +158,53 @@
 							->orderBy('Level','asc')
 							->orderBy('Sort','asc')
 							->get();
-
 				if($object){
 					return $this->child($object);
 				}
+				// var_dump($object);
 				return [];
 			}catch(\Exception $e){
 				return $this->getExceptionError($e);
 			}
+		}
+
+		protected function getAccountList(Request $request){
+			$data = [
+				['id'=>10,'title'=>'系统设置','icon'=>'Setting','pid'=>0,'level'=>1,'number'=>2,'router'=>'','children'=>[
+					['id'=>1001,'title'=>'系统设置','icon'=>'','pid'=>10,'level'=>2,'number'=>0,'router'=>'option/system'],
+					['id'=>1002,'title'=>'活动设置','icon'=>'','pid'=>10,'level'=>2,'number'=>0,'router'=>'option/activity'],
+					['id'=>1003,'title'=>'活动类别','icon'=>'','pid'=>10,'level'=>2,'number'=>0,'router'=>'activity/cate'],
+				]],
+				['id'=>11,'title'=>'会员管理','icon'=>'User','pid'=>0,'level'=>1,'number'=>2,'router'=>'','children'=>[
+					['id'=>1101,'title'=>'员工管理','icon'=>'','pid'=>11,'level'=>2,'number'=>0,'router'=>'user/worker'],
+					['id'=>1102,'title'=>'会员管理','icon'=>'','pid'=>11,'level'=>2,'number'=>0,'router'=>'user/member']
+				]],
+				['id'=>12,'title'=>'活动管理','icon'=>'DataBoard','pid'=>0,'level'=>1,'number'=>1,'router'=>'','children'=>[
+					['id'=>1201,'title'=>'活动管理','icon'=>'','pid'=>12,'level'=>2,'number'=>0,'router'=>'activity'],
+				]],
+			];
+
+			return $data;
+
+			$data = $this->getList($request,'grant');
+			if(!$data || (is_array($data) && isset($data['code']))){
+				return $data;
+			}
+
+			if($this->layer < 3){
+				return $data;
+			}
+
+			$menu = [];
+			foreach($data as $val){
+				if($val->level === 2){
+					array_push($menu, $val);
+				}
+			}
+
+			var_dump('account menu: ',$menu);
+
+			return $menu;
 		}
 
 		protected function validate(Request $request,$id = 0,$obj = null){
@@ -201,50 +240,16 @@
 			return $data;
 		}
 
-		protected function getActionList(Request $request,$id = 0): array
-		{
-			try{
-				if($id){
-					$data = $this->getList($request,$id);
-				}
-
-				$pid = $request->input('pid',0);
-				$level = $request->input('level',1);
-				$ilevel = [];
-				for($i=1;$i<=$this->layer;$i++){
-					array_push($ilevel,['type'=>'option','label'=>$i.'级','value'=>$i]);
-				}
-				if($this->layer == 2){
-					$ipid = $this->getList($request,'option',['Title'=>'title','ID'=>'id'],['PID'=>0]);
-				}elseif($this->layer == 3){
-					$ipid = $this->getList($request,'option',['Title'=>'title','ID'=>'id'],['Level'=>2]);
-				}
-				$sort = $this->getMaxSort($pid);
-
-				$action = [
-					['type'=>'input','label'=>'菜单名称','prop'=>'title','value'=>$id ? $data->title : '','rules'=>['required'=>true,'message'=>'菜单名称不能为空']],
-					['type'=>'icon','label'=>'图标','prop'=>'icon','value'=>$id ? $data->icon : ''],
-					['type'=>'select','label'=>'层级','prop'=>'level','value'=>$id ? $data->level : $level,'hidden'=>true,'children'=>$ilevel],
-					['type'=>'select','label'=>'父级','prop'=>'pid','value'=>$id ? $data->pid : $pid,'hidden'=>true,'children'=>$ipid],
-					['type'=>'input','label'=>'链接路由','prop'=>'router','value'=>$id ? $data->router : ''],
-					['type'=>'input','label'=>'排序','prop'=>'sort','value'=>$id ? $data->sort : $sort],
-				];
-
-				return $action;
-			}catch(\Exception $e){
-				return $this->getExceptionError($e);
-			}
-		}
-
-		protected function getMapList(Request $request): array
-		{
-			return [
-				['type'=>'id','label'=>'ID','prop'=>'id','align'=>'start'],
-				['type'=>'varchar','label'=>'菜单名称','align'=>'start','prop'=>'title'],
-				['type'=>'icon','label'=>'图标','prop'=>'icon'],
-				['type'=>'varchar','label'=>'路由','prop'=>'router'],
-				['type'=>'varchar','label'=>'排序','prop'=>'sort'],
-			];
-		}
+		// protected function getMapList(Request $request): array
+		// {
+		// 	return [
+		// 		['type'=>'varchar','label'=>'ID','prop'=>'id','align'=>'left'],
+		// 		['type'=>'varchar','label'=>'菜单名称','prop'=>'title','align'=>'left'],
+		// 		['type'=>'icon','label'=>'图标','prop'=>'icon'],
+		// 		['type'=>'varchar','label'=>'模块','prop'=>'module_id'],
+		// 		['type'=>'varchar','label'=>'链接','prop'=>'router'],
+		// 		['type'=>'varchar','label'=>'排序','prop'=>'sort'],
+		// 	];
+		// }
 	}
 ?>

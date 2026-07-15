@@ -96,7 +96,7 @@
 				$insert = 0;
 				$keys = "`RoleID`,`MenuID`";
 				foreach($handle as $item){
-					$keys .= ",`".$item['key']."`";
+					$keys .= ",`".$this->convert($item['key'])."`";
 				}
 				$vals = "";
 				$param = [];
@@ -114,25 +114,6 @@
 						$val = $this->convert($item['key'],false);
 						$data[$item['key']] = isset($post[$val]) ? $post[$val] : 0;
 					}
-
-					// $data = [
-					// 	'IsShow' 	 => isset($post['is_show']) ? $post['is_show'] : 0,
-					// 	'IsRefresh'  => isset($post['is_refresh']) ? $post['is_refresh'] : 0,
-					// 	'IsAdd' 	 => isset($post['is_add']) ? $post['is_add'] : 0,
-					// 	'IsModify' 	 => isset($post['is_modify']) ? $post['is_modify'] : 0,
-					// 	'IsSearch' 	 => isset($post['is_search']) ? $post['is_search'] : 0,
-					// 	'IsSave' 	 => isset($post['is_save']) ? $post['is_save'] : 0,
-					// 	'IsDel' 	 => isset($post['is_del']) ? $post['is_del'] : 0,
-					// 	'IsImport' 	 => isset($post['is_import']) ? $post['is_import'] : 0,
-					// 	'IsExport' 	 => isset($post['is_export']) ? $post['is_export'] : 0,
-					// 	'IsPrint' 	 => isset($post['is_print']) ? $post['is_print'] : 0,
-					// 	'IsChecked'  => isset($post['is_checked']) ? $post['is_checked'] : 0,
-					// 	'IsApproved' => isset($post['is_approved']) ? $post['is_approved'] : 0,
-					// 	'IsReject' => isset($post['is_reject']) ? $post['is_reject'] : 0,
-					// 	'IsInit' 	 => isset($post['is_init']) ? $post['is_init'] : 0,
-					// 	'IsClear' 	 => isset($post['is_clear']) ? $post['is_clear'] : 0,
-					// 	'IsBack'	 => isset($post['is_back']) ? $post['is_back'] : 0,
-					// ];
 
 					$res = $this->getList($request,'data',$role_id,$menu_id);
 					if(is_array($res) && isset($res['code']) && isset($res['msg'])){

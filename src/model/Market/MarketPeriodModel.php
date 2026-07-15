@@ -65,7 +65,7 @@
 			return 0;
 		}
 
-		protected function getOptionList(Request $request,mixed $data = [],mixed $field = []): array
+		protected function getOptionList(Request $request,mixed $param = null,array $disabled = [],array $fields = [])
 		{
 			try{
 				$field = ["ID as id","StartTime as start_time","EndTime as end_time"];

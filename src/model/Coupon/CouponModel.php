@@ -2,11 +2,38 @@
 	namespace dackou\model\Coupon;
 
 	use support\Request;
+	use support\Db;
 	use zjkal\TimeHelper;
 
 	class CouponModel extends \dackou\Model{
 		protected $table = 'Coupon';
 		protected $title = '优惠券';
+
+		protected function getPageList(Request $request){
+			$field = $this->getList($request,'field',true);
+			$where = $this->getWhere($request);
+
+			$rows = Db::table($this->table)->where($where)->count();
+			[$offset,$limit] = $this->getLimit($request);
+			$object = Db::table($this->table)
+						->select(...$field)
+						->where($where)
+						->offset($offset)
+						->limit($limit)
+						->get();
+			
+			if($object){
+				foreach($object as $k => $v){
+					$object[$k]->use_start_time = $this->getDateTime($v->use_start_time);
+					$object[$k]->use_end_time = $this->getDateTime($v->use_end_time);
+					$object[$k]->start_time = $this->getDateTime($v->start_time);
+					$object[$k]->end_time = $this->getDateTime($v->end_time);
+					$object[$k]->create_time = $this->getDateTime($v->create_time);
+				}
+			}
+
+			return ['rows'=>$rows,'data'=>$object];
+		}
 		
 		protected function validate(Request $request,$id = 0,$obj = null){
 			$title = trim($request->post('title',''));

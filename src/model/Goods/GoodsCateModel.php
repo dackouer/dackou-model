@@ -98,7 +98,7 @@
 
 			$title = ['type'=>'input','label'=>'类别名称','prop'=>'title','value'=>$id ? $data->title : '','rules'=>['required'=>true,'message'=>'类别名称不能为空']];
 			$sign = ['type'=>'input','label'=>'标识符','prop'=>'sign','value'=>$id ? $data->sign : '','placeholder'=>'标识符','rules'=>['required'=>true,'message'=>'标识符不能为空']];
-			$pic = ['type'=>'upload','label'=>'图片','prop'=>'pic','value'=>$id ? $data->pic : '','uploadAttrs'=>[
+			$pic = ['type'=>'upload','label'=>'图片','prop'=>'pic','value'=>$id ? $data->pic : '','attrs'=>[
 				'type'=>'img','size'=>'small','limit'=>1,'action'=>$this->host['api'].'upload'
 			],'rules'=>['required'=>true,'message'=>'请上传图片']];
 			$lev = ['type'=>'select','label'=>'层级','prop'=>'level','value'=>$id ? $data->level : $level,'hidden'=>true,'children'=>$levels];

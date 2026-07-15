@@ -9,7 +9,7 @@
 		protected $title = '商品品牌';
 		protected $cate_value = [-1=>'已失效',0=>'未申请',1=>'TM标',2=>'R标'];
 
-		protected function getOptionList(Request $request,mixed $data = [],mixed $field = []): array
+		protected function getOptionList(Request $request,mixed $param = null,array $disabled = [],array $fields = [])
     	{
     		try{
     			$field = ['ID as value','BrandName as label'];
@@ -89,7 +89,7 @@
 
 			$action = [
 				['type'=>'input','label'=>'品牌名称','prop'=>'brand_name','value'=>$id ? $data->brand_name : '','rules'=>['required'=>true,'message'=>'品牌名称不能为空']],
-				['type'=>'upload','label'=>'品牌Logo','prop'=>'logo','value'=>$id ? $data->logo : '','uploadAttrs'=>[
+				['type'=>'upload','label'=>'品牌Logo','prop'=>'logo','value'=>$id ? $data->logo : '','attrs'=>[
 					'type'=>'img','size'=>'small','limit'=>1,'action'=>$this->host['api'].'upload'
 				]],
 				['type'=>'radio-group','label'=>'品牌状态','prop'=>'cate_id','value'=>$id ? $data->cate_id : 0,'children'=>[

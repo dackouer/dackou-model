@@ -10,6 +10,20 @@
 		protected $title = '列表组件';
 		public $layer = 2;
 		protected $cate_value = [0=>'其它',1=>'mini',2=>'app',3=>'web'];
+        protected $key_value = [
+        	'mini' => [
+        		['label'=>'首页(home)','value'=>'home'],
+        		['label'=>'用户(user)','value'=>'user'],
+        	],
+        	'app' => [
+        		['label'=>'首页(home)','value'=>'home'],
+        		['label'=>'用户(user)','value'=>'user'],
+        	],
+        	'web' => [
+        		['label'=>'首页(home)','value'=>'home'],
+        		['label'=>'用户(user)','value'=>'user'],
+        	]
+        ];
 
 		protected function getPageList(Request $request){
 			try{
@@ -40,6 +54,42 @@
 			}
 		}
 
+		protected function getKeyList(Request $request,$key = ''){
+			$key = $key ? $key : trim($request->input('key',''));
+			if($key){
+				if(!is_array($key)){
+					$key = explode(',', $key);
+				}
+			}
+			if(!$key){
+				return [];
+			}
+
+			$field = $this->getList($request,'field',true);
+			array_push($field,'page.Url as page_url');
+
+			$where = $this->getWhere($request);
+			$object = Db::table($this->table)
+						->join('page','PageID','=','page.ID')
+						->select(...$field)
+						->where($where)
+						->whereIn($this->table.'.Key',$key)
+						->orderBy($this->table.'.Level','asc')
+						->orderBy($this->table.'.Sort','asc')
+						->get();
+			if($object){
+				foreach($object as $k => $v){
+					$object[$k]->url = $object[$k]->page_url;
+					if($object[$k]->param_name && $object[$k]->param_value){
+						$object[$k]->url .= "?".$object[$k]->param_name."=".$object[$k]->param_value;
+					}
+				}
+				return $this->child($object);
+			}
+
+			return [];
+		}
+
 		protected function validate(Request $request,$id = 0,$obj = null){
 			$cate_id = $request->post('cate_id',1);
 			if(!in_array($cate_id,[1,2,3])){
@@ -49,6 +99,14 @@
 			$level = $request->post('level',1);
 			$pid = $request->post('pid',0);
 			$title = trim($request->post('title',''));
+			if((!$id && !$pid) || ($id && !$obj->pid)){
+				$key = $request->post('key','');
+				if(!$key){
+					return '请选择标签符';
+				}
+
+				$data['key'] = $key;
+			}
 			$desc = trim($request->post('desc',''));
 			$page_id = $request->post('page_id');
 			if(!$page_id){
@@ -175,6 +233,29 @@
 				$param_value = trim($request->post('param_value',''));
 				$value_field = trim($request->post('value_field',''));
 
+
+				if(!$page_id){
+					return '请选择关联页面';
+				}
+				$service = new PageModel();
+				$page = $service->getList($request,$page_id);
+				if(!$page || !is_object($page)){
+					return '无效的关联页面';
+				}
+				
+				if($page->is_param){
+					$param_value = trim($request->post('param_value',''));
+					if(!$param_value){
+						return '请填写关联页面必要的参数';
+					}
+					$data['param_name'] = $page->param;
+				}
+
+				$parent = $this->getList($request,!$id ? $pid : $obj->pid);
+				if($parent && is_object($parent)){
+					$data['key'] = $parent->key;
+				}
+
 				$data['pic'] = $pic;
 				$data['page_id'] = $page_id;
 				$data['param_value'] = $param_value;
@@ -232,58 +313,60 @@
 
 			$action = [
 				['type'=>'radio-group','label'=>'类别','prop'=>'cate_id','value'=>$id ? $data->cate_id : $cate_id,'hidden'=>true,'children'=>$cate],
-				['type'=>'input','label'=>'组件名称','prop'=>'title','value'=>$id ? $data->title : '','rules'=>['required'=>true,'message'=>'组件名称不能为空']],
-				['type'=>'input','label'=>'组件描述','prop'=>'desc','value'=>$id?$data->desc:'','placeholder'=>'组件描述'],
+				['type'=>'input','label'=>'组件名称','prop'=>'title','value'=>$id ? $data->title : '','required'=>true]
+			];
+			if((!$id && !$pid) || ($id && !$data->pid)){
+				array_push($action,['type'=>'select','label'=>'标识key','prop'=>'key','value'=>$id ? $data->key : '','children'=>$this->key_value[$this->cate_value[$cate_id]],'required'=>true]);
+			}
+			array_push($action,['type'=>'input','label'=>'组件描述','prop'=>'desc','value'=>$id?$data->desc:'','placeholder'=>'组件描述'],
 				['type'=>'select','label'=>'层级','prop'=>'level','value'=>$id ? $data->level : $level,'hidden'=>true,'children'=>$levelData],
 				['type'=>'select','label'=>'父级','prop'=>'pid','value'=>$id ? $data->pid : $pid,'hidden'=>true,'children'=>$pidData],
-			];
+			);
 
 			if((!$id && !$pid) || ($id && !$data->pid)){
 				array_push($action,
-					['type'=>'cascader','label'=>'关联页面','prop'=>'page_id','value'=>$id?$data->page_id:'','attrs'=>['placeholder'=>'关联页面','options'=>$pageData],'rules'=>['required'=>true,'message'=>'请选择关联页面']]);
+					['type'=>'cascader','label'=>'关联页面','prop'=>'page_id','value'=>$id?$data->page_id:'','children'=>$pageData,'required'=>true]);
 
-				array_push($action,['type'=>'checkbox-multiple','label'=>'显示选项','prop'=>'cmultiple','value'=>[],'children'=>[
+				array_push($action,['type'=>'checkbox-group','label'=>'显示选项','prop'=>'cmultiple','value'=>[],'children'=>[
 					['type'=>'checkbox','label'=>'管理员权限','prop'=>'is_admin','value'=>$id?$data->is_admin:0],
 					['type'=>'checkbox','label'=>'登录权限','prop'=>'is_login','value'=>$id?$data->is_login:0],
 					['type'=>'checkbox','label'=>'显示标题','prop'=>'is_title','value'=>$id?$data->is_title:0],
 					['type'=>'checkbox','label'=>'显示更多','prop'=>'is_more','value'=>$id?$data->is_more:0]
 				]]);
-				array_push($action,['type'=>'cascader','label'=>'更多链接','prop'=>'more_id','value'=>$id?$data->more_id:'','hidden'=>($id&&$data->is_more)?false:true,'attrs'=>['placeholder'=>'更多链接','options'=>$pageData],'rules'=>['required'=>false,'message'=>'请选择更多的跳转链接']],
+				array_push($action,['type'=>'cascader','label'=>'更多链接','prop'=>'more_id','value'=>$id?$data->more_id:'','hidden'=>($id&&$data->is_more)?false:true,'children'=>$pageData],
 				);
 				array_push($action,
 					['type'=>'radio-group','label'=>'排列方式','prop'=>'direction','value'=>$id?$data->direction:0,'children'=>[
 						['type'=>'radio','label'=>'横排','value'=>0],
 						['type'=>'radio','label'=>'竖排','value'=>1] 
 					]],
-					['type'=>'select','label'=>'横排列数','prop'=>'span','value'=>$id?$data->span:0,'placeholder'=>'横排列数','children'=>$spans,'rules'=>['required'=>true,'message'=>'请选择横排列数']],
+					['type'=>'select','label'=>'横排列数','prop'=>'span','value'=>$id?$data->span:1,'placeholder'=>'横排列数','children'=>$spans],
 					['type'=>'switch','label'=>'开启边框','prop'=>'is_border','value'=>$id?$data->is_border:0],
 					['type'=>'color-picker','label'=>'组件背景色','prop'=>'bg_color','value'=>$id?$data->bg_color:''],
-					['type'=>'input','label'=>'组件圆角','prop'=>'border_radius','value'=>$id&&$data->border_radius?$data->border_radius:'','placeholder'=>'组件圆角大小','slot'=>['suffix'=>['value'=>'px']]],
-					['type'=>'form-group','label'=>'组件内边距','prop'=>'padding','delimiter'=>'-','children'=>[
-						['type'=>'input','label'=>'上下边距','prop'=>'padding_y','value'=>$id&&$data->padding_y?$data->padding_y:'','placeholder'=>'上下边距','attrs'=>['style'=>['width'=>'182px']],'slot'=>['suffix'=>['value'=>'px']]],
-						['type'=>'input','label'=>'左右边距','prop'=>'padding_x','value'=>$id&&$data->padding_x?$data->padding_x:'','placeholder'=>'左右边距','attrs'=>['style'=>['width'=>'182px']],'slot'=>['suffix'=>['value'=>'px']]]
+					['type'=>'input','label'=>'组件圆角','prop'=>'border_radius','value'=>$id&&$data->border_radius?$data->border_radius:'','placeholder'=>'组件圆角大小','suffix'=>'px'],
+					['type'=>'group','label'=>'组件内边距','prop'=>'padding','delimiter'=>'-','children'=>[
+						['type'=>'input','label'=>'上下边距','prop'=>'padding_y','value'=>$id&&$data->padding_y?$data->padding_y:'','placeholder'=>'上下边距','attrs'=>['style'=>['width'=>'182px']],'suffix'=>'px'],
+						['type'=>'input','label'=>'左右边距','prop'=>'padding_x','value'=>$id&&$data->padding_x?$data->padding_x:'','placeholder'=>'左右边距','attrs'=>['style'=>['width'=>'182px']],'suffix'=>'px']
 					]],
-					['type'=>'form-group','label'=>'图片宽高','prop'=>'picwh','value'=>'','delimiter'=>'-','children'=>[
-						['type'=>'input','label'=>'图片宽度','prop'=>'width','value'=>$id?$data->width:'','placeholder'=>'0','attrs'=>['style'=>['width'=>'180px']],'slot'=>['prefix'=>['value'=>'宽度'],'suffix'=>['value'=>'px']],'rules'=>['required'=>true,'message'=>'图片宽度不能为空']],
-						['type'=>'input','label'=>'图片高度','prop'=>'height','value'=>$id?$data->height:'','placeholder'=>'0','attrs'=>['style'=>['width'=>'180px']],'slot'=>['prefix'=>['value'=>'高度'],'suffix'=>['value'=>'px']],'rules'=>['required'=>true,'message'=>'图片高度不能为空']],
-					],'rules'=>['required'=>true,'message'=>'图片宽高度不能为空']],
-					['type'=>'input','label'=>'图片圆角','prop'=>'radius','value'=>$id&&$data->radius?$data->radius:'','placeholder'=>'圆角大小','slot'=>['suffix'=>['value'=>'px']]],
+					['type'=>'group','label'=>'图片宽高','prop'=>'picwh','value'=>'','delimiter'=>'-','children'=>[
+						['type'=>'input','label'=>'图片宽度','prop'=>'width','value'=>$id?$data->width:'','placeholder'=>'0','attrs'=>['style'=>['width'=>'180px']],'prefix'=>'宽度','suffix'=>'px'],
+						['type'=>'input','label'=>'图片高度','prop'=>'height','value'=>$id?$data->height:'','placeholder'=>'0','attrs'=>['style'=>['width'=>'180px']],'prefix'=>'高度','suffix'=>'px'],
+					],'required'=>false],
+					['type'=>'input','label'=>'图片圆角','prop'=>'radius','value'=>$id&&$data->radius?$data->radius:'','placeholder'=>'圆角大小','suffix'=>'px'],
 					['type'=>'radio-group','label'=>'文本字体大小','prop'=>'text_size','value'=>$id?$data->text_size:1,'children'=>[
 						['type'=>'radio','label'=>'大','value'=>2],
 						['type'=>'radio','label'=>'中','value'=>1],
 						['type'=>'radio','label'=>'小','value'=>0],
 					]],
-					['type'=>'color-picker','label'=>'文本颜色','prop'=>'text_color','value'=>$id?$data->text_color:'','placeholder'=>'文本颜色'],
-					['type'=>'input','label'=>'描述字体大小','prop'=>'desc_size','value'=>$id?$data->desc_size:'','placeholder'=>'描述字体大小','slot'=>['suffix'=>['value'=>'px']]],
-					['type'=>'color-picker','label'=>'描述颜色','prop'=>'desc_color','value'=>$id?$data->desc_color:'','placeholder'=>'描述颜色'],
+					['type'=>'color-picker','label'=>'文本颜色','prop'=>'text_color','value'=>$id?$data->text_color:''],
+					['type'=>'input','label'=>'描述字体大小','prop'=>'desc_size','value'=>$id?$data->desc_size:'','suffix'=>'px'],
+					['type'=>'color-picker','label'=>'描述颜色','prop'=>'desc_color','value'=>$id?$data->desc_color:''],
 				);
 			}else{
 				array_push($action,
-					['type'=>'upload','label'=>'图片','prop'=>'pic','value'=>$id?$data->pic:'','uploadAttrs'=>[
-						'type'=>'img','size'=>'small','limit'=>1,'action'=>$this->host['api'].'upload'
-					],'rules'=>['required'=>true,'message'=>'请上传图片']],
-					['type'=>'cascader','label'=>'链接地址','prop'=>'page_id','value'=>$id?$data->page_id:'','attrs'=>['placeholder'=>'链接地址','options'=>$pageData],'rules'=>['required'=>true,'message'=>'请选择链接地址']],
-					['type'=>'input','label'=>'参数值','prop'=>'param_value','value'=>$id?$data->param_value:'','hidden'=>$id&&$data->param_value ? false : true,'placeholder'=>'参数值(通常为相对应的ID)'],
+					['type'=>'upload','label'=>'图片','prop'=>'pic','value'=>$id?$data->pic:'','attrs'=>$this->getUploadOptions('img',1,'small'),'required'=>false],
+					['type'=>'cascader','label'=>'链接地址','prop'=>'page_id','value'=>$id?$data->page_id:'','children'=>$pageData,'required'=>false],
+					['type'=>'input','label'=>'参数值','prop'=>'param_value','value'=>$id?$data->param_value:'','placeholder'=>'参数值(通常为相对应的ID)'],
 					['type'=>'select','label'=>'关联字段','prop'=>'value_field','value'=>$id?$data->value_field:'','hidden'=>$id&&in_array($data->page_id,[29,30,31,36,37,38,39,40,41]) ? false : true,'placeholder'=>'选择关联字段','children'=>[
 						['type'=>'option','label'=>'请选择','value'=>''],
 						['type'=>'option','label'=>'余额','value'=>'balance'],
@@ -304,8 +387,8 @@
 		protected function getMapList(Request $request): array
 		{
 			return [
-				['type'=>'id','label'=>'ID','prop'=>'id'],
-				['type'=>'varchar','label'=>'组件名称','prop'=>'title','width'=>120],
+				['type'=>'id','label'=>'ID','prop'=>'id','align'=>'start'],
+				['type'=>'varchar','label'=>'组件名称','prop'=>'title','align'=>'start','width'=>180],
 				['type'=>'varchar','label'=>'组件描述','prop'=>'desc'],
 				['type'=>'img','label'=>'图片','prop'=>'pic'],
 				['type'=>'varchar','label'=>'列数','prop'=>'span'],

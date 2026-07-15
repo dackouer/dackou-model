@@ -9,63 +9,56 @@
 		protected $table = 'Table';
 		protected $title = '数据模型表';
 
-		protected function getFieldList(Request $request,mixed $flag = false){
-			$field = [
-				$this->table.".ID as id",
-				"Title as title",
-				"TableName as table_name",
-				"PrimaryKey as primary_key",
-				"IsSnowflake as is_snowflake",
-				"IsCate as is_cate",
-				"IncrementValue as increment_value",
-				"Layer as layer",
-				"Digit as digit",
-				"ShowMethod as show_method",
-				"IsPage as is_page",
-				"Pagesize as pagesize",
-				"PageGroup as page_group",
-				"Align as align",
-				"CateTable as cate_table",
-				"CateValue as cate_value",
-				"OptionKey as option_key",
-				"IsStatus as is_status",
-				"StatusValue as status_value",
-				"OrderBy as order_by",
-				"IsQrcode as is_qrcode",
-				"IsDelete as is_delete",
-				"IsTruncate as is_truncate",
-				"FieldGroup as field_group",
-				"Handle as handle",
-				"Fields as fields",
-				"CreateTime as create_time"
+		protected function getFieldList(Request $request,$flag = false): array
+		{
+			$fields = [
+				'id' 			  => 'ID',
+				'title' 		  => 'Title',
+				'table_name' 	  => 'TableName',
+				'primary_key' 	  => 'PrimaryKey',
+				'is_snowflake' 	  => 'IsSnowflake',
+				'is_cate' 		  => 'IsCate',
+				'increment_value' => 'IncrementValue',
+				'layer' 		  => 'Layer',
+				'digit' 		  => 'Digit',
+				'show_method' 	  => 'ShowMethod',
+				'is_page' 		  => 'IsPage',
+				'pagesize' 		  => 'Pagesize',
+				'page_group' 	  => 'PageGroup',
+				'align' 		  => 'Align',
+				'cate_table' 	  => 'CateTable',
+				'cate_value' 	  => 'CateValue',
+				'option_key' 	  => 'OptionKey',
+				'is_status' 	  => 'IsStatus',
+				'status_value' 	  => 'StatusValue',
+				'order_by' 		  => 'OrderBy',
+				'is_qrcode' 	  => 'IsQrcode',
+				'is_delete' 	  => 'IsDelete',
+				'is_truncate' 	  => 'IsTruncate',
+				'field_group' 	  => 'FieldGroup',
+				'handle' 		  => 'Handle',
+				'fields' 		  => 'Fields',
+				'create_time' 	  => 'CreateTime'
 			];
 
-			if($flag === false){
-				return $field;
-			}
-			
+
 			if($flag === true){
-				$temp = [];
-				foreach($field as $item){
-					[$key,$val] = explode(" as ",$item);
-					$temp[$key] = $val;
+				$field = [];
+				foreach($fields as $k => $v){
+					array_push($field,$this->table.'.'.$v . ' as ' . $k);
 				}
-
-				return $temp;
-			}
-			
-			if($flag === 'key'){
-				$keys = [];
-				$vals = [];
-				foreach($field as $item){
-					[$key,$val] = \explode(' as ',$item);
-					array_push($keys,$key);
-					array_push($vals,$val);
+    			return $field;
+    		}elseif($flag === false){
+				$field = [];
+				foreach($fields as $k => $v){
+					array_push($field,$v . ' as ' . $k);
 				}
-				return [$keys,$vals];
-			}
-
-			return $field;
+    			return $field;
+    		}elseif($flag === 'key'){
+    			return $fields;
+    		}else{
+    			return $fields;
+    		}
 		}
 
 		// 默认数据

@@ -89,7 +89,7 @@
 		 */
 		protected function getTeamworkList(Request $request,$flag = false){
 			if(!isset($this->config['market_is_teamwork']) || !$this->config['market_is_teamwork']){
-				return '未开启拼团';
+				return [];
 			}
 			$this->title = '拼团商品';
 			$type = 2;
@@ -197,7 +197,7 @@
 		 */
 		protected function getSeckillList(Request $request,$flag = false){
 			if(!isset($this->config['market_is_seckill']) || !$this->config['market_is_seckill']){
-				return '未开启秒杀';
+				return [];
 			}
 
 			$this->title = '秒杀商品';
@@ -308,7 +308,7 @@
 		 */
 		protected function getCounterList(Request $request,$flag = false){
 			if(!isset($this->config['market_is_counter']) || !$this->config['market_is_counter']){
-				return '未开启砍价';
+				return [];
 			}
 
 			$this->title = '砍价商品';
@@ -442,7 +442,7 @@
 		 */
 		protected function getSectionList(Request $request,$flag = false){
 			if(!isset($this->config['market_is_section']) || !$this->config['market_is_section']){
-				return '未开启专区';
+				return [];
 			}
 
 			$this->title = '营销专区';
@@ -874,16 +874,16 @@
 			return isset($data) ? $data : true;
 		}
 
-		private function getTypeValue($value){
-			$k = 0;
-			foreach($this->type_value as $key => $val){
-				if($value == $val){
-					$k = $key;
-					break;
-				}
-			}
-			return $k;
-		}
+		// protected function getTypeValue($value){
+		// 	$k = 0;
+		// 	foreach($this->type_value as $key => $val){
+		// 		if($value == $val){
+		// 			$k = $key;
+		// 			break;
+		// 		}
+		// 	}
+		// 	return $k;
+		// }
 
 		/**
 		 * [getActionList description]

@@ -12,30 +12,22 @@
 		protected $member_id = 1601;
 		protected $role_id = 1501;
 		protected $auth_value = 2;
+		protected $action = 'action';
 		protected $status_value = [-1=>'已取消',0=>'待认证',1=>'正常'];
 
 		protected function getPageList(Request $request){
 			try{
 				$field = $this->getList($request,'field',true);
 				array_push($field,'user.RealName as realname');
-				array_push($field,'province.Title as province');
-				array_push($field,'city.Title as city');
-				array_push($field,'district.Title as district');
 				$where = $this->getWhere($request);
 
 				$rows = Db::table($this->table)
 							->join('user','UserID','=','user.AccountID')
-							->join('city as province','ProvinceID','=','province.ID')
-							->join('city','CityID','=','city.ID')
-							->join('city as district','DistrictID','=','district.ID')
 							->where($where)
 							->count();
 				[$offset,$limit] = $this->getLimit($request);
 				$object = Db::table($this->table)
 							->join('user','UserID','=','user.AccountID')
-							->join('city as province','ProvinceID','=','province.ID')
-							->join('city','CityID','=','city.ID')
-							->join('city as district','DistrictID','=','district.ID')
 							->select(...$field)
 							->where($where)
 							->offset($offset)
@@ -112,6 +104,50 @@
 				$data['is_mobile'] = false;
 			}
 
+			$province_id = 0;
+			$city_id = 0;
+			$district_id = 0;
+			$city_name = '';
+
+			if($city){
+				$province_id = $city['province'] ?? $city[0][0];
+				$city_id = $city['city'] ?? $city[1][0];
+				$district_id = $city['district'] ?? $city[2][0];
+
+				if($province_id){
+					$_class_name = $this->getClassName('City');
+					$service = new $_class_name();
+					$province = $service->getList($request,$province_id);
+					if(!$province || !is_object($province)){
+						return '无效的城市';
+					}
+
+					$city_name .= $province->title;
+
+					if($city_id){
+						$_class_name = $this->getClassName('City');
+						$service = new $_class_name();
+						$citys = $service->getList($request,$city_id);
+						if(!$citys || !is_object($citys)){
+							return '无效的城市';
+						}
+
+						$city_name .= '-' . $citys->title;
+
+						if($district_id){
+							$_class_name = $this->getClassName('City');
+							$service = new $_class_name();
+							$district = $service->getList($request,$district_id);
+							if(!$district || !is_object($district)){
+								return '无效的城市';
+							}
+
+							$city_name .= '-' . $district->title;
+						}
+					}
+				}
+			}
+
 
 			$data['user_id'] = $user_id;
 			$data['enterprise_name'] = $enterprise_name;
@@ -131,9 +167,10 @@
 			$data['hotline'] = $hotline;
 			$data['email'] = $email;
 			$data['website'] = $website;
-			$data['province_id'] = $city['province'] ?? $city[0][0];
-			$data['city_id'] = $city['city'] ?? $city[1][0];
-			$data['district_id'] = $city['district'] ?? $city[2][0];
+			$data['province_id'] = $province_id;
+			$data['city_id'] = $city_id;
+			$data['district_id'] = $district_id;
+			$data['city_name'] = $city_name;
 			$data['address'] = $address;
 			$data['content'] = $content;
 			$data['status'] = 1;
@@ -163,14 +200,10 @@
 				['type'=>'input','label'=>'单位名称','prop'=>'enterprise_name','value'=>$data->enterprise_name ?? '','rules'=>['required'=>true,'message'=>'单位名称不能为空']],
 				['type'=>'input','label'=>'单位简称','prop'=>'short_name','value'=>$data->short_name ?? '','rules'=>['required'=>true,'message'=>'单位简称不能为空']],
 				// ['type'=>'input','label'=>'单位编码','prop'=>'idcode','value'=>$data->idcode ?? '','attrs'=>['type'=>'idcode'],'slot'=>['suffix'=>['value'=>'点击生成','url'=>$this->table.'/code']],'rules'=>['required'=>true,'message'=>'单位编码不能为空']],
-				['type'=>'upload','label'=>'图片','prop'=>'picture','value'=>$data->picture ?? [],'uploadAttrs'=>[
-					'type'=>'card','limit'=>5,'size'=>'default','action'=>$this->host['api'].'upload'
-				]],
+				['type'=>'upload','label'=>'图片','prop'=>'picture','value'=>$data->picture ?? [],'attrs'=>$this->getUploadOptions('card',5)],
 				['type'=>'input','label'=>'法人代表','prop'=>'legal_name','value'=>$data->legal_name ?? '','rules'=>['required'=>true,'message'=>'法人代表不能为空']],
 				['type'=>'input','label'=>'法人身份证号码','prop'=>'idcard','value'=>$data->idcard ?? '','rules'=>['required'=>true,'message'=>'法人身份证号码不能为空']],
-				['type'=>'upload','label'=>'营业执照','prop'=>'license','value'=>$data->license ?? '','uploadAttrs'=>[
-					'type'=>'img','limit'=>1,'size'=>'default','action'=>$this->host['api'].'upload'
-				]],
+				['type'=>'upload','label'=>'营业执照','prop'=>'license','value'=>$data->license ?? '','attrs'=>$this->getUploadOptions('img')],
 				['type'=>'input','label'=>'统一信用代码','prop'=>'credit_code','value'=>$data->credit_code ?? '','rules'=>['required'=>true,'message'=>'统一信用代码不能为空']],
 				['type'=>'input','label'=>'授权人','prop'=>'grantor_name','value'=>$data->grantor_name ?? '','rules'=>['required'=>true,'message'=>'授权人不能为空']],
 				['type'=>'input','label'=>'授权人身份证号','prop'=>'grantor_idcard','value'=>$data->grantor_idcard ?? '','rules'=>['required'=>true,'message'=>'授权人身份证号不能为空']],
@@ -181,7 +214,7 @@
 				['type'=>'input','label'=>'单位官网','prop'=>'website','value'=>$data->website ?? '','rules'=>['required'=>false,'message'=>'单位官网不能为空']],
 				['type'=>'city','label'=>'所在城市','prop'=>'city','value'=>$id ? ['province'=>$data->province_id,'city'=>$data->city_id,'district'=>$data->district_id] : [],'rules'=>['required'=>true,'message'=>'请选择单位所在城市']],
 				['type'=>'input','label'=>'详细地址','prop'=>'address','value'=>$data->address ?? '','rules'=>['required'=>true,'message'=>'详细地址不能为空']],
-				['type'=>'editor','label'=>'单位介绍','prop'=>'content','value'=>$data->content ?? '','editorOptions'=>[
+				['type'=>'editor','label'=>'单位介绍','prop'=>'content','value'=>$data->content ?? '','attrs'=>[
                     'type'=>'wang','image'=>['server'=>$this->host['api'].'upload/editor'],'video'=>['server'=>$this->host['api'].'upload/video']
                 ],'rules'=>['required'=>true,'message'=>'单位介绍内容不能为空']],
 			);
@@ -203,7 +236,7 @@
 				['type'=>'varchar','label'=>'邮箱地址','prop'=>'email'],
 				['type'=>'varchar','label'=>'客服热线','prop'=>'hotline'],
 				['type'=>'link','label'=>'官网','prop'=>'website'],
-				['type'=>'concat','label'=>'所在城市','prop'=>'province','fields'=>['city','district']],
+				['type'=>'varchar','label'=>'所在城市','prop'=>'city_name'],
 				['type'=>'varchar','label'=>'认证用户','prop'=>'realname'],
 				['type'=>'map','label'=>'状态','prop'=>'status','data'=>$this->status_value],
 				['type'=>'date','label'=>'创建时间','prop'=>'create_time','format'=>['format'=>'Y-m-d H:i:s'],'width'=>180],

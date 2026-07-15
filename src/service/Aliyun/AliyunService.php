@@ -37,12 +37,12 @@
 			if(!Preg::IsMobile($mobile)){
 				return 100121;
 			}
-
+			// var_dump('mobile: '.$mobile);
 			$action = isset($data['action']) ? $data['action'] : trim($request->post('action',$request->post('mode','register')));
 			if(!in_array($action,['register','login','auth','modpwd','information','notification','orderinfo'])){
 				return '无效的短信模板';
 			}
-
+			// var_dump('action: '.$action);
 			if($action == 'orderinfo'){
 				$params = [
 					'order'   => $data['order'],
@@ -54,16 +54,18 @@
 				];
 			}elseif($action == 'notification'){
 				$day = isset($data['day']) ? $data['day'] : $request->post('day',60);
-				$content = isset($data['content']) ? $data['content'] : $request->post('content','');
+				$code = isset($data['code']) ? $data['code'] : $request->post('code','物业费');
+				$name = isset($data['name']) ? $data['name'] : $request->post('name','');
 				if(!$day){
 					return '无效的欠费天数';
 				}
-				if(!$content){
+				if(!$name){
 					return '短信内容不能为空';
 				}
 				$params = [
 					'day'	  => $day,
-					'content' => $content
+					'code'	  => $code,
+					'name'    => $name
 				];
 			}else{
 				$length = isset($data['length']) ? $data['length'] : $request->post('length',6);	
@@ -73,8 +75,8 @@
 			}
 	        $areacode = "86";										// 国际区号,腾讯云选传,其他不传
 	        $sms = new \Hzdad\Wbsms\Wbsms('aliyun');				// 传入短信服务商名称, 腾讯云 qcloud , 阿里云 aliyun, 七牛 qiniu, 华为 huawei
-	        $result = $sms->sendsms($action,$mobile,$params,$areacode);
-	        // var_dump('send sms result: ',$result);
+	        $result = $sms->sendsms($action,$mobile,$params);
+	        var_dump('send sms result: ',$result);
 	        if($result && isset($result['code']) && $result['code'] == 200){
 	        	if(!in_array($action,['orderinfo','notification','information'])){
 	        		$this->setSession($request,$code);

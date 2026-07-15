@@ -8,35 +8,66 @@
 	class TabbarModel extends \dackou\Model{
 		protected $table = 'Tabbar';
 		protected $title = '导航';
+		protected $page = false;
 		protected $cate_value = [0=>'其它',1=>'mini',2=>'app',3=>'web'];
 
-		protected function getPageList(Request $request){
-			try{
-				$field = $this->getList($request,'field');
-				$where = $this->getWhere($request);
+		protected function getAllList(Request $request){
+			$field = $this->getList($request,'field',true);
+			array_push($field,'page.Title as page_title');
+			array_push($field,'page.Url as page_url');
+			array_push($field,'page.Param as param');
+			array_push($field,'page.IsParam as is_param');
+			$where = $this->getWhere($request);
 
-				$cate_id = $request->input('cate_id',1);
-				if(in_array($cate_id,[1,2,3])){
-					array_push($where,[$this->table.'.CateID','=',$cate_id]);
-				}
-
-				$rows = Db::table($this->table)
-							->where($where)
-							->count();
-				[$offset,$limit] = $this->getLimit($request);
-				$object = Db::table($this->table)
-							->select(...$field)
-							->where($where)
-							->orderBy($this->table.'.Level','asc')
-							->orderBy($this->table.'.Sort','asc')
-							->offset($offset)
-							->limit($limit)
-							->get();
-
-				return ['rows' => $rows,'data' => $object];
-			}catch(\Exception $e){
-				return $this->getExceptionError($e);
+			$cate_id = $request->input('cate_id',1);
+			if(in_array($cate_id,[1,2,3])){
+				array_push($where,[$this->table.'.CateID','=',$cate_id]);
 			}
+
+			$object = Db::table($this->table)
+						->join('page','PageID','=','page.ID')
+						->select(...$field)
+						->where($where)
+						->orderBy($this->table.'.Level','asc')
+						->orderBy($this->table.'.Sort','asc')
+						->get();
+			if($object){
+				foreach($object as $k => $v){
+					$object[$k]->url = $object[$k]->page_url;
+					if($object[$k]->is_param && $object[$k]->param_value){
+						$object[$k]->url .= '?'.$object[$k]->param.'='.$object[$k]->param_value;
+					}
+				}
+			}
+			return $object;
+		}
+
+		protected function getPageList(Request $request){
+			$field = $this->getList($request,'field',true);
+			array_push($field,'page.Title as page_title');
+			$where = $this->getWhere($request);
+
+			$cate_id = $request->input('cate_id',1);
+			if(in_array($cate_id,[1,2,3])){
+				array_push($where,[$this->table.'.CateID','=',$cate_id]);
+			}
+
+			$rows = Db::table($this->table)
+						->join('page','PageID','=','page.ID')
+						->where($where)
+						->count();
+			[$offset,$limit] = $this->getLimit($request);
+			$object = Db::table($this->table)
+						->join('page','PageID','=','page.ID')
+						->select(...$field)
+						->where($where)
+						->orderBy($this->table.'.Level','asc')
+						->orderBy($this->table.'.Sort','asc')
+						->offset($offset)
+						->limit($limit)
+						->get();
+
+			return ['rows' => $rows,'data' => $object];
 		}
 
 		protected function validate(Request $request,$id = 0,$obj = null){
@@ -141,24 +172,20 @@
 
 			$action = [
 				['type'=>'radio-group','label'=>'类别','prop'=>'cate_id','value'=>$id ? $data->cate_id : $cate_id,'hidden'=>true,'children'=>$cate],
-				['type'=>'input','label'=>'标题名称','prop'=>'title','value'=>$id ? $data->title : '','rules'=>['required'=>true,'message'=>'标题名称不能为空']],
+				['type'=>'input','label'=>'标题名称','prop'=>'title','value'=>$id ? $data->title : '','required'=>true],
 				['type'=>'select','label'=>'层级','prop'=>'level','value'=>$id ? $data->level : $level,'hidden'=>true,'children'=>$levelData],
 				['type'=>'select','label'=>'父级','prop'=>'pid','value'=>$id ? $data->pid : $pid,'hidden'=>true,'children'=>$pidData],
-				['type'=>'upload','label'=>'静态图','prop'=>'pic','value'=>$id ? $data->pic : '','uploadAttrs'=>[
-					'type'=>'img','limit'=>1,'size'=>'small','action'=>$this->host['api'].'upload'
-				],'rules'=>['required'=>false,'message'=>'请上传图片']],
-				['type'=>'upload','label'=>'激活图片','prop'=>'active_pic','value'=>$id ? $data->active_pic : '','uploadAttrs'=>[
-					'type'=>'img','limit'=>1,'size'=>'small','action'=>$this->host['api'].'upload'
-				],'rules'=>['required'=>false,'message'=>'请上传激活图片']],
-				['type'=>'form-group','label'=>'文本颜色','prop'=>'colors','delimiter'=>'-','children'=>[
-					['type'=>'color-picker','label'=>'静态文本色','prop'=>'color','value'=>$id ? $data->color : ''],
-					['type'=>'color-picker','label'=>'激活文本色','prop'=>'active_color','value'=>$id ? $data->active_color : ''],
+				['type'=>'upload','label'=>'静态图','prop'=>'pic','value'=>$id ? $data->pic : '','attrs'=>$this->getUploadOptions('img',1,'small'),'required'=>true],
+				['type'=>'upload','label'=>'激活图片','prop'=>'active_pic','value'=>$id ? $data->active_pic : '','attrs'=>$this->getUploadOptions('img',1,'small'),'required'=>true],
+				['type'=>'group','label'=>'文本颜色','prop'=>'colors','delimiter'=>'-','children'=>[
+					['type'=>'color','label'=>'静态文本色','prop'=>'color','value'=>$id ? $data->color : ''],
+					['type'=>'color','label'=>'激活文本色','prop'=>'active_color','value'=>$id ? $data->active_color : ''],
 				]],
 				['type'=>'radio-group','label'=>'跳转方式','prop'=>'link_type','value'=>$id ? $data->link_type : 1,'hidden'=>true,'children'=>[
 					['type'=>'option','label'=>'内部页面','value'=>1],
 					['type'=>'option','label'=>'外部小程序','value'=>2],
 				]],
-				['type'=>'cascader','label'=>'链接','prop'=>'page_id','value'=>$id?$data->page_id:[],'attrs'=>['placeholder'=>'选择链接','options'=>$page],'rules'=>['required'=>true,'message'=>'请选择链接']],
+				['type'=>'cascader','label'=>'链接','prop'=>'page_id','value'=>$id?$data->page_id:[],'children'=>$page,'required'=>true],
 			];
 
 			array_push($action,['type'=>'switch','label'=>'有效','prop'=>'is_valid','value'=>$id ? $data->is_valid : 1],
@@ -174,7 +201,7 @@
 				['type'=>'varchar','label'=>'标题','prop'=>'title'],
 				['type'=>'img','label'=>'静态图','prop'=>'pic'],
 				['type'=>'img','label'=>'激活图','prop'=>'active_pic'],
-				['type'=>'varchar','label'=>'链接','prop'=>'page_id'],
+				['type'=>'varchar','label'=>'链接','prop'=>'page_title'],
 				['type'=>'switch','label'=>'有效','prop'=>'is_valid','is_switch'=>true],
 				['type'=>'varchar','label'=>'排序','prop'=>'sort'],
 			];
